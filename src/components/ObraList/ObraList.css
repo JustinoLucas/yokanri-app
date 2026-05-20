@@ -1,0 +1,420 @@
+/* ==================== CONTAINER ==================== */
+
+.obra-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ==================== HEADER ==================== */
+
+.obra-list-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.obra-list-controls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ==================== FILTERS BAR ==================== */
+
+.filters-bar-compact {
+  background-color: var(--bg-card);
+  padding: 16px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.search-and-view {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.search-box {
+  flex: 1;
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 14px 10px 42px !important;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: var(--transition);
+}
+
+.search-input:focus {
+  border-color: var(--accent-primary);
+  outline: none;
+}
+
+/* ==================== VIEW MODE TOGGLE ==================== */
+
+.view-mode-toggle {
+  display: flex;
+  gap: 6px;
+}
+
+.view-mode-toggle .btn-icon.active {
+  background-color: var(--accent-primary);
+  color: white;
+  border-color: var(--accent-primary);
+}
+
+.btn-icon {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  padding: 8px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-subtle);
+}
+
+/* ==================== FILTER ACTIONS ==================== */
+
+.filters-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.filters-toggle {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  padding: 8px 14px;
+  border-radius: var(--border-radius-sm);
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: var(--transition);
+  align-self: flex-start;
+}
+
+.filters-toggle:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.btn-clear-filters {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  padding: 8px 14px;
+  border-radius: var(--border-radius-sm);
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+  align-self: flex-start;
+}
+
+.btn-clear-filters:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* ==================== FILTERS EXPANDED ==================== */
+
+.filters-expanded {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.filters-expanded select {
+  background-color: var(--bg-secondary);
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+/* ==================== SORT GROUP ==================== */
+
+.sort-group {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.sort-order-btn {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 0 10px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-secondary);
+  min-width: 50px;
+  justify-content: center;
+}
+
+.sort-order-btn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+
+.sort-order-indicator {
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* ==================== CHECKBOX ==================== */
+
+.checkbox-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: var(--transition);
+  user-select: none;
+}
+
+.checkbox-compact:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.checkbox-icon-unchecked,
+.checkbox-icon-checked {
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--border-color);
+  flex-shrink: 0;
+}
+
+.checkbox-icon-unchecked:hover {
+  color: var(--accent-primary);
+}
+
+.checkbox-icon-checked {
+  color: var(--accent-primary);
+}
+
+/* ==================== RESULTS INFO ==================== */
+
+.results-info {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  padding: 0 4px;
+}
+
+/* ==================== OBRA LIST ==================== */
+
+.obra-list.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.obra-list.table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ==================== COMPACT TABLE ==================== */
+
+.compact-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.compact-th {
+  background-color: var(--bg-secondary);
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-secondary);
+  border-bottom: 2px solid var(--border-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.compact-th-cover {
+  width: 50px;
+  text-align: center;
+}
+
+.compact-th-status,
+.compact-th-tipo,
+.compact-th-progress,
+.compact-th-rating {
+  text-align: center;
+}
+
+.compact-th-actions {
+  text-align: right;
+}
+
+/* ==================== PAGINATION ==================== */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px 0;
+  margin-top: 8px;
+}
+
+.pagination-btn {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 8px 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: var(--bg-hover);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  padding: 8px 16px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 140px;
+  text-align: center;
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 1024px) {
+  .obra-list.grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .search-and-view {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .view-mode-toggle {
+    justify-content: stretch;
+  }
+
+  .view-mode-toggle .btn-icon {
+    flex: 1;
+  }
+
+  .filters-expanded {
+    grid-template-columns: 1fr;
+  }
+
+  .obra-list.grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
+  .pagination {
+    gap: 6px;
+    padding: 20px 0;
+  }
+
+  .pagination-btn {
+    min-width: 36px;
+    height: 36px;
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+
+  .pagination-info {
+    min-width: 120px;
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+
+  .compact-table {
+    font-size: 12px;
+  }
+
+  .compact-th,
+  .compact-cell {
+    padding: 8px;
+  }
+
+  .compact-cell-title {
+    max-width: 200px;
+  }
+
+  .compact-th-tipo,
+  .compact-cell-tipo {
+    display: none;
+  }
+}

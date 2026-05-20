@@ -1,0 +1,339 @@
+/* ─── WORKSPACE MENU ────────────────────────────────────── */
+
+.ws-menu {
+  position: relative;
+}
+
+/* ─── TRIGGER BUTTON ─────────────────────────────────── */
+
+.ws-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px 4px 4px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-primary);
+  max-width: 220px;
+}
+
+.ws-trigger:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent-primary);
+}
+
+.ws-trigger--active {
+  background: var(--bg-hover);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-primary);
+}
+
+.ws-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--border-radius-full);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.ws-trigger-name {
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-chevron {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.ws-chevron--open {
+  transform: rotate(180deg);
+}
+
+/* ─── DROPDOWN ───────────────────────────────────────── */
+
+.ws-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 280px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  z-index: var(--z-dropdown);
+  animation: wsDropdownIn 0.15s ease-out;
+  overflow: hidden;
+}
+
+@keyframes wsDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ─── DROPDOWN HEADER ────────────────────────────────── */
+
+.ws-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+.ws-dropdown-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius-sm);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.ws-dropdown-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ws-dropdown-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ws-dropdown-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+/* ─── SECTIONS ───────────────────────────────────────── */
+
+.ws-section {
+  padding: 6px;
+}
+
+.ws-section-title {
+  display: block;
+  padding: 6px 10px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ws-divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 0;
+}
+
+/* ─── MENU ITEMS ─────────────────────────────────────── */
+
+.ws-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-family: inherit;
+  transition: var(--transition-fast);
+  text-align: left;
+}
+
+.ws-item:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.ws-item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ws-item--accent {
+  color: var(--accent-primary);
+}
+
+.ws-item--accent:hover:not(:disabled) {
+  color: var(--accent-primary);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.ws-item--danger {
+  color: var(--danger-color);
+}
+
+.ws-item--danger:hover:not(:disabled) {
+  color: var(--danger-color);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* ─── BADGE "EM BREVE" ───────────────────────────────── */
+
+.ws-badge-soon {
+  margin-left: auto;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+}
+
+/* ─── WORKSPACE SWITCHER ─────────────────────────────── */
+
+.ws-switcher {
+  display: flex;
+  flex-direction: column;
+}
+
+.ws-switch-item {
+  position: relative;
+}
+
+.ws-switch-item--active {
+  color: var(--accent-primary);
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.ws-check {
+  margin-left: auto;
+  color: var(--accent-primary);
+}
+
+/* ─── INLINE INPUT ───────────────────────────────────── */
+
+.ws-inline-input {
+  width: 100%;
+  padding: 6px 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--accent-primary);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: var(--transition-fast);
+}
+
+.ws-inline-input:focus {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.ws-inline-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* ─── CREATE WORKSPACE ───────────────────────────────── */
+
+.ws-create {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 10px 4px;
+}
+
+.ws-create-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.ws-btn {
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  border: none;
+}
+
+.ws-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ws-btn--primary {
+  background: var(--accent-primary);
+  color: white;
+}
+
+.ws-btn--primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.ws-btn--ghost {
+  background: none;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.ws-btn--ghost:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .ws-trigger-name {
+    display: none;
+  }
+
+  .ws-trigger {
+    padding: 4px;
+    border-radius: var(--border-radius-full);
+  }
+
+  .ws-chevron {
+    display: none;
+  }
+
+  .ws-dropdown {
+    width: calc(100vw - 32px);
+    right: -8px;
+  }
+}

@@ -1,0 +1,580 @@
+/* ============================================================================
+   OBRA FORM STYLES
+   Organized and commented for maintainability
+   ============================================================================ */
+
+/* ==========================================================================
+   CONTAINER & LAYOUT
+   ========================================================================== */
+
+.obra-form-container {
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  padding: 32px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.obra-form-container h2 {
+  margin-bottom: 24px;
+  color: var(--text-primary);
+}
+
+.obra-form {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ==========================================================================
+   FORM SECTIONS
+   ========================================================================== */
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-section h3 {
+  font-size: 18px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+/* ==========================================================================
+   FORM GROUPS & INPUTS
+   ========================================================================== */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+/* ==========================================================================
+   VALIDATION ERRORS
+   ========================================================================== */
+
+.form-errors {
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: var(--border-radius);
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.form-errors h4 {
+  color: var(--danger-color);
+  margin-bottom: 8px;
+}
+
+.form-errors ul {
+  margin-left: 20px;
+  color: #991b1b;
+}
+
+/* ==========================================================================
+   CUSTOM SELECT DROPDOWN
+   ========================================================================== */
+
+.custom-select-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.custom-select {
+  width: 100%;
+  padding: 8px 32px 8px 12px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  transition: var(--transition);
+}
+
+.custom-select:hover {
+  border-color: var(--border-subtle);
+  background-color: var(--bg-tertiary);
+}
+
+.custom-select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  background-color: var(--bg-tertiary);
+}
+
+.custom-select-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  pointer-events: none;
+  transition: var(--transition);
+}
+
+.custom-select:focus + .custom-select-icon {
+  color: var(--accent-primary);
+}
+
+.custom-select option {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  padding: 8px;
+}
+
+/* ==========================================================================
+   GENRES GRID
+   ========================================================================== */
+
+.generos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.genero-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 10px 14px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  transition: all 0.2s ease;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.genero-checkbox:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-subtle);
+}
+
+.genero-checkbox .checkbox-icon-unchecked,
+.genero-checkbox .checkbox-icon-checked {
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--border-color);
+  flex-shrink: 0;
+}
+
+.genero-checkbox:hover .checkbox-icon-unchecked {
+  color: var(--accent-primary);
+}
+
+.genero-checkbox .checkbox-icon-checked {
+  color: var(--accent-primary);
+}
+
+/* ==========================================================================
+   WEEKDAYS GRID (RELEASE SCHEDULE)
+   ========================================================================== */
+
+.dias-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.dia-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 10px 14px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  transition: all 0.2s ease;
+  font-size: 14px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.dia-checkbox:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-subtle);
+}
+
+.dia-checkbox .checkbox-icon-unchecked,
+.dia-checkbox .checkbox-icon-checked {
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--border-color);
+  flex-shrink: 0;
+}
+
+.dia-checkbox:hover .checkbox-icon-unchecked {
+  color: var(--accent-primary);
+}
+
+.dia-checkbox .checkbox-icon-checked {
+  color: var(--accent-primary);
+}
+
+/* ==========================================================================
+   CHECKBOX LABELS (FAVORITES & AUTO-INCREMENT)
+   ========================================================================== */
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.checkbox-label .checkbox-icon-unchecked,
+.checkbox-label .checkbox-icon-checked {
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--border-color);
+  flex-shrink: 0;
+}
+
+.checkbox-label:hover .checkbox-icon-unchecked {
+  color: var(--accent-primary);
+}
+
+.checkbox-label .checkbox-icon-checked {
+  color: var(--accent-primary);
+}
+
+/* ==========================================================================
+   COVERS GALLERY
+   ========================================================================== */
+
+.capas-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.capa-item {
+  position: relative;
+  aspect-ratio: 2/3;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  border: 2px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.capa-item.principal {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.1);
+}
+
+.capa-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.capa-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  padding: 12px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.capa-item:hover .capa-overlay {
+  opacity: 1;
+}
+
+.badge-principal {
+  display: inline-block;
+  background-color: var(--accent-primary);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  align-self: flex-start;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.capa-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ==========================================================================
+   LINKS LIST
+   ========================================================================== */
+
+.links-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.link-item-form {
+  background-color: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.link-item-form.principal {
+  border-color: var(--accent-primary);
+  background-color: rgba(88, 101, 242, 0.05);
+}
+
+.link-fields {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.link-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.badge-principal-link {
+  background-color: var(--accent-primary);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: auto;
+}
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+
+.btn-small {
+  padding: 6px 10px;
+  font-size: 12px;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.btn-small:hover {
+  background-color: var(--bg-tertiary);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+}
+
+/* ==========================================================================
+   FORM ACTIONS (SUBMIT/CANCEL BUTTONS)
+   ========================================================================== */
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+/* ==========================================================================
+   COVER UPLOAD (LEGACY - KEPT FOR COMPATIBILITY)
+   ========================================================================== */
+
+.cover-upload-section {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.cover-preview {
+  width: 200px;
+  height: 280px;
+  background-color: var(--bg-tertiary);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.cover-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-divider {
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 14px;
+  font-weight: 500;
+  position: relative;
+}
+
+.form-divider::before,
+.form-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background-color: var(--border-color);
+}
+
+.form-divider::before {
+  left: 0;
+}
+
+.form-divider::after {
+  right: 0;
+}
+
+/* ==========================================================================
+   RESPONSIVE STYLES (MOBILE)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .obra-form-container {
+    padding: 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .cover-upload-section {
+    grid-template-columns: 1fr;
+  }
+
+  .cover-preview {
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
+  }
+
+  .generos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+
+  .link-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .link-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .badge-principal-link {
+    margin-right: 0;
+    text-align: center;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   SEARCH BUTTON (AniList Integration)
+   ========================================================================== */
+
+.input-with-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-button input {
+  flex: 1;
+  padding-right: 44px; /* Space for button */
+}
+
+.search-btn {
+  position: absolute;
+  right: 8px;
+  padding: 8px;
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.search-btn:hover {
+  background-color: var(--accent-secondary);
+  transform: scale(1.05);
+}
+
+.search-btn:active {
+  transform: scale(0.95);
+}
