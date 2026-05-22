@@ -1,0 +1,352 @@
+/* ─── IMPORT MODAL ───────────────────────────────────── */
+
+.imp-overlay {
+  z-index: var(--z-modal-backdrop);
+}
+
+.imp-modal {
+  max-width: 520px;
+  animation: impModalIn 0.2s ease-out;
+}
+
+@keyframes impModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ─── HEADER ─────────────────────────────────────────── */
+
+.imp-header {
+  padding: 16px 20px;
+}
+
+.imp-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-primary);
+}
+
+.imp-header-title h2 {
+  font-size: 17px;
+}
+
+/* ─── PREVIEW INFO ───────────────────────────────────── */
+
+.imp-preview {
+  padding: 14px 20px;
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.imp-preview-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.imp-preview-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.imp-stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ─── BODY ───────────────────────────────────────────── */
+
+.imp-body {
+  padding: 20px;
+}
+
+/* ─── MODE SELECTION ─────────────────────────────────── */
+
+.imp-modes-title {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0 0 14px 0;
+  font-weight: 500;
+}
+
+.imp-modes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.imp-mode-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+}
+
+.imp-mode-btn:hover {
+  border-color: var(--accent-primary);
+  background: rgba(59, 130, 246, 0.04);
+}
+
+.imp-mode-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.imp-mode-icon--merge {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--success-color);
+}
+
+.imp-mode-icon--replace {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--warning-color);
+}
+
+.imp-mode-icon--create {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--accent-primary);
+}
+
+.imp-mode-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.imp-mode-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.imp-mode-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* ─── CREATE INPUT ───────────────────────────────────── */
+
+.imp-create-section {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+  background: var(--bg-primary);
+  border: 1px solid var(--accent-primary);
+  border-radius: var(--border-radius-sm);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.15);
+}
+
+.imp-create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.imp-create-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.imp-create-input {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: var(--transition-fast);
+}
+
+.imp-create-input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.imp-create-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.imp-create-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ─── CONFIRM REPLACE ────────────────────────────────── */
+
+.imp-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.imp-confirm-warning {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.imp-warning-icon {
+  color: var(--warning-color);
+}
+
+.imp-confirm-warning h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.imp-confirm-warning p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.imp-confirm-hint {
+  font-size: 12px !important;
+  color: var(--text-tertiary) !important;
+  font-style: italic;
+}
+
+.imp-confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* ─── LOADING ────────────────────────────────────────── */
+
+.imp-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 0;
+}
+
+.imp-spinner {
+  color: var(--accent-primary);
+  animation: impSpin 1s linear infinite;
+}
+
+@keyframes impSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.imp-loading p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ─── RESULT ─────────────────────────────────────────── */
+
+.imp-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 0;
+  text-align: center;
+}
+
+.imp-result-icon--success {
+  color: var(--success-color);
+}
+
+.imp-result-icon--error {
+  color: var(--danger-color);
+}
+
+.imp-result-message {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin: 0;
+  white-space: pre-line;
+}
+
+/* ─── BUTTONS ────────────────────────────────────────── */
+
+.imp-btn {
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  border: none;
+}
+
+.imp-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.imp-btn--primary {
+  background: var(--accent-primary);
+  color: white;
+}
+
+.imp-btn--primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.imp-btn--danger {
+  background: var(--danger-color);
+  color: white;
+}
+
+.imp-btn--danger:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.imp-btn--ghost {
+  background: none;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.imp-btn--ghost:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}

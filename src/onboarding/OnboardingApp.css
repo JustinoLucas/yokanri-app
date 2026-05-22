@@ -1,0 +1,717 @@
+/* ════════════════════════════════════════════════════════
+   OnboardingApp.css — Estilos do fluxo de onboarding
+
+   Prefixo: ob-  (onboarding)
+   Escopo: tela inteira, sobre o app normal
+   Herda variáveis CSS do :root (variables.css)
+   ════════════════════════════════════════════════════════ */
+
+/* ── Layout raiz ─────────────────────────────────────── */
+
+.ob-root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(135deg, #0a0a0a 0%, #0d1525 50%, #0a0a0a 100%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow-y: auto;
+}
+
+/* ── Cabeçalho ───────────────────────────────────────── */
+
+.ob-header {
+  width: 100%;
+  max-width: 640px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 24px 0;
+  flex-shrink: 0;
+}
+
+.ob-wordmark {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--text-primary);
+  opacity: 0.9;
+}
+
+/* ── Barra de progresso (dots) ───────────────────────── */
+
+.ob-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ob-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-color);
+  transition: var(--transition);
+}
+
+.ob-dot--done {
+  background: var(--accent-primary);
+  opacity: 0.5;
+}
+
+.ob-dot--active {
+  background: var(--accent-primary);
+  opacity: 1;
+  width: 24px;
+  border-radius: 4px;
+}
+
+/* ── Área central ────────────────────────────────────── */
+
+.ob-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 24px;
+}
+
+/* ── Card branco/dark que contém cada step ───────────── */
+
+.ob-card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 40px 40px 32px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Rodapé ──────────────────────────────────────────── */
+
+.ob-footer {
+  padding: 16px 24px;
+  font-size: var(--font-xs);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════════════════════════
+   Elementos compartilhados entre os steps
+   ════════════════════════════════════════════════════════ */
+
+/* ── Cabeçalho de step ───────────────────────────────── */
+
+.ob-step-header,
+.ob-welcome-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.ob-title {
+  font-size: var(--font-2xl);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.ob-subtitle {
+  font-size: var(--font-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.ob-label {
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+/* ── Botões ──────────────────────────────────────────── */
+
+.ob-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.ob-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ob-btn--full {
+  width: 100%;
+}
+
+.ob-btn--primary {
+  background: var(--accent-primary);
+  color: #ffffff;
+  border-color: var(--accent-primary);
+}
+
+.ob-btn--primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.ob-btn--secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.ob-btn--secondary:hover:not(:disabled) {
+  background: var(--bg-hover);
+  border-color: var(--accent-primary);
+}
+
+.ob-btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: transparent;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.ob-btn--ghost:hover:not(:disabled) {
+  color: var(--text-primary);
+}
+
+/* ── Inputs de código / nome ─────────────────────────── */
+
+.ob-code-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: var(--font-md);
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  letter-spacing: 1px;
+  text-align: center;
+  transition: var(--transition);
+  margin-bottom: 12px;
+}
+
+.ob-code-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  background: var(--bg-tertiary);
+}
+
+.ob-code-input--error {
+  border-color: var(--danger-color) !important;
+}
+
+.ob-code-input--success {
+  border-color: var(--success-color) !important;
+}
+
+/* ── Mensagens de erro / sucesso ─────────────────────── */
+
+.ob-field-error {
+  font-size: var(--font-xs);
+  color: var(--danger-color);
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.ob-field-success {
+  font-size: var(--font-xs);
+  color: var(--success-color);
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.ob-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-xs);
+  color: var(--danger-color);
+  margin-bottom: 16px;
+}
+
+/* ════════════════════════════════════════════════════════
+   Step 1 — Welcome
+   ════════════════════════════════════════════════════════ */
+
+.ob-step--welcome {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ob-app-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.ob-language-section {
+  margin-bottom: 28px;
+}
+
+.ob-language-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.ob-lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-secondary);
+  font-size: var(--font-sm);
+  font-family: inherit;
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: left;
+}
+
+.ob-lang-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--accent-primary);
+  color: var(--text-primary);
+}
+
+.ob-lang-btn--active {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: var(--accent-primary);
+  color: var(--text-primary);
+}
+
+.ob-lang-flag {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.ob-lang-name {
+  font-weight: 500;
+}
+
+/* ════════════════════════════════════════════════════════
+   Step 2 — Edition (Core vs Supporter)
+   ════════════════════════════════════════════════════════ */
+
+.ob-step--edition {
+  display: flex;
+  flex-direction: column;
+}
+
+.ob-edition-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.ob-edition-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  transition: var(--transition);
+}
+
+.ob-edition-card--supporter {
+  border-color: rgba(139, 92, 246, 0.3);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(139, 92, 246, 0.05) 100%);
+}
+
+.ob-edition-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.ob-edition-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ob-edition-icon--core {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--accent-primary);
+}
+
+.ob-edition-icon--supporter {
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--accent-secondary);
+}
+
+.ob-edition-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ob-edition-card-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.ob-edition-card-name {
+  font-size: var(--font-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ob-edition-tag {
+  font-size: var(--font-xs);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--border-radius-full);
+}
+
+.ob-edition-tag--core {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success-color);
+}
+
+.ob-edition-tag--supporter {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--accent-secondary);
+}
+
+.ob-edition-card-desc {
+  font-size: var(--font-xs);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ════════════════════════════════════════════════════════
+   Step 3 — Supporter Code
+   ════════════════════════════════════════════════════════ */
+
+.ob-step--supporter {
+  display: flex;
+  flex-direction: column;
+}
+
+.ob-supporter-badge {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+  color: var(--accent-secondary);
+}
+
+.ob-supporter-form {
+  margin-bottom: 24px;
+}
+
+.ob-supporter-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ════════════════════════════════════════════════════════
+   Step 4 — Workspace
+   ════════════════════════════════════════════════════════ */
+
+.ob-step--workspace {
+  display: flex;
+  flex-direction: column;
+}
+
+.ob-ws-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 24px;
+}
+
+/* Opção genérica (button ou div) */
+.ob-ws-option {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 0;
+  cursor: default;
+  transition: var(--transition);
+  overflow: hidden;
+}
+
+/* Opção de importar é um <button> clicável */
+.ob-ws-option--import {
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  color: var(--text-primary);
+  padding: 0;
+}
+
+.ob-ws-option--import:hover:not(:disabled) {
+  border-color: var(--accent-primary);
+  background: var(--bg-hover);
+}
+
+/* Cabeçalho clicável da opção de criar */
+.ob-ws-option-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-family: inherit;
+  text-align: left;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+}
+
+.ob-ws-option-header:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+
+.ob-ws-option-header:disabled {
+  cursor: default;
+}
+
+/* Import option inner layout */
+.ob-ws-option--import .ob-ws-option-header {
+  cursor: pointer;
+  padding: 18px 20px;
+}
+
+/* Para o botão de import, o conteúdo é direto no button */
+.ob-ws-option--import {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+}
+
+.ob-ws-option-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ob-ws-option-icon--create {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--accent-primary);
+}
+
+.ob-ws-option-icon--import {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.ob-ws-option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ob-ws-option-label {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ob-ws-option-desc {
+  font-size: var(--font-xs);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Formulário de criação expandido */
+.ob-ws-create-form {
+  padding: 0 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+.ob-ws-name-label {
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding-top: 16px;
+}
+
+.ob-ws-name-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  font-size: var(--font-sm);
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.ob-ws-name-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+/* Divisor "ou" */
+.ob-ws-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+  color: var(--text-muted);
+  font-size: var(--font-xs);
+}
+
+.ob-ws-divider::before,
+.ob-ws-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-color);
+}
+
+/* Preview de importação */
+.ob-import-preview {
+  background: var(--bg-secondary);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.ob-import-preview-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ob-import-preview-info {
+  text-align: center;
+}
+
+.ob-import-preview-title {
+  font-size: var(--font-xs);
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.ob-import-preview-name {
+  font-size: var(--font-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.ob-import-preview-count {
+  font-size: var(--font-xs);
+  color: var(--success-color);
+}
+
+.ob-import-preview-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ════════════════════════════════════════════════════════
+   Animação de entrada dos cards
+   ════════════════════════════════════════════════════════ */
+
+.ob-card {
+  animation: ob-card-in 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes ob-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ════════════════════════════════════════════════════════
+   Responsividade
+   ════════════════════════════════════════════════════════ */
+
+@media (max-width: 600px) {
+  .ob-card {
+    padding: 28px 20px 24px;
+    border-radius: var(--border-radius);
+  }
+
+  .ob-main {
+    padding: 16px;
+    align-items: flex-start;
+  }
+
+  .ob-edition-cards {
+    flex-direction: column;
+  }
+
+  .ob-language-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ob-title {
+    font-size: var(--font-xl);
+  }
+}

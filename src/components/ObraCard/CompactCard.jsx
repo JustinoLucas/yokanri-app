@@ -1,4 +1,5 @@
-import { Star, Edit2, ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+import { Star, Edit2, ExternalLink, EyeOff } from 'lucide-react';
 import StatusBadge from './shared/StatusBadge';
 import ObraStatusBadge from './shared/ObraStatusBadge';
 import FlagIcon from './shared/FlagIcon';
@@ -13,9 +14,14 @@ function CompactCard({
   onViewDetail,
   onEdit,
   onToggleFavorito,
-  onLinkClick
+  onLinkClick,
+  isNsfw,
+  nsfwMode,
 }) {
+  const [blurRevealed, setBlurRevealed] = useState(false);
+
   const hasObraLink = hasLink(obra);
+  const isBlurred = isNsfw && nsfwMode === 'blur' && !blurRevealed;
 
   const handleEdit = (e) => {
     e.stopPropagation();
@@ -35,14 +41,34 @@ function CompactCard({
     }
   };
 
+  const handleReveal = (e) => {
+    e.stopPropagation();
+    setBlurRevealed(true);
+  };
+
   return (
     <tr className="compact-row" onClick={onViewDetail}>
       <td className="compact-cell compact-cell-cover">
-        {coverUrl ? (
-          <img src={coverUrl} alt={obra.nome} className="compact-cover-img" />
-        ) : (
-          <div className="compact-cover-img" style={{ backgroundColor: 'var(--bg-secondary)' }}></div>
-        )}
+        <div className="compact-cover-wrapper">
+          {coverUrl ? (
+            <img
+              src={coverUrl}
+              alt={obra.nome}
+              className={`compact-cover-img${isBlurred ? ' nsfw-blur-img' : ''}`}
+            />
+          ) : (
+            <div className="compact-cover-img" style={{ backgroundColor: 'var(--bg-secondary)' }}></div>
+          )}
+          {isBlurred && (
+            <button
+              className="nsfw-reveal-btn nsfw-reveal-btn--compact"
+              onClick={handleReveal}
+              title="Clique para revelar a capa"
+            >
+              <EyeOff size={12} />
+            </button>
+          )}
+        </div>
       </td>
       <td className="compact-cell compact-cell-title">
         {obra.favorito && (

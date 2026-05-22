@@ -12,16 +12,10 @@ function Statistics({ obras }) {
     const statusLeituraList = config?.statusLeitura ?? [];
     const statusObraList = config?.statusObra ?? [];
 
-    // By user reading status (dynamic)
+    // Por status do usuário — keyed by ID estável
     const byStatus = {};
     statusLeituraList.forEach(s => {
-      byStatus[s.label] = obras.filter(o => o.statusUsuario === s.label).length;
-    });
-    // Fallback: also count any status not in config
-    obras.forEach(o => {
-      if (!(o.statusUsuario in byStatus)) {
-        byStatus[o.statusUsuario] = (byStatus[o.statusUsuario] || 0) + 1;
-      }
+      byStatus[s.id] = obras.filter(o => o.statusUsuario === s.id).length;
     });
 
     // By type
@@ -31,26 +25,21 @@ function Statistics({ obras }) {
       'Japonês': obras.filter(o => o.tipo === 'Japonês').length
     };
 
-    // By obra status (dynamic)
+    // Por status da obra — keyed by ID estável
     const byObraStatus = {};
     statusObraList.forEach(s => {
-      byObraStatus[s.label] = obras.filter(o => o.status === s.label).length;
-    });
-    obras.forEach(o => {
-      if (!(o.status in byObraStatus)) {
-        byObraStatus[o.status] = (byObraStatus[o.status] || 0) + 1;
-      }
+      byObraStatus[s.id] = obras.filter(o => o.status === s.id).length;
     });
 
     const labelCompleto = statusLeituraList.find(s => s.id === 'completo')?.label ?? 'Completo';
-    const labelLendo = statusLeituraList.find(s => s.id === 'lendo')?.label ?? 'Lendo';
+    const labelLendo    = statusLeituraList.find(s => s.id === 'lendo')?.label    ?? 'Lendo';
 
     const topRead = [...obras]
       .sort((a, b) => (b.capituloAtualUsuario || 0) - (a.capituloAtualUsuario || 0))
       .slice(0, 5)
       .filter(o => o.capituloAtualUsuario > 0);
 
-    const completedCount = byStatus[labelCompleto] ?? 0;
+    const completedCount = byStatus['completo'] ?? 0;
     const completionRate = obras.length > 0 ? (completedCount / obras.length) * 100 : 0;
 
     const ratingDistribution = {
@@ -75,7 +64,7 @@ function Statistics({ obras }) {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
 
-    const readingObras = obras.filter(o => o.statusUsuario === labelLendo);
+    const readingObras = obras.filter(o => o.statusUsuario === 'lendo');
     const totalProgress = readingObras.reduce((acc, obra) => {
       if (obra.capituloAtual > 0) {
         return acc + (obra.capituloAtualUsuario / obra.capituloAtual) * 100;
@@ -106,7 +95,7 @@ function Statistics({ obras }) {
       total: obras.length,
       labelLendo,
       labelCompleto,
-      labelDropado: statusLeituraList.find(s => s.id === 'dropado')?.label ?? 'Dropado',
+      labelDropado:   statusLeituraList.find(s => s.id === 'dropado')?.label  ?? 'Dropado',
       statusLeituraList,
       statusObraList: config?.statusObra ?? [],
     };
@@ -137,7 +126,7 @@ function Statistics({ obras }) {
           </div>
           <div className="stat-content">
             <h3>{stats.labelLendo}</h3>
-            <p className="stat-value">{stats.byStatus[stats.labelLendo] ?? 0}</p>
+            <p className="stat-value">{stats.byStatus['lendo'] ?? 0}</p>
           </div>
         </div>
 
@@ -147,7 +136,7 @@ function Statistics({ obras }) {
           </div>
           <div className="stat-content">
             <h3>{stats.labelCompleto}</h3>
-            <p className="stat-value">{stats.byStatus[stats.labelCompleto] ?? 0}</p>
+            <p className="stat-value">{stats.byStatus['completo'] ?? 0}</p>
           </div>
         </div>
 
@@ -157,7 +146,7 @@ function Statistics({ obras }) {
           </div>
           <div className="stat-content">
             <h3>{stats.labelDropado}</h3>
-            <p className="stat-value">{stats.byStatus[stats.labelDropado] ?? 0}</p>
+            <p className="stat-value">{stats.byStatus['dropado'] ?? 0}</p>
           </div>
         </div>
 
@@ -169,7 +158,7 @@ function Statistics({ obras }) {
           <div className="stat-content">
             <h3>Taxa de Conclusão</h3>
             <p className="stat-value">{stats.completionRate.toFixed(1)}%</p>
-            <p className="stat-detail">{stats.byStatus[stats.labelCompleto] ?? 0} de {stats.total} obras</p>
+            <p className="stat-detail">{stats.byStatus['completo'] ?? 0} de {stats.total} obras</p>
           </div>
         </div>
 
@@ -220,23 +209,24 @@ function Statistics({ obras }) {
         <div className="stat-card stat-card-wide">
           <h3 className="stat-card-title">Status de Publicação</h3>
           <div className="status-chart">
-            {Object.entries(stats.byObraStatus).map(([status, count]) => {
-              const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
-              const item = stats.statusObraList.find(s => s.label === status);
-              const color = item?.color || 'var(--text-tertiary)';
-
-              return count > 0 ? (
-                <div key={status} className="status-bar-item">
-                  <div className="status-bar-label">
-                    <span>{status}</span>
-                    <span className="status-bar-count">{count} ({percentage.toFixed(1)}%)</span>
+            {stats.statusObraList
+              .filter(s => !s.hidden)
+              .map(s => {
+                const count = stats.byObraStatus[s.id] ?? 0;
+                if (count === 0) return null;
+                const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
+                return (
+                  <div key={s.id} className="status-bar-item">
+                    <div className="status-bar-label">
+                      <span>{s.label}</span>
+                      <span className="status-bar-count">{count} ({percentage.toFixed(1)}%)</span>
+                    </div>
+                    <div className="status-bar-track">
+                      <div className="status-bar-fill" style={{ width: `${percentage}%`, backgroundColor: s.color || 'var(--text-tertiary)' }} />
+                    </div>
                   </div>
-                  <div className="status-bar-track">
-                    <div className="status-bar-fill" style={{ width: `${percentage}%`, backgroundColor: color }} />
-                  </div>
-                </div>
-              ) : null;
-            })}
+                );
+              })}
           </div>
         </div>
 
@@ -244,23 +234,24 @@ function Statistics({ obras }) {
         <div className="stat-card stat-card-wide">
           <h3 className="stat-card-title">Meu Status de Leitura</h3>
           <div className="status-chart">
-            {Object.entries(stats.byStatus).map(([status, count]) => {
-              const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
-              const item = stats.statusLeituraList.find(s => s.label === status);
-              const color = item?.color || 'var(--text-tertiary)';
-
-              return count > 0 ? (
-                <div key={status} className="status-bar-item">
-                  <div className="status-bar-label">
-                    <span>{status}</span>
-                    <span className="status-bar-count">{count} ({percentage.toFixed(1)}%)</span>
+            {stats.statusLeituraList
+              .filter(s => !s.hidden)
+              .map(s => {
+                const count = stats.byStatus[s.id] ?? 0;
+                if (count === 0) return null;
+                const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
+                return (
+                  <div key={s.id} className="status-bar-item">
+                    <div className="status-bar-label">
+                      <span>{s.label}</span>
+                      <span className="status-bar-count">{count} ({percentage.toFixed(1)}%)</span>
+                    </div>
+                    <div className="status-bar-track">
+                      <div className="status-bar-fill" style={{ width: `${percentage}%`, backgroundColor: s.color || 'var(--text-tertiary)' }} />
+                    </div>
                   </div>
-                  <div className="status-bar-track">
-                    <div className="status-bar-fill" style={{ width: `${percentage}%`, backgroundColor: color }} />
-                  </div>
-                </div>
-              ) : null;
-            })}
+                );
+              })}
           </div>
         </div>
 

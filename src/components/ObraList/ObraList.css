@@ -82,6 +82,55 @@
   border-color: var(--accent-primary);
 }
 
+/* ==================== LISTING MODE TOGGLE ==================== */
+
+.listing-mode-toggle {
+  display: flex;
+  gap: 2px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 2px;
+}
+
+.listing-mode-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: calc(var(--border-radius-sm) - 2px);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.listing-mode-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.listing-mode-btn.active {
+  background: var(--accent-primary);
+  color: white;
+}
+
+/* ==================== INFINITE SCROLL ==================== */
+
+.infinite-scroll-sentinel {
+  height: 40px;
+  width: 100%;
+}
+
+.infinite-scroll-end {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  padding: 16px 0 8px;
+}
+
 .btn-icon {
   background-color: var(--bg-secondary);
   color: var(--text-secondary);

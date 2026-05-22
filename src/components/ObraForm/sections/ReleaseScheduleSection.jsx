@@ -1,10 +1,10 @@
 import { ChevronDown } from 'lucide-react';
-import { TIPO_LANCAMENTO, DIAS_SEMANA, STATUS_OBRA } from '../../../types/obra';
+import { TIPO_LANCAMENTO, DIAS_SEMANA } from '../../../types/obra';
 import DaySelector from '../components/DaySelector';
 import { formatDateForInput, dateInputToISO } from '../utils/dataProcessing';
 
 function ReleaseScheduleSection({ formData, onChange, onNumberChange, onNumberBlur, onDayToggle, statusObraList, tipoLancamentoList }) {
-  const currentStatusItem = statusObraList?.find(s => s.label === formData.status);
+  const currentStatusItem = statusObraList?.find(s => s.id === formData.status);
   if (currentStatusItem?.hideSchedule) return null;
 
   const labelSemanal = tipoLancamentoList?.find(t => t.id === 'semanal')?.label ?? TIPO_LANCAMENTO.SEMANAL;

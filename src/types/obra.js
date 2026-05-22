@@ -6,19 +6,21 @@ export const TIPO_OBRA = {
   JAPONES: 'Japonês'
 };
 
+// IDs estáveis usados internamente (armazenados no banco).
+// Os rótulos visíveis ao usuário vêm de config.statusObra / config.statusLeitura.
 export const STATUS_OBRA = {
-  EM_ANDAMENTO: 'Em andamento',
-  COMPLETO: 'Completo',
-  HIATO: 'Hiato',
-  CANCELADO: 'Cancelado'
+  EM_ANDAMENTO: 'em-andamento',
+  COMPLETO: 'completo',
+  HIATO: 'hiato',
+  CANCELADO: 'cancelado'
 };
 
 export const STATUS_LEITURA = {
-  LENDO: 'Lendo',
-  COMPLETO: 'Completo',
-  DROPADO: 'Dropado',
-  PLANEJA_LER: 'Planeja ler',
-  PAUSADO: 'Pausado'
+  LENDO: 'lendo',
+  COMPLETO: 'completo',
+  DROPADO: 'dropado',
+  PLANEJA_LER: 'planeja-ler',
+  PAUSADO: 'pausado'
 };
 
 export const DIAS_SEMANA = {

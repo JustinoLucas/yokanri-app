@@ -25,16 +25,18 @@ function WorkspaceProfile({ workspace, obras, onShowStats, onShowConfig, onViewD
 
   const profile = useMemo(() => {
     const statusLeitura = config?.statusLeitura ?? [];
-    const labelLendo = statusLeitura.find(s => s.id === 'lendo')?.label ?? 'Lendo';
-    const labelCompleto = statusLeitura.find(s => s.id === 'completo')?.label ?? 'Completo';
-    const labelPausado = statusLeitura.find(s => s.id === 'pausado')?.label ?? 'Pausado';
-    const labelPlaneja = statusLeitura.find(s => s.id === 'planeja-ler')?.label ?? 'Planeja ler';
+    // Labels para exibição (podem ser renomeados pelo usuário)
+    const labelLendo    = statusLeitura.find(s => s.id === 'lendo')?.label      ?? 'Lendo';
+    const labelCompleto = statusLeitura.find(s => s.id === 'completo')?.label   ?? 'Completo';
+    const labelPausado  = statusLeitura.find(s => s.id === 'pausado')?.label    ?? 'Pausado';
+    const labelPlaneja  = statusLeitura.find(s => s.id === 'planeja-ler')?.label ?? 'Planeja ler';
 
     const total = obras.length;
-    const lendo = obras.filter(o => o.statusUsuario === labelLendo).length;
-    const completas = obras.filter(o => o.statusUsuario === labelCompleto).length;
-    const pausadas = obras.filter(o => o.statusUsuario === labelPausado).length;
-    const planejadas = obras.filter(o => o.statusUsuario === labelPlaneja).length;
+    // Filtro por ID estável — obras armazenam IDs desde a v2
+    const lendo     = obras.filter(o => o.statusUsuario === 'lendo').length;
+    const completas = obras.filter(o => o.statusUsuario === 'completo').length;
+    const pausadas  = obras.filter(o => o.statusUsuario === 'pausado').length;
+    const planejadas = obras.filter(o => o.statusUsuario === 'planeja-ler').length;
 
     const totalChapters = obras.reduce((acc, o) => acc + (o.capituloAtualUsuario || 0), 0);
 

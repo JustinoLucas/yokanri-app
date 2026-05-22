@@ -9,20 +9,24 @@
  *
  * Estrutura no disco:
  *   AppData/Roaming/Yokanri/
- *   ├── workspaces.json              ← registro central
- *   └── workspaces/
- *       ├── default/
- *       │   ├── library.json
- *       │   ├── settings.json
- *       │   └── covers/
- *       └── romance/
- *           └── ...
+ *   |-- workspaces.json              <- registro central
+ *   +-- workspaces/
+ *       +-- default/
+ *           |-- data.db
+ *           +-- covers/
+ *
+ * Custom location (workspace movido):
+ *   D:/Backups/Yokanri/
+ *   +-- Minha Biblioteca/
+ *       |-- data.db
+ *       +-- covers/
  *
  * Formato do workspaces.json:
  *   {
  *     "activeId": "abc123",
  *     "workspaces": [
- *       { "id": "abc123", "name": "Minha Biblioteca", "slug": "default", "createdAt": "...", "updatedAt": "..." }
+ *       { "id": "abc123", "name": "Minha Biblioteca", "slug": "default", "createdAt": "...", "updatedAt": "..." },
+ *       { "id": "def456", "name": "Backup", "slug": "backup", "path": "D:/Backups/Yokanri/Backup", ... }
  *     ]
  *   }
  */
@@ -34,13 +38,17 @@ import {
   mkdir,
   remove,
   readDir,
+  rename,
 } from '@tauri-apps/plugin-fs';
 import { join } from '@tauri-apps/api/path';
 import {
   getAppDir,
+  getOldAppDir,
   getWorkspacesRoot,
   getWorkspaceDir,
   setActiveWorkspace,
+  FILES,
+  DIRS,
 } from './workspacePaths';
 
 // ─── HELPERS ────────────────────────────────────────────
@@ -66,7 +74,7 @@ function toSlug(name) {
 
 async function getRegistryPath() {
   const appDir = await getAppDir();
-  return await join(appDir, 'workspaces.json');
+  return await join(appDir, FILES.REGISTRY);
 }
 
 /**
@@ -98,25 +106,43 @@ async function saveRegistry(registry) {
 // ─── API PÚBLICA ────────────────────────────────────────
 
 /**
+ * Prepara apenas os diretórios raiz do app (sem criar workspace).
+ *
+ * Usado pelo onboarding ANTES de criar o primeiro workspace.
+ * Idempotente — pode ser chamado múltiplas vezes sem efeito colateral.
+ *
+ * @returns {Promise<void>}
+ */
+export async function initDirsOnly() {
+  await migrateAppDirectory();
+  const root = await getWorkspacesRoot();
+  await mkdir(root, { recursive: true });
+}
+
+/**
  * Inicializa o sistema de workspaces
- * - Cria o workspace "Default" se não existir nenhum
+ * - Migra de com.yokanri.app para Yokanri (se necessário)
  * - Ativa o último workspace usado
  * - Cria diretórios necessários
  *
- * Deve ser chamado UMA VEZ na inicialização do app
+ * Deve ser chamado UMA VEZ na inicialização do app,
+ * APÓS o onboarding ter criado o primeiro workspace.
+ *
  * @returns {Promise<Object>} O workspace ativo
  */
 export async function init() {
+  // Migra diretório antigo (com.yokanri.app → Yokanri)
+  await migrateAppDirectory();
+
   // Garante que a pasta raiz de workspaces existe
   const root = await getWorkspacesRoot();
   await mkdir(root, { recursive: true });
 
-  let registry = await readRegistry();
+  const registry = await readRegistry();
 
-  // Primeira execução: cria o workspace padrão
+  // Sem workspaces → onboarding não foi concluído corretamente
   if (registry.workspaces.length === 0) {
-    const defaultWs = await createWorkspace('Minha Biblioteca', 'default');
-    registry = await readRegistry();
+    throw new Error('Nenhum workspace encontrado. O onboarding não foi concluído.');
   }
 
   // Define o workspace ativo
@@ -129,10 +155,10 @@ export async function init() {
   }
 
   // Configura o path system para usar o workspace ativo
-  setActiveWorkspace(active.slug);
+  setActiveWorkspace(active.slug, active.path || null);
 
   // Garante que os diretórios do workspace ativo existem
-  await ensureWorkspaceDirectories(active.slug);
+  await ensureWorkspaceDirectories(active.slug, active.path);
 
   return active;
 }
@@ -214,10 +240,10 @@ export async function switchWorkspace(workspaceId) {
   await saveRegistry(registry);
 
   // Atualiza o path system
-  setActiveWorkspace(workspace.slug);
+  setActiveWorkspace(workspace.slug, workspace.path || null);
 
   // Garante que os diretórios existem
-  await ensureWorkspaceDirectories(workspace.slug);
+  await ensureWorkspaceDirectories(workspace.slug, workspace.path);
 
   return workspace;
 }
@@ -264,7 +290,7 @@ export async function deleteWorkspace(workspaceId) {
   }
 
   // Remove a pasta do workspace do disco
-  const wsDir = await getWorkspaceDir(workspace.slug);
+  const wsDir = await getWorkspaceDir(workspace.slug, workspace.path);
   const dirExists = await exists(wsDir);
   if (dirExists) {
     await remove(wsDir, { recursive: true });
@@ -275,12 +301,83 @@ export async function deleteWorkspace(workspaceId) {
 
   // Se era o ativo, troca para o primeiro disponível
   if (registry.activeId === workspaceId) {
-    registry.activeId = registry.workspaces[0].id;
-    setActiveWorkspace(registry.workspaces[0].slug);
+    const fallback = registry.workspaces[0];
+    registry.activeId = fallback.id;
+    setActiveWorkspace(fallback.slug, fallback.path || null);
   }
 
   await saveRegistry(registry);
   return true;
+}
+
+/**
+ * Atualiza o path de um workspace no registro (usado pelo move)
+ * @param {string} workspaceId - ID do workspace
+ * @param {string|null} newPath - Novo path absoluto (null para voltar ao default)
+ * @returns {Promise<Object>} O workspace atualizado
+ */
+export async function updateWorkspacePath(workspaceId, newPath) {
+  const registry = await readRegistry();
+  const workspace = registry.workspaces.find(ws => ws.id === workspaceId);
+
+  if (!workspace) {
+    throw new Error(`Workspace "${workspaceId}" não encontrado.`);
+  }
+
+  if (newPath) {
+    workspace.path = newPath;
+  } else {
+    delete workspace.path;
+  }
+
+  workspace.updatedAt = new Date().toISOString();
+  await saveRegistry(registry);
+
+  // Se é o workspace ativo, atualiza o path system
+  if (registry.activeId === workspaceId) {
+    setActiveWorkspace(workspace.slug, workspace.path || null);
+  }
+
+  return workspace;
+}
+
+// ─── MIGRAÇÃO ──────────────────────────────────────────
+
+/**
+ * Migra o diretório do app de com.yokanri.app para Yokanri.
+ *
+ * Executada automaticamente no init(). Se o diretório antigo existir
+ * e o novo não, renomeia (move atômico no mesmo filesystem).
+ * Se ambos existirem ou só o novo existir, não faz nada.
+ *
+ * Seguro: nunca lança erro — o app continua mesmo se a migração falhar.
+ */
+async function migrateAppDirectory() {
+  try {
+    const oldDir = await getOldAppDir();
+    const newDir = await getAppDir();
+
+    // Se são o mesmo path, não precisa migrar (ex: identifier já é 'Yokanri')
+    if (oldDir === newDir) return;
+
+    const oldExists = await exists(oldDir);
+    const newExists = await exists(newDir);
+
+    if (oldExists && !newExists) {
+      console.log(`[Migration] Migrando diretório: ${oldDir} → ${newDir}`);
+      await rename(oldDir, newDir);
+      console.log('[Migration] Diretório migrado com sucesso');
+    } else if (oldExists && newExists) {
+      // Ambos existem — cenário raro (migração parcial ou manual)
+      // Não tenta fundir, apenas loga
+      console.warn('[Migration] Ambos diretórios existem. Usando o novo:', newDir);
+      console.warn('[Migration] Diretório antigo ainda presente:', oldDir);
+    }
+  } catch (error) {
+    console.error('[Migration] Erro na migração de diretório:', error);
+    // Não relança — o app deve funcionar mesmo se a migração falhar.
+    // Na próxima execução, o init() criará os diretórios necessários.
+  }
 }
 
 // ─── HELPERS INTERNOS ───────────────────────────────────
@@ -288,10 +385,11 @@ export async function deleteWorkspace(workspaceId) {
 /**
  * Garante que os diretórios de um workspace existem
  * @param {string} slug
+ * @param {string|null} [customPath] - Path customizado (se movido)
  */
-async function ensureWorkspaceDirectories(slug) {
-  const wsDir = await getWorkspaceDir(slug);
-  const coversDir = await join(wsDir, 'covers');
+async function ensureWorkspaceDirectories(slug, customPath = null) {
+  const wsDir = await getWorkspaceDir(slug, customPath);
+  const coversDir = await join(wsDir, DIRS.COVERS);
   await mkdir(coversDir, { recursive: true });
 }
 
@@ -299,12 +397,14 @@ async function ensureWorkspaceDirectories(slug) {
 
 const workspaceManager = {
   init,
+  initDirsOnly,
   createWorkspace,
   listWorkspaces,
   getActiveWorkspace,
   switchWorkspace,
   renameWorkspace,
   deleteWorkspace,
+  updateWorkspacePath,
 };
 
 export default workspaceManager;

@@ -5,11 +5,17 @@ import Pagination from './Pagination';
 import EmptyState from './EmptyState';
 import { useFiltering } from './hooks/useFiltering';
 import { usePagination } from './hooks/usePagination';
-import { VIEW_MODES } from './constants';
+import { useInfiniteScroll } from './hooks/useInfiniteScroll';
+import { VIEW_MODES, LISTING_MODES, BATCH_SIZE } from './constants';
 import './ObraList.css';
+
+const LISTING_MODE_KEY = 'yokanri_listing_mode';
 
 function ObraList({ obras, config, onViewDetail, onEdit, onDelete, onQuickUpdate }) {
   const [viewMode, setViewMode] = useState(VIEW_MODES.TABLE);
+  const [listingMode, setListingMode] = useState(
+    () => localStorage.getItem(LISTING_MODE_KEY) ?? LISTING_MODES.PAGINATION
+  );
 
   const {
     searchTerm,
@@ -31,19 +37,9 @@ function ObraList({ obras, config, onViewDetail, onEdit, onDelete, onQuickUpdate
     clearFilters,
     filteredAndSortedObras,
     hasActiveFilters
-  } = useFiltering(obras);
+  } = useFiltering(obras, config);
 
-  const {
-    currentPage,
-    totalPages,
-    startIndex,
-    endIndex,
-    currentPageItems,
-    goToFirstPage,
-    goToLastPage,
-    goToNextPage,
-    goToPreviousPage
-  } = usePagination(filteredAndSortedObras, [
+  const pagination = usePagination(filteredAndSortedObras, [
     searchTerm,
     filterTipo,
     filterStatusObra,
@@ -51,6 +47,20 @@ function ObraList({ obras, config, onViewDetail, onEdit, onDelete, onQuickUpdate
     filterGenero,
     showFavoritosOnly
   ]);
+
+  const infinite = useInfiniteScroll(filteredAndSortedObras, BATCH_SIZE);
+
+  const isInfinite = listingMode === LISTING_MODES.INFINITE;
+  const displayItems = isInfinite ? infinite.visibleItems : pagination.currentPageItems;
+
+  const handleListingModeChange = (newMode) => {
+    setListingMode(newMode);
+    localStorage.setItem(LISTING_MODE_KEY, newMode);
+  };
+
+  const resultsInfo = isInfinite
+    ? `Mostrando ${displayItems.length} de ${filteredAndSortedObras.length} obras`
+    : `Mostrando ${pagination.startIndex + 1}–${Math.min(pagination.endIndex, filteredAndSortedObras.length)} de ${filteredAndSortedObras.length} obras`;
 
   return (
     <div className="obra-list-container">
@@ -75,11 +85,13 @@ function ObraList({ obras, config, onViewDetail, onEdit, onDelete, onQuickUpdate
         onClearFilters={clearFilters}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
+        listingMode={listingMode}
+        onListingModeChange={handleListingModeChange}
         config={config}
       />
 
       <div className="results-info">
-        Mostrando {startIndex + 1}-{Math.min(endIndex, filteredAndSortedObras.length)} de {filteredAndSortedObras.length} obras
+        {resultsInfo}
         {filteredAndSortedObras.length !== obras.length && ` (${obras.length} no total)`}
       </div>
 
@@ -102,7 +114,7 @@ function ObraList({ obras, config, onViewDetail, onEdit, onDelete, onQuickUpdate
                 </tr>
               </thead>
               <tbody>
-                {currentPageItems.map(obra => (
+                {displayItems.map(obra => (
                   <ObraCard
                     key={obra.id}
                     obra={obra}
@@ -117,7 +129,7 @@ function ObraList({ obras, config, onViewDetail, onEdit, onDelete, onQuickUpdate
             </table>
           ) : (
             <div className={`obra-list ${viewMode}`}>
-              {currentPageItems.map(obra => (
+              {displayItems.map(obra => (
                 <ObraCard
                   key={obra.id}
                   obra={obra}
@@ -131,14 +143,25 @@ function ObraList({ obras, config, onViewDetail, onEdit, onDelete, onQuickUpdate
             </div>
           )}
 
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onFirstPage={goToFirstPage}
-            onPreviousPage={goToPreviousPage}
-            onNextPage={goToNextPage}
-            onLastPage={goToLastPage}
-          />
+          {isInfinite ? (
+            <>
+              {infinite.hasMore && (
+                <div ref={infinite.sentinelRef} className="infinite-scroll-sentinel" aria-hidden="true" />
+              )}
+              {!infinite.hasMore && filteredAndSortedObras.length > BATCH_SIZE && (
+                <p className="infinite-scroll-end">Todas as obras carregadas</p>
+              )}
+            </>
+          ) : (
+            <Pagination
+              currentPage={pagination.currentPage}
+              totalPages={pagination.totalPages}
+              onFirstPage={pagination.goToFirstPage}
+              onPreviousPage={pagination.goToPreviousPage}
+              onNextPage={pagination.goToNextPage}
+              onLastPage={pagination.goToLastPage}
+            />
+          )}
         </>
       )}
     </div>

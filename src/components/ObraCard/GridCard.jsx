@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { Star, ExternalLink, Plus, StickyNote, X } from 'lucide-react';
+import { Star, ExternalLink, Plus, StickyNote, X, EyeOff } from 'lucide-react';
 import FavoriteStar from './shared/FavoriteStar';
 import StatusBadge from './shared/StatusBadge';
 import ObraStatusBadge from './shared/ObraStatusBadge';
-import CoverImage from './shared/CoverImage';
 import { hasLink, calculateProgress } from './utils';
 
 /**
@@ -15,13 +14,18 @@ function GridCard({
   onViewDetail,
   onToggleFavorito,
   onIncrementCapitulo,
-  onLinkClick
+  onLinkClick,
+  isNsfw,
+  nsfwMode,
 }) {
   const [notesExpanded, setNotesExpanded] = useState(false);
+  const [blurRevealed, setBlurRevealed] = useState(false);
 
   const hasObraLink = hasLink(obra);
   const hasNotes = obra.notas && obra.notas.trim().length > 0;
   const progressPercentage = calculateProgress(obra.capituloAtualUsuario, obra.capituloAtual);
+
+  const isBlurred = isNsfw && nsfwMode === 'blur' && !blurRevealed;
 
   const handleFavorite = (e) => {
     e.stopPropagation();
@@ -43,15 +47,33 @@ function GridCard({
     setNotesExpanded(!notesExpanded);
   };
 
+  const handleReveal = (e) => {
+    e.stopPropagation();
+    setBlurRevealed(true);
+  };
+
   return (
     <div className={`obra-card ${notesExpanded ? 'card-notes-expanded' : ''}`}>
       <div className="card-main" onClick={onViewDetail}>
-        <div className="card-cover">
+        <div className={`card-cover${isBlurred ? ' nsfw-blur' : ''}`}>
           {coverUrl ? (
             <img src={coverUrl} alt={obra.nome} />
           ) : (
             <div className="no-cover"></div>
           )}
+
+          {/* Overlay de revelação — só aparece quando o blur está ativo */}
+          {isBlurred && (
+            <button
+              className="nsfw-reveal-btn"
+              onClick={handleReveal}
+              title="Clique para revelar a capa"
+            >
+              <EyeOff size={22} />
+              <span>+18</span>
+            </button>
+          )}
+
           <button
             className="favorite-btn"
             onClick={handleFavorite}

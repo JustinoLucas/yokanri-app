@@ -1,14 +1,20 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { FILTER_ALL } from '../constants';
+import { filterNsfwObras } from '../../../utils/nsfwUtils';
 
 const STORAGE_KEY = 'obraListFilters';
+// Versão dos filtros — incrementar quando o formato mudar (ex: label → ID nos status)
+const FILTERS_VERSION = 2;
 
 // Helper to load filters from localStorage
 const loadFiltersFromStorage = () => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      // Se a versão não bater, descarta os filtros salvos (evita filtros com labels antigos)
+      if (parsed.version !== FILTERS_VERSION) return null;
+      return parsed;
     }
   } catch (error) {
     console.error('Erro ao carregar filtros do localStorage:', error);
@@ -19,13 +25,13 @@ const loadFiltersFromStorage = () => {
 // Helper to save filters to localStorage
 const saveFiltersToStorage = (filters) => {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filters));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...filters, version: FILTERS_VERSION }));
   } catch (error) {
     console.error('Erro ao salvar filtros no localStorage:', error);
   }
 };
 
-export function useFiltering(obras) {
+export function useFiltering(obras, config) {
   // Load initial state from localStorage
   const savedFilters = loadFiltersFromStorage();
 
@@ -53,7 +59,8 @@ export function useFiltering(obras) {
   }, [searchTerm, filterTipo, filterStatusObra, filterStatusLeitura, filterGenero, showFavoritosOnly, sortBy, sortOrder]);
 
   const filteredAndSortedObras = useMemo(() => {
-    let result = [...obras];
+    // Aplica filtro NSFW primeiro (remove obras se modo for 'hidden')
+    let result = filterNsfwObras(obras, config);
 
     // Filter by search term
     if (searchTerm) {
@@ -115,7 +122,7 @@ export function useFiltering(obras) {
     });
 
     return result;
-  }, [obras, searchTerm, filterTipo, filterStatusObra, filterStatusLeitura, filterGenero, showFavoritosOnly, sortBy, sortOrder]);
+  }, [obras, config, searchTerm, filterTipo, filterStatusObra, filterStatusLeitura, filterGenero, showFavoritosOnly, sortBy, sortOrder]);
 
   const handleSortChange = useCallback((newSortBy) => {
     setSortBy(newSortBy);

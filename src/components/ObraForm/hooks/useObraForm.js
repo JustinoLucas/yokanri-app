@@ -4,7 +4,6 @@ import { useMigration } from './useMigration'; // ⚠️ REMOVER NA v4.0
 import { useCapasManager } from './useCapasManager';
 import { useLinksManager } from './useLinksManager';
 import { calculateStatusDateUpdates } from '../../../utils/statusDateHelpers';
-import { useConfig } from '../../../context/ConfigContext';
 
 /**
  * Main form hook that orchestrates form state and validation
@@ -12,7 +11,6 @@ import { useConfig } from '../../../context/ConfigContext';
  * @param {Function} onSave - Callback when form is saved
  */
 export const useObraForm = (obra, onSave) => {
-  const config = useConfig();
   // ⚠️ REMOVER NA v4.0 - Migração apenas para dados antigos
   const { migrateObraData } = useMigration();
   const [formData, setFormData] = useState(() => migrateObraData(obra));
@@ -128,23 +126,19 @@ export const useObraForm = (obra, onSave) => {
     let finalData = { ...formData };
 
     try {
-      // Check if status changed and apply date updates
-      const find = (id) => config?.statusLeitura?.find(s => s.id === id)?.label;
-      const labelLendo = find('lendo') ?? 'Lendo';
-      const labelCompleto = find('completo') ?? 'Completo';
-
+      // Verifica se o status mudou e aplica atualizações de data
+      // statusUsuario armazena IDs estáveis ('lendo', 'completo', …)
       if (obra && formData.statusUsuario !== obra.statusUsuario) {
         const dateUpdates = calculateStatusDateUpdates(
           obra,
           formData.statusUsuario,
-          obra.statusUsuario,
-          config
+          obra.statusUsuario
         );
         finalData = { ...finalData, ...dateUpdates };
       }
-      else if (!obra && formData.statusUsuario === labelLendo && !formData.dataInicioLeitura) {
+      else if (!obra && formData.statusUsuario === 'lendo' && !formData.dataInicioLeitura) {
         finalData.dataInicioLeitura = new Date().toISOString();
-      } else if (!obra && formData.statusUsuario === labelCompleto) {
+      } else if (!obra && formData.statusUsuario === 'completo') {
         if (!formData.dataInicioLeitura) {
           finalData.dataInicioLeitura = new Date().toISOString();
         }

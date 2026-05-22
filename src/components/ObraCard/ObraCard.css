@@ -680,3 +680,58 @@
     font-size: 14px;
   }
 }
+
+/* ─── NSFW BLUR ─────────────────────────────────────── */
+
+/* Grid e Row: blur na div wrapper da capa */
+.card-cover.nsfw-blur img,
+.row-cover.nsfw-blur img {
+  filter: blur(14px);
+  /* Sem regra :hover — blur permanente; revelado só por clique explícito */
+}
+
+/* Compact: blur diretamente na img */
+.compact-cover-img.nsfw-blur-img {
+  filter: blur(8px);
+}
+
+/* ─── Overlay de revelação NSFW ─────────────────────── */
+
+/* Botão overlay — cobre toda a capa e indica que é clicável */
+.nsfw-reveal-btn {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.28);
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.9);
+  z-index: 3;
+  transition: background 0.18s;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.nsfw-reveal-btn:hover {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* Variante compacta — wrapper para a img da tabela */
+.compact-cover-wrapper {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+}
+
+.nsfw-reveal-btn--compact {
+  border-radius: 4px;
+  font-size: 0;        /* Esconde o texto na versão compacta — ícone basta */
+}
