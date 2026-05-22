@@ -8,15 +8,19 @@ import Statistics from './components/Statistics';
 import Configuracoes from './components/Configuracoes';
 import WorkspaceProfile from './components/WorkspaceProfile';
 import storage from './services/storage/storageService';
+import * as onboardingService from './onboarding/services/onboardingService';
+import OnboardingApp from './onboarding/OnboardingApp';
 import { useMigration } from './components/ObraForm/hooks/useMigration'; // ⚠️ REMOVER NA v4.0
 import { calculateStatusDateUpdates } from './utils/statusDateHelpers';
 import { useConfiguracoes } from './hooks/useConfiguracoes';
 import { ConfigProvider } from './context/ConfigContext';
+import { setSplashStatus, hideSplash, SPLASH_STATUS } from './utils/splashUtils';
 import './App.css';
 
 function App() {
   const [obras, setObras] = useState([]);
   const [ready, setReady] = useState(false);
+  const [needsOnboarding, setNeedsOnboarding] = useState(null); // null = ainda verificando
   const [activeWorkspace, setActiveWorkspace] = useState(null);
   const [currentView, setCurrentView] = useState('list');
   const [selectedObra, setSelectedObra] = useState(null);
@@ -37,37 +41,91 @@ function App() {
     }
   };
 
-  const { config, addItem, renameItem, deleteItem, updateColor, toggleHideSchedule } = useConfiguracoes(obras, saveData, ready);
+  const { config, addItem, renameItem, deleteItem, updateColor, toggleHideSchedule, toggleGenreNsfw, setNsfwMode } = useConfiguracoes(obras, saveData, ready);
 
   // Inicialização do app — roda uma vez
   useEffect(() => {
     initApp();
   }, []);
 
+  /**
+   * Sequência de inicialização do app, com fases visíveis no splash screen.
+   *
+   * Fluxo:
+   *   Fase 1 — Verifica se o onboarding é necessário
+   *   Fase 2 — Inicializa o workspace ativo (SQLite, paths)
+   *   Fase 3 — Carrega o acervo de obras
+   *   Pronto  — Revela o app com fade do splash
+   *
+   * O HTML splash (#app-splash) cobre o React durante todo o processo,
+   * então não há flashes ou estados de loading visíveis ao usuário.
+   */
   const initApp = async () => {
     try {
-      // Inicializa workspaces e define o ativo
+      // ── Fase 1: Verificar onboarding ──────────────────
+      setSplashStatus(SPLASH_STATUS.CHECKING);
+      const needed = await onboardingService.isNeeded();
+
+      if (needed) {
+        // Esconde o splash antes de mostrar o onboarding
+        setNeedsOnboarding(true);
+        hideSplash();
+        return;
+      }
+
+      setNeedsOnboarding(false);
+
+      // ── Fase 2: Inicializar workspace ─────────────────
+      setSplashStatus(SPLASH_STATUS.WORKSPACE);
       const workspace = await storage.init();
       setActiveWorkspace(workspace);
+
+      // ── Fase 3: Carregar obras ────────────────────────
+      setSplashStatus(SPLASH_STATUS.DATA);
+      const data = await storage.loadObras();
+      // ⚠️ REMOVER NA v4.0 — migração de dados legados
+      const migratedData = data.map(migrateObraData);
+      setObras(migratedData);
+
+      // ── Pronto: revela o app ──────────────────────────
+      // setReady(true) e hideSplash() são chamados juntos:
+      // React re-renderiza o app completo "por baixo" durante o fade de 350ms.
       setReady(true);
-      loadData();
+      hideSplash();
     } catch (error) {
       console.error('Erro ao inicializar o app:', error);
-      alert('Erro ao inicializar o armazenamento. Reinicie o aplicativo.');
+      setSplashStatus(SPLASH_STATUS.ERROR);
+      // Não esconde o splash em caso de erro — o usuário vê a mensagem
     }
   };
 
+  /**
+   * Chamado pelo OnboardingApp quando o onboarding termina com sucesso.
+   * O workspace já está ativo (storage.switchWorkspace foi chamado internamente).
+   * O splash já foi escondido antes do onboarding aparecer.
+   */
+  const handleOnboardingComplete = async (workspace) => {
+    setNeedsOnboarding(false);
+    setActiveWorkspace(workspace);
+    setReady(true);
+    loadData(); // Carrega obras do workspace recém-criado/importado
+  };
+
+  /**
+   * Recarrega o acervo (usado em refresh manual e troca de workspace).
+   * Não usada no startup inicial — o initApp carrega diretamente.
+   */
   const loadData = async () => {
     setLoading(true);
     try {
       const data = await storage.loadObras();
-      // ⚠️ REMOVER NA v4.0 - Migra todos os obras para o novo formato (apenas para dados antigos)
+      // ⚠️ REMOVER NA v4.0 — migração de dados legados
       const migratedData = data.map(migrateObraData);
       setObras(migratedData);
       // ⚠️ NA v4.0 substituir por: setObras(data);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
-      alert('Erro ao carregar dados.');
+      alert('Erro ao carregar dados:\n\n' + (error?.message || error));
     } finally {
       setLoading(false);
     }
@@ -157,13 +215,15 @@ function App() {
     await saveData(updatedManwhas);
   };
 
-  // Enquanto o storage não inicializou, mostra loading
-  if (!ready) {
-    return (
-      <div className="app">
-        <div className="loading">Iniciando Yokanri...</div>
-      </div>
-    );
+  // Verificação inicial do onboarding ainda não concluída.
+  // O HTML splash cobre tudo — o usuário não vê este estado.
+  if (needsOnboarding === null || (!needsOnboarding && !ready)) {
+    return null; // App monta silenciosamente por baixo do splash
+  }
+
+  // Primeiro uso — mostra o onboarding (splash já foi escondido)
+  if (needsOnboarding) {
+    return <OnboardingApp onComplete={handleOnboardingComplete} />;
   }
 
   return (
@@ -237,6 +297,8 @@ function App() {
                   onDelete={deleteItem}
                   onUpdateColor={updateColor}
                   onToggleHideSchedule={toggleHideSchedule}
+                  onToggleGenreNsfw={toggleGenreNsfw}
+                  onSetNsfwMode={setNsfwMode}
                 />
               )}
 

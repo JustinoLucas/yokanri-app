@@ -3,7 +3,8 @@ import { useConfig } from '../../../context/ConfigContext';
 
 function ReleasesHeader({ filterStatusLeitura, onFilterChange }) {
   const config = useConfig();
-  const statusList = config?.statusLeitura?.map(s => s.label) ?? [];
+  // Exclui itens ocultos (ex: 'nao-definido') — value = ID, texto = label
+  const statusList = config?.statusLeitura?.filter(s => !s.hidden) ?? [];
 
   return (
     <div className="releases-header">
@@ -20,9 +21,9 @@ function ReleasesHeader({ filterStatusLeitura, onFilterChange }) {
           value={filterStatusLeitura}
           onChange={(e) => onFilterChange(e.target.value)}
         >
-          {statusList.map(status => (
-            <option key={status} value={status}>
-              {status}
+          {statusList.map(s => (
+            <option key={s.id} value={s.id}>
+              {s.label}
             </option>
           ))}
         </select>

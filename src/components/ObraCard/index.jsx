@@ -3,6 +3,8 @@ import CompactCard from './CompactCard';
 import RowCard from './RowCard';
 import GridCard from './GridCard';
 import { getPrincipalLink } from './utils';
+import { useConfig } from '../../context/ConfigContext';
+import { isObraNsfw, getNsfwMode } from '../../utils/nsfwUtils';
 import './ObraCard.css';
 
 /**
@@ -16,6 +18,9 @@ import './ObraCard.css';
  */
 function ObraCard({ obra, viewMode, onViewDetail, onEdit, onDelete, onQuickUpdate }) {
   const coverUrl = useCover(obra);
+  const config = useConfig();
+  const isNsfw = isObraNsfw(obra, config);
+  const nsfwMode = getNsfwMode(config);
 
   const handleToggleFavorito = () => {
     onQuickUpdate(obra.id, { favorito: !obra.favorito });
@@ -64,6 +69,8 @@ function ObraCard({ obra, viewMode, onViewDetail, onEdit, onDelete, onQuickUpdat
         onEdit={onEdit}
         onToggleFavorito={handleToggleFavorito}
         onLinkClick={handleLinkClick}
+        isNsfw={isNsfw}
+        nsfwMode={nsfwMode}
       />
     );
   }
@@ -77,6 +84,8 @@ function ObraCard({ obra, viewMode, onViewDetail, onEdit, onDelete, onQuickUpdat
         onToggleFavorito={handleToggleFavorito}
         onIncrementCapitulo={handleIncrementCapitulo}
         onLinkClick={handleLinkClick}
+        isNsfw={isNsfw}
+        nsfwMode={nsfwMode}
       />
     );
   }
@@ -90,6 +99,8 @@ function ObraCard({ obra, viewMode, onViewDetail, onEdit, onDelete, onQuickUpdat
       onToggleFavorito={handleToggleFavorito}
       onIncrementCapitulo={handleIncrementCapitulo}
       onLinkClick={handleLinkClick}
+      isNsfw={isNsfw}
+      nsfwMode={nsfwMode}
     />
   );
 }

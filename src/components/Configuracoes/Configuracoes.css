@@ -292,3 +292,135 @@
   color: #ef4444;
   padding-left: 2px;
 }
+
+/* ───────────────────────────────────────────────
+   Aba Geral
+─────────────────────────────────────────────── */
+
+.config-geral {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ───────────────────────────────────────────────
+   NSFW / Conteúdo +18
+─────────────────────────────────────────────── */
+
+.config-general-section {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.config-general-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 12px;
+}
+
+.config-general-title svg {
+  color: #f59e0b;
+}
+
+.config-nsfw-modes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.config-nsfw-mode-option {
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--bg-card);
+  transition: border-color 0.15s, background 0.15s;
+  user-select: none;
+}
+
+.config-nsfw-mode-option:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-hover);
+}
+
+.config-nsfw-mode-option.selected {
+  border-color: var(--accent-primary);
+  background: color-mix(in srgb, var(--accent-primary) 12%, transparent);
+}
+
+.config-nsfw-mode-option input[type="radio"] {
+  accent-color: var(--accent-primary);
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.config-nsfw-mode-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.config-nsfw-mode-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.config-nsfw-mode-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.config-nsfw-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 10px;
+  padding: 6px 8px;
+  border-left: 2px solid var(--border-color);
+  background: var(--bg-card);
+  border-radius: 0 4px 4px 0;
+}
+
+/* Per-genre NSFW toggle button */
+.config-nsfw-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.config-nsfw-btn:hover {
+  border-color: #f59e0b;
+  color: #f59e0b;
+}
+
+.config-nsfw-btn--active {
+  border-color: #f59e0b;
+  background: color-mix(in srgb, #f59e0b 18%, transparent);
+  color: #f59e0b;
+}

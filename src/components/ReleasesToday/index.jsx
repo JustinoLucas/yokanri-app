@@ -4,15 +4,12 @@ import { useScrollNavigation } from './hooks/useScrollNavigation';
 import ReleasesHeader from './components/ReleasesHeader';
 import ReleasesTabs from './components/ReleasesTabs';
 import ReleasesGrid from './components/ReleasesGrid';
-import { useConfig } from '../../context/ConfigContext';
 import './ReleasesToday.css';
 
 function ReleasesToday({ obras, onViewDetail, onEdit, onDelete, onQuickUpdate }) {
-  const config = useConfig();
-  const labelLendo = config?.statusLeitura?.find(s => s.id === 'lendo')?.label ?? 'Lendo';
-
   const [activeTab, setActiveTab] = useState(0);
-  const [filterStatusLeitura, setFilterStatusLeitura] = useState(labelLendo);
+  // Filtra por ID estável — o label exibido vem do ReleasesHeader
+  const [filterStatusLeitura, setFilterStatusLeitura] = useState('lendo');
 
   const { dias, lancamentosIndeterminados } = useReleasesData(obras, filterStatusLeitura);
 

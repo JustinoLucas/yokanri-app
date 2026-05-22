@@ -29,6 +29,7 @@ function Header({ workspace, onNewObra, onRefresh, onShowStats, onShowConfig, on
             onShowConfig={onShowConfig}
             onShowProfile={onShowProfile}
             onWorkspaceChange={onWorkspaceChange}
+            onRefresh={onRefresh}
           />
         </div>
       </div>

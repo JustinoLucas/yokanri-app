@@ -5,21 +5,39 @@ function generateId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
+/**
+ * Ordena lista de gêneros em ordem alfabética pt-BR (respeita acentos)
+ * Ação vem junto com A, não depois de Z.
+ */
+function sortGeneros(list) {
+  return [...list].sort((a, b) =>
+    a.label.localeCompare(b.label, 'pt-BR', { sensitivity: 'base' })
+  );
+}
+
 export const DEFAULT_CONFIG = {
+  // Modo de exibição de conteúdo adulto/NSFW:
+  //   'show'   — exibe normalmente
+  //   'blur'   — capa com blur (remove no hover)
+  //   'hidden' — oculta completamente da lista
+  nsfwMode: 'show',
+
   statusObra: [
-    { id: 'nao-definido', label: 'Não definido', protected: true, color: '#666666', hideSchedule: false },
-    { id: 'em-andamento', label: 'Em andamento', color: '#10b981', hideSchedule: false },
-    { id: 'completo', label: 'Completo', color: '#3b82f6', hideSchedule: true },
-    { id: 'hiato', label: 'Hiato', color: '#f59e0b', hideSchedule: false },
-    { id: 'cancelado', label: 'Cancelado', color: '#ef4444', hideSchedule: true },
+    // hidden: não aparece na UI (fallback interno para obras sem status definido)
+    // isFixed: pode renomear/recolorir, mas NÃO pode excluir
+    { id: 'nao-definido', label: 'Não definido', isFixed: true, hidden: true,  color: '#666666', hideSchedule: false },
+    { id: 'em-andamento', label: 'Em andamento', isFixed: true,                color: '#10b981', hideSchedule: false },
+    { id: 'completo',     label: 'Completo',      isFixed: true,                color: '#3b82f6', hideSchedule: true  },
+    { id: 'hiato',        label: 'Hiato',          isFixed: true,                color: '#f59e0b', hideSchedule: false },
+    { id: 'cancelado',    label: 'Cancelado',      isFixed: true,                color: '#ef4444', hideSchedule: true  },
   ],
   statusLeitura: [
-    { id: 'nao-definido', label: 'Não definido', protected: true, color: '#666666' },
-    { id: 'lendo', label: 'Lendo', color: '#4caf50' },
-    { id: 'completo', label: 'Completo', color: '#2196f3' },
-    { id: 'dropado', label: 'Dropado', color: '#f44336' },
-    { id: 'planeja-ler', label: 'Planeja ler', color: '#ff9800' },
-    { id: 'pausado', label: 'Pausado', color: '#9e9e9e' },
+    { id: 'nao-definido', label: 'Não definido', isFixed: true, hidden: true,  color: '#666666' },
+    { id: 'lendo',        label: 'Lendo',          isFixed: true,                color: '#4caf50' },
+    { id: 'completo',     label: 'Completo',        isFixed: true,                color: '#2196f3' },
+    { id: 'dropado',      label: 'Dropado',          isFixed: true,                color: '#f44336' },
+    { id: 'planeja-ler',  label: 'Planeja ler',    isFixed: true,                color: '#ff9800' },
+    { id: 'pausado',      label: 'Pausado',          isFixed: true,                color: '#9e9e9e' },
   ],
   tipoLancamento: [
     { id: 'nao-definido', label: 'Não definido', protected: true },
@@ -93,18 +111,28 @@ export function useConfiguracoes(obras, onSaveObras, ready) {
     const mergeList = (list, defaults) =>
       list.map(item => {
         const def = defaults.find(d => d.id === item.id);
-        return {
+        const merged = {
           ...item,
           color: item.color ?? def?.color,
           ...(item.hideSchedule === undefined && def?.hideSchedule !== undefined
             ? { hideSchedule: def.hideSchedule }
             : {}),
+          // Flags de sistema: sempre sobrescritas pelos defaults (não são editáveis pelo usuário)
+          ...(def?.isFixed !== undefined ? { isFixed: def.isFixed } : {}),
+          ...(def?.hidden  !== undefined ? { hidden:  def.hidden  } : {}),
         };
+        // Remove campo legado 'protected' de configs salvas anteriormente
+        delete merged.protected;
+        return merged;
       });
     return {
       ...saved,
+      // Garante que nsfwMode existe mesmo em configs salvas antes desta versão
+      nsfwMode: saved.nsfwMode ?? DEFAULT_CONFIG.nsfwMode,
       statusObra: mergeList(saved.statusObra, DEFAULT_CONFIG.statusObra),
       statusLeitura: mergeList(saved.statusLeitura, DEFAULT_CONFIG.statusLeitura),
+      // Garante que gêneros carregados do disco estejam em ordem alfabética
+      generos: sortGeneros(saved.generos ?? DEFAULT_CONFIG.generos),
     };
   };
 
@@ -137,9 +165,14 @@ export function useConfiguracoes(obras, onSaveObras, ready) {
     if (isDuplicate(category, trimmed)) return 'duplicate';
     const hasColor = category === 'statusObra' || category === 'statusLeitura';
     const newItem = { id: generateId(), label: trimmed, ...(hasColor ? { color } : {}) };
+    let updatedList = [...config[category], newItem];
+    // Gêneros sempre em ordem alfabética pt-BR
+    if (category === 'generos') {
+      updatedList = sortGeneros(updatedList);
+    }
     await persistConfig({
       ...config,
-      [category]: [...config[category], newItem],
+      [category]: updatedList,
     });
     return 'ok';
   };
@@ -149,23 +182,20 @@ export function useConfiguracoes(obras, onSaveObras, ready) {
     if (!trimmed) return null;
 
     const item = config[category].find(i => i.id === id);
-    if (!item || item.protected) return null;
+    // Itens protegidos (tipoLancamento) ou ocultos (nao-definido) não podem ser renomeados
+    if (!item || item.protected || item.hidden) return null;
     if (isDuplicate(category, trimmed, id)) return 'duplicate';
 
-    const oldLabel = item.label;
-    const obraField = CATEGORY_TO_OBRA_FIELD[category];
-
-    const updatedObras = obras.map(obra => {
-      if (category === 'generos') {
-        return { ...obra, generos: obra.generos.map(g => g === oldLabel ? trimmed : g) };
-      }
-      if (obra[obraField] === oldLabel) {
-        return { ...obra, [obraField]: trimmed };
-      }
-      return obra;
-    });
-
-    await onSaveObras(updatedObras);
+    // Gêneros armazenam o label nas obras — precisa atualizar
+    // Statuses armazenam o ID nas obras — renomear o label não afeta as obras
+    if (category === 'generos') {
+      const oldLabel = item.label;
+      const updatedObras = obras.map(obra => ({
+        ...obra,
+        generos: obra.generos.map(g => g === oldLabel ? trimmed : g),
+      }));
+      await onSaveObras(updatedObras);
+    }
 
     await persistConfig({
       ...config,
@@ -175,24 +205,25 @@ export function useConfiguracoes(obras, onSaveObras, ready) {
 
   const deleteItem = async (category, id) => {
     const item = config[category].find(i => i.id === id);
-    if (!item || item.protected) return 0;
+    // Itens protegidos (tipoLancamento) ou fixos (core statuses) não podem ser excluídos
+    if (!item || item.protected || item.isFixed) return 0;
 
-    const labelToDelete = item.label;
-    const naoDefinidoLabel = config[category].find(i => i.id === 'nao-definido')?.label || 'Não definido';
     const obraField = CATEGORY_TO_OBRA_FIELD[category];
 
     let affectedCount = 0;
     const updatedObras = obras.map(obra => {
       if (category === 'generos') {
-        if (obra.generos.includes(labelToDelete)) {
+        // Gêneros armazenam o label nas obras
+        if (obra.generos.includes(item.label)) {
           affectedCount++;
-          return { ...obra, generos: obra.generos.filter(g => g !== labelToDelete) };
+          return { ...obra, generos: obra.generos.filter(g => g !== item.label) };
         }
         return obra;
       }
-      if (obra[obraField] === labelToDelete) {
+      // Statuses armazenam o ID nas obras — comparar por ID, fallback para 'nao-definido'
+      if (obra[obraField] === id) {
         affectedCount++;
-        return { ...obra, [obraField]: naoDefinidoLabel };
+        return { ...obra, [obraField]: 'nao-definido' };
       }
       return obra;
     });
@@ -225,5 +256,20 @@ export function useConfiguracoes(obras, onSaveObras, ready) {
     });
   };
 
-  return { config, addItem, renameItem, deleteItem, updateColor, toggleHideSchedule };
+  /** Alterna a flag NSFW de um gênero específico */
+  const toggleGenreNsfw = async (id) => {
+    await persistConfig({
+      ...config,
+      generos: config.generos.map(g =>
+        g.id === id ? { ...g, nsfw: !g.nsfw } : g
+      ),
+    });
+  };
+
+  /** Define o modo global de exibição de conteúdo NSFW */
+  const setNsfwMode = async (mode) => {
+    await persistConfig({ ...config, nsfwMode: mode });
+  };
+
+  return { config, addItem, renameItem, deleteItem, updateColor, toggleHideSchedule, toggleGenreNsfw, setNsfwMode };
 }

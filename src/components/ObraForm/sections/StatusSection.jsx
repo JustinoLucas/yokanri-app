@@ -1,13 +1,9 @@
 import { ChevronDown } from 'lucide-react';
-import { STATUS_OBRA, STATUS_LEITURA } from '../../../types/obra';
 
 function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statusObraList, statusLeituraList }) {
-  const statusObraOptions = statusObraList?.map(s => s.label) ?? Object.values(STATUS_OBRA);
-  const statusLeituraOptions = statusLeituraList?.map(s => s.label) ?? Object.values(STATUS_LEITURA);
-
-  const labelLendo = statusLeituraList?.find(s => s.id === 'lendo')?.label ?? 'Lendo';
-  const labelPausado = statusLeituraList?.find(s => s.id === 'pausado')?.label ?? 'Pausado';
-  const labelCompleto = statusLeituraList?.find(s => s.id === 'completo')?.label ?? 'Completo';
+  // Filtra itens ocultos (ex: 'nao-definido') — value = ID, texto = label configurado
+  const statusObraOptions  = statusObraList?.filter(s => !s.hidden)  ?? [];
+  const statusLeituraOptions = statusLeituraList?.filter(s => !s.hidden) ?? [];
 
   return (
     <section className="form-section">
@@ -22,8 +18,8 @@ function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statu
               value={formData.status}
               onChange={(e) => onChange('status', e.target.value)}
             >
-              {statusObraOptions.map(status => (
-                <option key={status} value={status}>{status}</option>
+              {statusObraOptions.map(s => (
+                <option key={s.id} value={s.id}>{s.label}</option>
               ))}
             </select>
             <ChevronDown size={16} className="custom-select-icon" />
@@ -38,8 +34,8 @@ function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statu
               value={formData.statusUsuario}
               onChange={(e) => onChange('statusUsuario', e.target.value)}
             >
-              {statusLeituraOptions.map(status => (
-                <option key={status} value={status}>{status}</option>
+              {statusLeituraOptions.map(s => (
+                <option key={s.id} value={s.id}>{s.label}</option>
               ))}
             </select>
             <ChevronDown size={16} className="custom-select-icon" />
@@ -77,10 +73,10 @@ function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statu
         </div>
       </div>
 
-      {/* Datas de Leitura - Aparecem baseado no status */}
-      {(formData.statusUsuario === labelLendo ||
-        formData.statusUsuario === labelPausado ||
-        formData.statusUsuario === labelCompleto) && (
+      {/* Datas de Leitura - Aparecem baseado no status (comparação por ID estável) */}
+      {(formData.statusUsuario === 'lendo' ||
+        formData.statusUsuario === 'pausado' ||
+        formData.statusUsuario === 'completo') && (
         <div className="form-row">
           <div className="form-group">
             <label>
@@ -99,7 +95,7 @@ function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statu
             />
           </div>
 
-          {formData.statusUsuario === labelCompleto && (
+          {formData.statusUsuario === 'completo' && (
             <div className="form-group">
               <label>
                 Data de Conclusão

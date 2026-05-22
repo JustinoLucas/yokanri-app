@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Star, ExternalLink, Plus, Calendar, StickyNote, X } from 'lucide-react';
+import { Star, ExternalLink, Plus, Calendar, StickyNote, X, EyeOff } from 'lucide-react';
 import FavoriteStar from './shared/FavoriteStar';
 import StatusBadge from './shared/StatusBadge';
 import ObraStatusBadge from './shared/ObraStatusBadge';
@@ -16,13 +16,18 @@ function RowCard({
   onViewDetail,
   onToggleFavorito,
   onIncrementCapitulo,
-  onLinkClick
+  onLinkClick,
+  isNsfw,
+  nsfwMode,
 }) {
   const [notesExpanded, setNotesExpanded] = useState(false);
+  const [blurRevealed, setBlurRevealed] = useState(false);
 
   const hasObraLink = hasLink(obra);
   const hasNotes = obra.notas && obra.notas.trim().length > 0;
   const progressPercentage = calculateProgress(obra.capituloAtualUsuario, obra.capituloAtual);
+
+  const isBlurred = isNsfw && nsfwMode === 'blur' && !blurRevealed;
 
   const handleFavorite = (e) => {
     e.stopPropagation();
@@ -44,15 +49,31 @@ function RowCard({
     setNotesExpanded(!notesExpanded);
   };
 
+  const handleReveal = (e) => {
+    e.stopPropagation();
+    setBlurRevealed(true);
+  };
+
   return (
     <div className={`obra-row-wrapper ${notesExpanded ? 'notes-expanded' : ''}`}>
       <div className="obra-row" onClick={onViewDetail}>
         <CoverImage
           coverUrl={coverUrl}
           altText={obra.nome}
-          className="row-cover"
+          className={`row-cover${isBlurred ? ' nsfw-blur' : ''}`}
           imgClassName=""
-        />
+        >
+          {isBlurred && (
+            <button
+              className="nsfw-reveal-btn"
+              onClick={handleReveal}
+              title="Clique para revelar a capa"
+            >
+              <EyeOff size={18} />
+            </button>
+          )}
+        </CoverImage>
+
         <div className="row-info">
           <div className="row-title">
             {obra.favorito && <FavoriteStar obraId={obra.id} size={18} />}

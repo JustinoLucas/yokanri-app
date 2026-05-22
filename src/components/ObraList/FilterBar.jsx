@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Search, ChevronDown, ChevronUp, Square, CheckSquare, X, ArrowUpDown } from 'lucide-react';
-import { STATUS_LEITURA, STATUS_OBRA, TIPO_OBRA, GENEROS } from '../../types/obra';
+import { Search, ChevronDown, ChevronUp, Square, CheckSquare, X, ArrowUpDown, FileText, ChevronsDown } from 'lucide-react';
+import { TIPO_OBRA, GENEROS } from '../../types/obra';
 import CustomSelect from '../CustomSelect';
 import ViewModeToggle from './ViewModeToggle';
-import { SORT_OPTIONS } from './constants';
+import { SORT_OPTIONS, LISTING_MODES } from './constants';
 
 function FilterBar({
   searchTerm,
@@ -26,11 +26,17 @@ function FilterBar({
   onClearFilters,
   viewMode,
   onViewModeChange,
+  listingMode,
+  onListingModeChange,
   config,
 }) {
-  const statusObraOptions = config?.statusObra?.map(s => s.label) ?? Object.values(STATUS_OBRA);
-  const statusLeituraOptions = config?.statusLeitura?.map(s => s.label) ?? Object.values(STATUS_LEITURA);
-  const generosOptions = config?.generos?.map(g => g.label) ?? GENEROS;
+  // Exclui itens ocultos (nao-definido) — value = ID, label = rótulo configurado
+  const statusObraOptions = (config?.statusObra?.filter(s => !s.hidden) ?? []).map(s => ({ value: s.id, label: s.label }));
+  const statusLeituraOptions = (config?.statusLeitura?.filter(s => !s.hidden) ?? []).map(s => ({ value: s.id, label: s.label }));
+  const generosOptions = (config?.generos ?? GENEROS.map(label => ({ label })))
+    .slice()
+    .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR', { sensitivity: 'base' }))
+    .map(g => g.label);
   const [filtersExpanded, setFiltersExpanded] = useState(false);
 
   return (
@@ -48,6 +54,23 @@ function FilterBar({
         </div>
 
         <ViewModeToggle viewMode={viewMode} onViewModeChange={onViewModeChange} />
+
+        <div className="listing-mode-toggle" title="Modo de listagem">
+          <button
+            className={`listing-mode-btn${listingMode === LISTING_MODES.PAGINATION ? ' active' : ''}`}
+            onClick={() => onListingModeChange(LISTING_MODES.PAGINATION)}
+            title="Paginação"
+          >
+            <FileText size={16} />
+          </button>
+          <button
+            className={`listing-mode-btn${listingMode === LISTING_MODES.INFINITE ? ' active' : ''}`}
+            onClick={() => onListingModeChange(LISTING_MODES.INFINITE)}
+            title="Scroll infinito"
+          >
+            <ChevronsDown size={16} />
+          </button>
+        </div>
       </div>
 
       <div className="filters-actions">
@@ -87,14 +110,14 @@ function FilterBar({
             value={filterStatusObra}
             onChange={(e) => onFilterStatusObraChange(e.target.value)}
             placeholder="Status da Obra"
-            options={statusObraOptions.map(s => ({ value: s, label: s }))}
+            options={statusObraOptions}
           />
 
           <CustomSelect
             value={filterStatusLeitura}
             onChange={(e) => onFilterStatusLeituraChange(e.target.value)}
             placeholder="Meu Status"
-            options={statusLeituraOptions.map(s => ({ value: s, label: s }))}
+            options={statusLeituraOptions}
           />
 
           <CustomSelect

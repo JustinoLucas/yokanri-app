@@ -45,22 +45,23 @@ export const useMigration = () => {
 
     // ==================== STATUS OBRA MIGRATION ====================
     // ⚠️ REMOVER NA v4.0
-    // Old: EM_ANDAMENTO, COMPLETO, HIATO, CANCELADO (uppercase with underscore)
-    // New: Em andamento, Completo, Hiato, Cancelado (proper case with spaces)
-    if (migrated.status === 'EM_ANDAMENTO') migrated.status = 'Em andamento';
-    if (migrated.status === 'COMPLETO') migrated.status = 'Completo';
-    if (migrated.status === 'HIATO') migrated.status = 'Hiato';
-    if (migrated.status === 'CANCELADO') migrated.status = 'Cancelado';
+    // Converte formatos antigos → ID estável (v2):
+    //   UPPERCASE (v1 antigo) → ID
+    //   Label string (v1 DB)  → ID
+    if (migrated.status === 'EM_ANDAMENTO' || migrated.status === 'Em andamento') migrated.status = 'em-andamento';
+    if (migrated.status === 'COMPLETO'     || migrated.status === 'Completo')     migrated.status = 'completo';
+    if (migrated.status === 'HIATO'        || migrated.status === 'Hiato')        migrated.status = 'hiato';
+    if (migrated.status === 'CANCELADO'    || migrated.status === 'Cancelado')    migrated.status = 'cancelado';
+    if (migrated.status === 'Não definido')                                        migrated.status = 'nao-definido';
 
     // ==================== STATUS LEITURA MIGRATION ====================
     // ⚠️ REMOVER NA v4.0
-    // Old: LENDO, COMPLETO, DROPADO, PLANEJA_LER, PAUSADO (uppercase with underscore)
-    // New: Lendo, Completo, Dropado, Planeja ler, Pausado (proper case with spaces)
-    if (migrated.statusUsuario === 'LENDO') migrated.statusUsuario = 'Lendo';
-    if (migrated.statusUsuario === 'COMPLETO') migrated.statusUsuario = 'Completo';
-    if (migrated.statusUsuario === 'DROPADO') migrated.statusUsuario = 'Dropado';
-    if (migrated.statusUsuario === 'PLANEJA_LER') migrated.statusUsuario = 'Planeja ler';
-    if (migrated.statusUsuario === 'PAUSADO') migrated.statusUsuario = 'Pausado';
+    if (migrated.statusUsuario === 'LENDO'      || migrated.statusUsuario === 'Lendo')       migrated.statusUsuario = 'lendo';
+    if (migrated.statusUsuario === 'COMPLETO'   || migrated.statusUsuario === 'Completo')    migrated.statusUsuario = 'completo';
+    if (migrated.statusUsuario === 'DROPADO'    || migrated.statusUsuario === 'Dropado')     migrated.statusUsuario = 'dropado';
+    if (migrated.statusUsuario === 'PLANEJA_LER'|| migrated.statusUsuario === 'Planeja ler') migrated.statusUsuario = 'planeja-ler';
+    if (migrated.statusUsuario === 'PAUSADO'    || migrated.statusUsuario === 'Pausado')     migrated.statusUsuario = 'pausado';
+    if (migrated.statusUsuario === 'Não definido')                                            migrated.statusUsuario = 'nao-definido';
 
     // ==================== GENEROS MIGRATION ====================
     // ⚠️ REMOVER NA v4.0
@@ -167,21 +168,20 @@ export const useMigration = () => {
     // dataInicioLeitura: ISO date string when user started reading
     // dataFimLeitura: ISO date string when user finished reading
 
-    // ⚠️ REMOVER NA v4.0 - REGRA: Se está "Lendo", "Pausado" ou "Completo", DEVE ter dataInicioLeitura
+    // ⚠️ REMOVER NA v4.0 - REGRA: Se está lendo/pausado/completo, DEVE ter dataInicioLeitura
+    // Comparação por ID (após migração acima os campos já estão em formato ID)
     if (!migrated.dataInicioLeitura) {
-      if (migrated.statusUsuario === 'Lendo' ||
-          migrated.statusUsuario === 'Pausado' ||
-          migrated.statusUsuario === 'Completo') {
+      if (migrated.statusUsuario === 'lendo' ||
+          migrated.statusUsuario === 'pausado' ||
+          migrated.statusUsuario === 'completo') {
         // Usa dataAdicionado como proxy (melhor estimativa)
-        // Se não tem, usa data atual (12/01/2026)
         migrated.dataInicioLeitura = migrated.dataAdicionado || new Date().toISOString();
       }
     }
 
-    // ⚠️ REMOVER NA v4.0 - REGRA: Se está "Completo", DEVE ter dataFimLeitura
-    if (!migrated.dataFimLeitura && migrated.statusUsuario === 'Completo') {
+    // ⚠️ REMOVER NA v4.0 - REGRA: Se está completo, DEVE ter dataFimLeitura
+    if (!migrated.dataFimLeitura && migrated.statusUsuario === 'completo') {
       // Usa dataAtualizado como proxy (quando foi marcado como completo)
-      // Se não tem, usa data atual (12/01/2026)
       migrated.dataFimLeitura = migrated.dataAtualizado || new Date().toISOString();
     }
 
