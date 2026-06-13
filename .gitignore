@@ -49,3 +49,7 @@ pnpm-debug.log*
 *.db
 backups/
 AppData/
+
+# ─── Chave de assinatura do updater (NUNCA commitar) ──
+yokanri-update.key
+yokanri-update.key.pub

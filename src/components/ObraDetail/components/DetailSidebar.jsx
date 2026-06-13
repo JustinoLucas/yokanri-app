@@ -1,7 +1,7 @@
 import { Star } from 'lucide-react';
 import CoversGallery from './CoversGallery';
 import ObraStatusBadge from '../../ObraCard/shared/ObraStatusBadge';
-import FlagIcon from '../../ObraCard/shared/FlagIcon';
+import TipoBadge from '../../ObraCard/shared/TipoBadge';
 import StatusBadge from '../../ObraCard/shared/StatusBadge';
 
 /**
@@ -55,17 +55,17 @@ function DetailSidebar({ obra, coverUrl, allCovers, selectedCoverIndex, onSelect
       <div className="detail-quick-info">
         <div className="info-item">
           <strong>Tipo:</strong>
-          <FlagIcon tipo={obra.tipo} size={24} />
+          <TipoBadge tipo={obra.tipo} className="badge-tipo badge-lg" />
         </div>
 
         <div className="info-item">
           <strong>Status da Obra:</strong>
-          <ObraStatusBadge status={obra.status} className="status-badge" />
+          <ObraStatusBadge status={obra.status} className="badge-flat badge-lg" />
         </div>
 
         <div className="info-item">
           <strong>Meu Status:</strong>
-          <StatusBadge status={obra.statusUsuario} className="status-badge" />
+          <StatusBadge status={obra.statusUsuario} className="badge-outlined badge-lg" />
         </div>
       </div>
     </div>

@@ -1,16 +1,14 @@
 import { useConfig } from '../../../context/ConfigContext';
 
-// status é um ID estável ('em-andamento', 'completo', …) — exibe o label configurado
-function ObraStatusBadge({ status, className = 'badge' }) {
+function ObraStatusBadge({ status, className = 'badge-flat' }) {
   const config = useConfig();
   const item = config?.statusObra?.find(s => s.id === status);
-  const color = item?.color || 'var(--text-tertiary)';
+  const color = item?.color || '#888';
   const label = item?.label || status;
-  // Abbreviate 'Em andamento' → 'Andamento' for compact display
   const shortLabel = status === 'em-andamento' ? 'Andamento' : label;
 
   return (
-    <span className={className} style={{ backgroundColor: color }} title={`Status da obra: ${label}`}>
+    <span className={className} style={{ '--badge-color': color }} title={`Status da obra: ${label}`}>
       {shortLabel}
     </span>
   );

@@ -3,6 +3,7 @@ import { Star, ExternalLink, Plus, StickyNote, X, EyeOff } from 'lucide-react';
 import FavoriteStar from './shared/FavoriteStar';
 import StatusBadge from './shared/StatusBadge';
 import ObraStatusBadge from './shared/ObraStatusBadge';
+import TipoBadge from './shared/TipoBadge';
 import { hasLink, calculateProgress } from './utils';
 
 /**
@@ -94,6 +95,7 @@ function GridCard({
           )}
 
           <div className="card-status">
+            <TipoBadge tipo={obra.tipo} />
             <StatusBadge status={obra.statusUsuario} />
             <ObraStatusBadge status={obra.status} />
           </div>

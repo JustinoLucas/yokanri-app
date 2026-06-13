@@ -1,51 +1,81 @@
 import { useState } from 'react';
+import { SlidersHorizontal } from 'lucide-react';
 import ObraCard from '../ObraCard';
-import FilterBar from './FilterBar';
+import LibraryToolbar from './LibraryToolbar';
+import LibraryFilterPanel from './LibraryFilterPanel';
 import Pagination from './Pagination';
 import EmptyState from './EmptyState';
 import { useFiltering } from './hooks/useFiltering';
 import { usePagination } from './hooks/usePagination';
 import { useInfiniteScroll } from './hooks/useInfiniteScroll';
-import { VIEW_MODES, LISTING_MODES, BATCH_SIZE } from './constants';
+import { VIEW_MODES, LISTING_MODES, BATCH_SIZE, FILTER_ALL } from './constants';
 import './ObraList.css';
 
 const LISTING_MODE_KEY = 'yokanri_listing_mode';
 
-function ObraList({ obras, config, onViewDetail, onEdit, onDelete, onQuickUpdate }) {
+const SORT_LABELS = {
+  dataAdicionado: 'Atualizado',
+  nome: 'Nome',
+  nota: 'Nota',
+  capituloAtualUsuario: 'Capítulo',
+};
+
+function ObraList({
+  obras,
+  config,
+  onViewDetail,
+  onEdit,
+  onDelete,
+  onQuickUpdate,
+  onSetNsfwMode,
+  children,
+}) {
   const [viewMode, setViewMode] = useState(VIEW_MODES.TABLE);
-  const [listingMode, setListingMode] = useState(
+  const [listingMode] = useState(
     () => localStorage.getItem(LISTING_MODE_KEY) ?? LISTING_MODES.PAGINATION
   );
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
 
   const {
-    searchTerm,
-    filterTipo,
-    filterStatusObra,
-    filterStatusLeitura,
-    filterGenero,
+    filterTipo, filterStatusObra, filterStatusLeitura, filterGenero,
+    filterAutor, filterArtista,
+    filterAnoMin, filterAnoMax,
+    filterCapMin, filterCapMax,
+    filterMode,
     showFavoritosOnly,
-    sortBy,
-    sortOrder,
-    setSearchTerm,
-    setFilterTipo,
-    setFilterStatusObra,
-    setFilterStatusLeitura,
-    setFilterGenero,
+    sortBy, sortOrder,
+
+    setFilterTipo, setFilterStatusObra, setFilterStatusLeitura, setFilterGenero,
+    setFilterAutor, setFilterArtista,
+    setFilterAnoMin, setFilterAnoMax,
+    setFilterCapMin, setFilterCapMax,
+    setFilterMode,
     setShowFavoritosOnly,
-    handleSortChange,
-    toggleSortOrder,
-    clearFilters,
+
+    handleSortChange, toggleSortOrder, clearFilters,
     filteredAndSortedObras,
-    hasActiveFilters
   } = useFiltering(obras, config);
 
+  // Número de filtros ativos (exibido no badge do botão "Filtros")
+  const activeFiltersCount = [
+    filterTipo !== FILTER_ALL,
+    filterStatusObra !== FILTER_ALL,
+    filterStatusLeitura !== FILTER_ALL,
+    filterGenero !== FILTER_ALL,
+    filterAutor !== '',
+    filterArtista !== '',
+    filterAnoMin !== '',
+    filterAnoMax !== '',
+    filterCapMin !== '',
+    filterCapMax !== '',
+    showFavoritosOnly,
+  ].filter(Boolean).length;
+
   const pagination = usePagination(filteredAndSortedObras, [
-    searchTerm,
-    filterTipo,
-    filterStatusObra,
-    filterStatusLeitura,
-    filterGenero,
-    showFavoritosOnly
+    filterTipo, filterStatusObra, filterStatusLeitura,
+    filterGenero, filterAutor, filterArtista,
+    filterAnoMin, filterAnoMax, filterCapMin, filterCapMax,
+    showFavoritosOnly,
   ]);
 
   const infinite = useInfiniteScroll(filteredAndSortedObras, BATCH_SIZE);
@@ -53,118 +83,250 @@ function ObraList({ obras, config, onViewDetail, onEdit, onDelete, onQuickUpdate
   const isInfinite = listingMode === LISTING_MODES.INFINITE;
   const displayItems = isInfinite ? infinite.visibleItems : pagination.currentPageItems;
 
-  const handleListingModeChange = (newMode) => {
-    setListingMode(newMode);
-    localStorage.setItem(LISTING_MODE_KEY, newMode);
+  // Label da toolbar
+  const toolbarTitle = (() => {
+    if (filterStatusLeitura !== FILTER_ALL && config?.statusLeitura) {
+      const s = config.statusLeitura.find(x => x.id === filterStatusLeitura);
+      if (s) return `${s.label} · ${filteredAndSortedObras.length} obra${filteredAndSortedObras.length !== 1 ? 's' : ''}`;
+    }
+    return `${filteredAndSortedObras.length} obra${filteredAndSortedObras.length !== 1 ? 's' : ''}`;
+  })();
+
+  // Label do sort atual
+  const sortLabel = SORT_LABELS[sortBy] || sortBy;
+  const sortArrow = sortOrder === 'asc' ? '↑' : '↓';
+
+  // Cicla para o próximo sortBy
+  const SORT_CYCLE = ['dataAdicionado', 'nome', 'nota', 'capituloAtualUsuario'];
+  const handleCycleSortBy = () => {
+    const idx = SORT_CYCLE.indexOf(sortBy);
+    const next = SORT_CYCLE[(idx + 1) % SORT_CYCLE.length];
+    handleSortChange(next);
   };
 
-  const resultsInfo = isInfinite
-    ? `Mostrando ${displayItems.length} de ${filteredAndSortedObras.length} obras`
-    : `Mostrando ${pagination.startIndex + 1}–${Math.min(pagination.endIndex, filteredAndSortedObras.length)} de ${filteredAndSortedObras.length} obras`;
-
   return (
-    <div className="obra-list-container">
-      <FilterBar
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        filterTipo={filterTipo}
-        onFilterTipoChange={setFilterTipo}
-        filterStatusObra={filterStatusObra}
-        onFilterStatusObraChange={setFilterStatusObra}
-        filterStatusLeitura={filterStatusLeitura}
-        onFilterStatusLeituraChange={setFilterStatusLeitura}
-        filterGenero={filterGenero}
-        onFilterGeneroChange={setFilterGenero}
-        showFavoritosOnly={showFavoritosOnly}
-        onShowFavoritosChange={setShowFavoritosOnly}
-        sortBy={sortBy}
-        sortOrder={sortOrder}
-        onSortChange={handleSortChange}
-        onToggleSortOrder={toggleSortOrder}
-        hasActiveFilters={hasActiveFilters}
-        onClearFilters={clearFilters}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        listingMode={listingMode}
-        onListingModeChange={handleListingModeChange}
-        config={config}
+    <div className="obra-list-v3f">
+      {/* ── Toolbar 52px ──────────────────────────────────────── */}
+      <LibraryToolbar
+        eyebrow="Biblioteca"
+        title={toolbarTitle}
+        filterPanelOpen={filterPanelOpen}
       />
 
-      <div className="results-info">
-        {resultsInfo}
-        {filteredAndSortedObras.length !== obras.length && ` (${obras.length} no total)`}
-      </div>
+      {/* ── Filter panel — acima do carrossel, abaixo do toolbar ── */}
+      {filterPanelOpen && (
+        <LibraryFilterPanel
+          config={config}
+          filterTipo={filterTipo}
+          filterStatusObra={filterStatusObra}
+          filterStatusLeitura={filterStatusLeitura}
+          filterGenero={filterGenero}
+          filterAutor={filterAutor}
+          filterArtista={filterArtista}
+          filterAnoMin={filterAnoMin}
+          filterAnoMax={filterAnoMax}
+          filterCapMin={filterCapMin}
+          filterCapMax={filterCapMax}
+          filterMode={filterMode}
+          showFavoritosOnly={showFavoritosOnly}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          nsfwMode={config?.nsfwMode}
+          onFilterTipoChange={setFilterTipo}
+          onFilterStatusObraChange={setFilterStatusObra}
+          onFilterStatusLeituraChange={setFilterStatusLeitura}
+          onFilterGeneroChange={setFilterGenero}
+          onFilterAutorChange={setFilterAutor}
+          onFilterArtistaChange={setFilterArtista}
+          onFilterAnoMinChange={setFilterAnoMin}
+          onFilterAnoMaxChange={setFilterAnoMax}
+          onFilterCapMinChange={setFilterCapMin}
+          onFilterCapMaxChange={setFilterCapMax}
+          onFilterModeChange={setFilterMode}
+          onShowFavoritosChange={setShowFavoritosOnly}
+          onSortChange={handleSortChange}
+          onToggleSortOrder={toggleSortOrder}
+          onSetNsfwMode={onSetNsfwMode}
+          onClearFilters={clearFilters}
+          onClose={() => setFilterPanelOpen(false)}
+          totalResults={filteredAndSortedObras.length}
+        />
+      )}
 
-      {filteredAndSortedObras.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <>
-          {viewMode === VIEW_MODES.COMPACT ? (
-            <table className="compact-table">
-              <thead>
-                <tr>
-                  <th className="compact-th compact-th-cover"></th>
-                  <th className="compact-th compact-th-title">Nome</th>
-                  <th className="compact-th compact-th-status">Meu Status</th>
-                  <th className="compact-th compact-th-obra-status">Status Obra</th>
-                  <th className="compact-th compact-th-tipo">Tipo</th>
-                  <th className="compact-th compact-th-progress">Capítulo</th>
-                  <th className="compact-th compact-th-rating">Nota</th>
-                  <th className="compact-th compact-th-actions">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {displayItems.map(obra => (
-                  <ObraCard
-                    key={obra.id}
-                    obra={obra}
-                    viewMode={viewMode}
-                    onViewDetail={() => onViewDetail(obra)}
-                    onEdit={() => onEdit(obra)}
-                    onDelete={() => onDelete(obra.id)}
-                    onQuickUpdate={onQuickUpdate}
-                  />
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <div className={`obra-list ${viewMode}`}>
-              {displayItems.map(obra => (
-                <ObraCard
-                  key={obra.id}
-                  obra={obra}
-                  viewMode={viewMode}
-                  onViewDetail={() => onViewDetail(obra)}
-                  onEdit={() => onEdit(obra)}
-                  onDelete={() => onDelete(obra.id)}
-                  onQuickUpdate={onQuickUpdate}
-                />
-              ))}
+      {/* ── Conteúdo injetado (carrossel) — sempre visível ─── */}
+      {children}
+
+      {/* ── Lista de obras ───────────────────────────────────── */}
+      <div className="obra-list-body">
+
+          {/* ── View toggle + filtros + sort ──────────────── */}
+          <div className="lib-pills-row">
+            <div className="lib-pills-actions">
+              <div className="lib-toolbar-view-toggle">
+                <ViewBtn
+                  active={viewMode === VIEW_MODES.TABLE}
+                  onClick={() => setViewMode(VIEW_MODES.TABLE)}
+                  title="Linhas"
+                >
+                  <RowsIcon />
+                </ViewBtn>
+                <ViewBtn
+                  active={viewMode === VIEW_MODES.GRID}
+                  onClick={() => setViewMode(VIEW_MODES.GRID)}
+                  title="Grade"
+                >
+                  <GridIcon />
+                </ViewBtn>
+                <ViewBtn
+                  active={viewMode === VIEW_MODES.COMPACT}
+                  onClick={() => setViewMode(VIEW_MODES.COMPACT)}
+                  title="Compacto"
+                >
+                  <ListIcon />
+                </ViewBtn>
+              </div>
+
+              <button
+                className={`lib-toolbar-filters-btn ${filterPanelOpen ? 'lib-toolbar-filters-btn--active' : ''}`}
+                onClick={() => setFilterPanelOpen(v => !v)}
+              >
+                <SlidersHorizontal size={13} />
+                Filtros
+                {activeFiltersCount > 0 && (
+                  <span className="lib-toolbar-filters-badge">{activeFiltersCount}</span>
+                )}
+              </button>
             </div>
-          )}
 
-          {isInfinite ? (
+            {/* Ordenação */}
+            <div className="lib-pills-sort">
+              <span className="lib-pills-sort-label">Ordenar</span>
+              <button className="lib-pills-sort-btn" onClick={handleCycleSortBy}>
+                {sortLabel}
+              </button>
+              <button className="lib-pills-sort-order" onClick={toggleSortOrder} title="Inverter ordem">
+                {sortArrow}
+              </button>
+            </div>
+          </div>
+
+          {filteredAndSortedObras.length === 0 ? (
+            <EmptyState />
+          ) : (
             <>
-              {infinite.hasMore && (
-                <div ref={infinite.sentinelRef} className="infinite-scroll-sentinel" aria-hidden="true" />
+              {viewMode === VIEW_MODES.COMPACT ? (
+                <table className="compact-table">
+                  <thead>
+                    <tr>
+                      <th className="compact-th compact-th-cover" />
+                      <th className="compact-th compact-th-title">Nome</th>
+                      <th className="compact-th compact-th-status">Meu Status</th>
+                      <th className="compact-th compact-th-obra-status">Status Obra</th>
+                      <th className="compact-th compact-th-tipo">Tipo</th>
+                      <th className="compact-th compact-th-progress">Capítulo</th>
+                      <th className="compact-th compact-th-rating">Nota</th>
+                      <th className="compact-th compact-th-actions">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {displayItems.map(obra => (
+                      <ObraCard
+                        key={obra.id}
+                        obra={obra}
+                        viewMode={viewMode}
+                        onViewDetail={() => onViewDetail(obra)}
+                        onEdit={() => onEdit(obra)}
+                        onDelete={() => onDelete(obra.id)}
+                        onQuickUpdate={onQuickUpdate}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className={`obra-list ${viewMode}`}>
+                  {displayItems.map(obra => (
+                    <ObraCard
+                      key={obra.id}
+                      obra={obra}
+                      viewMode={viewMode}
+                      onViewDetail={() => onViewDetail(obra)}
+                      onEdit={() => onEdit(obra)}
+                      onDelete={() => onDelete(obra.id)}
+                      onQuickUpdate={onQuickUpdate}
+                    />
+                  ))}
+                </div>
               )}
-              {!infinite.hasMore && filteredAndSortedObras.length > BATCH_SIZE && (
-                <p className="infinite-scroll-end">Todas as obras carregadas</p>
+
+              {isInfinite ? (
+                <>
+                  {infinite.hasMore && (
+                    <div ref={infinite.sentinelRef} className="infinite-scroll-sentinel" aria-hidden="true" />
+                  )}
+                  {!infinite.hasMore && filteredAndSortedObras.length > BATCH_SIZE && (
+                    <p className="infinite-scroll-end">Todas as obras carregadas</p>
+                  )}
+                </>
+              ) : (
+                <Pagination
+                  currentPage={pagination.currentPage}
+                  totalPages={pagination.totalPages}
+                  onFirstPage={pagination.goToFirstPage}
+                  onPreviousPage={pagination.goToPreviousPage}
+                  onNextPage={pagination.goToNextPage}
+                  onLastPage={pagination.goToLastPage}
+                />
               )}
             </>
-          ) : (
-            <Pagination
-              currentPage={pagination.currentPage}
-              totalPages={pagination.totalPages}
-              onFirstPage={pagination.goToFirstPage}
-              onPreviousPage={pagination.goToPreviousPage}
-              onNextPage={pagination.goToNextPage}
-              onLastPage={pagination.goToLastPage}
-            />
           )}
-        </>
-      )}
+        </div>
     </div>
+  );
+}
+
+/* ─── View mode toggle sub-components ────────────────── */
+
+function ViewBtn({ active, onClick, title, children }) {
+  return (
+    <button
+      className={`lib-toolbar-view-btn ${active ? 'lib-toolbar-view-btn--active' : ''}`}
+      onClick={onClick}
+      title={title}
+    >
+      {children}
+    </button>
+  );
+}
+
+/* Minimal inline SVG icons to avoid heavy lucide bundle impact */
+function RowsIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <rect x="1" y="1" width="11" height="3" rx="1"/>
+      <rect x="1" y="6" width="11" height="3" rx="1"/>
+      <rect x="1" y="11" width="6" height="1.5" rx="0.75"/>
+    </svg>
+  );
+}
+
+function GridIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <rect x="1"   y="1"   width="4.5" height="4.5" rx="1"/>
+      <rect x="7.5" y="1"   width="4.5" height="4.5" rx="1"/>
+      <rect x="1"   y="7.5" width="4.5" height="4.5" rx="1"/>
+      <rect x="7.5" y="7.5" width="4.5" height="4.5" rx="1"/>
+    </svg>
+  );
+}
+
+function ListIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <line x1="1" y1="2.5"  x2="12" y2="2.5"/>
+      <line x1="1" y1="6.5"  x2="12" y2="6.5"/>
+      <line x1="1" y1="10.5" x2="12" y2="10.5"/>
+    </svg>
   );
 }
 

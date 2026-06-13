@@ -1,53 +1,227 @@
-/* ============================================================================
-   OBRA FORM STYLES
-   Organized and commented for maintainability
-   ============================================================================ */
+/* ═══════════════════════════════════════════════════════════
+   ObraForm V3F
+   ═══════════════════════════════════════════════════════════ */
 
-/* ==========================================================================
-   CONTAINER & LAYOUT
-   ========================================================================== */
+/* ─── Root wrapper ─────────────────────────────────────── */
 
-.obra-form-container {
-  background-color: var(--bg-card);
-  border-radius: var(--border-radius);
-  border: 1px solid var(--border-color);
-  padding: 32px;
-  max-width: 1000px;
-  margin: 0 auto;
+.obra-form-v3f {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
 }
 
-.obra-form-container h2 {
-  margin-bottom: 24px;
+/* ─── Back bar (52px) ──────────────────────────────────── */
+
+.form-bar {
+  height: 52px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border-hairline);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  background: var(--bg-app);
+}
+
+.form-bar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: var(--radius-8);
+  background: none;
+  border: 1px solid var(--border-default);
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-instant) var(--ease-out);
+}
+
+.form-bar-back:hover {
+  background: var(--bg-hover);
   color: var(--text-primary);
+  border-color: var(--border-strong);
 }
+
+.form-bar-divider {
+  width: 1px;
+  height: 14px;
+  background: var(--border-default);
+  flex-shrink: 0;
+}
+
+.form-bar-title {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.form-bar-spacer {
+  flex: 1;
+}
+
+.form-bar-cancel {
+  height: 30px;
+  padding: 0 14px;
+  border-radius: var(--radius-8);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-instant) var(--ease-out);
+}
+
+.form-bar-cancel:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.form-bar-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 14px;
+  border-radius: var(--radius-8);
+  background: var(--accent-fg);
+  border: none;
+  color: var(--cta-text);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity var(--duration-instant) var(--ease-out);
+}
+
+.form-bar-save:hover {
+  opacity: 0.88;
+}
+
+/* ─── Scrollable area ──────────────────────────────────── */
+
+.form-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.form-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ─── Error banner ─────────────────────────────────────── */
+
+.form-errors {
+  background: rgba(252, 165, 165, 0.10);
+  border: 1px solid rgba(252, 165, 165, 0.30);
+  border-radius: var(--radius-8);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-errors strong {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--status-dropped);
+}
+
+.form-errors ul {
+  margin: 0;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.form-errors ul li {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--status-dropped);
+}
+
+/* ─── Form layout ──────────────────────────────────────── */
 
 .obra-form {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 0;
+  counter-reset: form-section-num;
 }
 
-/* ==========================================================================
-   FORM SECTIONS
-   ========================================================================== */
+/* ─── Form section ─────────────────────────────────────── */
 
 .form-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border-hairline);
+  counter-increment: form-section-num;
 }
 
+.form-section:last-child {
+  border-bottom: none;
+}
+
+/* Editorial numbered header — badge + label + trailing rule */
 .form-section h3 {
-  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 2px;
+  padding: 0;
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: 8px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--border-color);
+  letter-spacing: -0.2px;
+  text-transform: none;
 }
 
-/* ==========================================================================
-   FORM GROUPS & INPUTS
-   ========================================================================== */
+/* Numbered badge: 01 / 02 / … */
+.form-section h3::before {
+  content: counter(form-section-num, decimal-leading-zero);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 4px;
+  padding: 1px 6px;
+  flex-shrink: 0;
+  text-transform: none;
+}
+
+/* Trailing horizontal rule */
+.form-section h3::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ─── Form group ───────────────────────────────────────── */
 
 .form-group {
   display: flex;
@@ -56,9 +230,17 @@
 }
 
 .form-group label {
-  font-size: 14px;
+  font-family: var(--font-sans);
+  font-size: 12px;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
+}
+
+.form-group small {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
 }
 
 .form-group.full-width {
@@ -68,66 +250,88 @@
 .form-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
+  gap: 14px;
 }
 
-/* ==========================================================================
-   VALIDATION ERRORS
-   ========================================================================== */
+/* ─── Inputs ───────────────────────────────────────────── */
 
-.form-errors {
-  background-color: #fee2e2;
-  border: 1px solid #fecaca;
-  border-radius: var(--border-radius);
-  padding: 16px;
-  margin-bottom: 24px;
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="url"],
+textarea,
+.custom-select {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-8);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  outline: none;
+  transition: border-color var(--duration-instant) var(--ease-out),
+              box-shadow var(--duration-instant) var(--ease-out);
+  box-sizing: border-box;
 }
 
-.form-errors h4 {
-  color: var(--danger-color);
-  margin-bottom: 8px;
+input[type="text"]::placeholder,
+input[type="number"]::placeholder,
+input[type="url"]::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
 }
 
-.form-errors ul {
-  margin-left: 20px;
-  color: #991b1b;
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+.custom-select:focus {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
-/* ==========================================================================
-   CUSTOM SELECT DROPDOWN
-   ========================================================================== */
+input[type="text"]:hover,
+input[type="number"]:hover,
+input[type="date"]:hover,
+input[type="url"]:hover,
+textarea:hover,
+.custom-select:hover {
+  border-color: var(--border-default);
+}
+
+textarea {
+  height: auto;
+  min-height: 100px;
+  padding: 10px 12px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+input[type="date"] {
+  color-scheme: dark;
+}
+
+/* ─── Custom select ────────────────────────────────────── */
 
 .custom-select-wrapper {
   position: relative;
-  display: inline-block;
+  display: block;
   width: 100%;
 }
 
 .custom-select {
-  width: 100%;
-  padding: 8px 32px 8px 12px;
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  color: var(--text-primary);
-  font-size: 13px;
-  font-family: inherit;
-  cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  -moz-appearance: none;
-  transition: var(--transition);
+  cursor: pointer;
+  padding-right: 32px;
 }
 
-.custom-select:hover {
-  border-color: var(--border-subtle);
-  background-color: var(--bg-tertiary);
-}
-
-.custom-select:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  background-color: var(--bg-tertiary);
+.custom-select option {
+  background: var(--bg-panel);
+  color: var(--text-primary);
 }
 
 .custom-select-icon {
@@ -135,165 +339,197 @@
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--text-tertiary);
+  color: var(--text-muted);
   pointer-events: none;
-  transition: var(--transition);
 }
 
 .custom-select:focus + .custom-select-icon {
-  color: var(--accent-primary);
+  color: var(--accent-fg);
 }
 
-.custom-select option {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  padding: 8px;
+/* ─── Input with search button ─────────────────────────── */
+
+.input-with-button {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-/* ==========================================================================
-   GENRES GRID
-   ========================================================================== */
+.input-with-button input {
+  padding-right: 44px;
+}
+
+.search-btn {
+  position: absolute;
+  right: 6px;
+  width: 28px;
+  height: 26px;
+  border-radius: var(--radius-6);
+  background: var(--accent-fg);
+  border: none;
+  color: var(--cta-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity var(--duration-instant) var(--ease-out);
+}
+
+.search-btn:hover {
+  opacity: 0.85;
+}
+
+/* ─── Genre chips ──────────────────────────────────────── */
 
 .generos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
 .genero-checkbox {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  height: 27px;
+  padding: 0 10px;
+  border-radius: var(--radius-6);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-overlay);
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
   cursor: pointer;
-  padding: 10px 14px;
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  transition: all 0.2s ease;
-  font-size: 14px;
-  color: var(--text-secondary);
+  user-select: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all var(--duration-instant) var(--ease-out);
 }
 
 .genero-checkbox:hover {
-  background-color: var(--bg-tertiary);
-  border-color: var(--border-subtle);
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  border-color: var(--border-default);
 }
 
-.genero-checkbox .checkbox-icon-unchecked,
-.genero-checkbox .checkbox-icon-checked {
-  cursor: pointer;
-  transition: var(--transition);
-  color: var(--border-color);
+/* Hide icon when selected state is shown via chip */
+.genero-checkbox .checkbox-icon-checked,
+.genero-checkbox .checkbox-icon-unchecked {
+  display: none;
+}
+
+/* Selected state via :has() */
+.genero-checkbox:has(.checkbox-icon-checked) {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent-fg);
+  font-weight: 500;
+}
+
+.genero-checkbox:has(.checkbox-icon-checked)::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-fg);
   flex-shrink: 0;
+  display: inline-block;
 }
 
-.genero-checkbox:hover .checkbox-icon-unchecked {
-  color: var(--accent-primary);
-}
-
-.genero-checkbox .checkbox-icon-checked {
-  color: var(--accent-primary);
-}
-
-/* ==========================================================================
-   WEEKDAYS GRID (RELEASE SCHEDULE)
-   ========================================================================== */
+/* ─── Day selector chips ───────────────────────────────── */
 
 .dias-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 5px;
 }
 
 .dia-checkbox {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  height: 27px;
+  padding: 0 12px;
+  border-radius: var(--radius-6);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-overlay);
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+  font-size: 12px;
   cursor: pointer;
-  padding: 10px 14px;
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  transition: all 0.2s ease;
-  font-size: 14px;
-  color: var(--text-secondary);
+  user-select: none;
   white-space: nowrap;
   flex-shrink: 0;
+  transition: all var(--duration-instant) var(--ease-out);
 }
 
 .dia-checkbox:hover {
-  background-color: var(--bg-tertiary);
-  border-color: var(--border-subtle);
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  border-color: var(--border-default);
 }
 
-.dia-checkbox .checkbox-icon-unchecked,
-.dia-checkbox .checkbox-icon-checked {
-  cursor: pointer;
-  transition: var(--transition);
-  color: var(--border-color);
-  flex-shrink: 0;
+.dia-checkbox .checkbox-icon-checked,
+.dia-checkbox .checkbox-icon-unchecked {
+  display: none;
 }
 
-.dia-checkbox:hover .checkbox-icon-unchecked {
-  color: var(--accent-primary);
+.dia-checkbox:has(.checkbox-icon-checked) {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent-fg);
+  font-weight: 500;
 }
 
-.dia-checkbox .checkbox-icon-checked {
-  color: var(--accent-primary);
-}
-
-/* ==========================================================================
-   CHECKBOX LABELS (FAVORITES & AUTO-INCREMENT)
-   ========================================================================== */
+/* ─── Checkbox labels (favorites, auto-increment) ──────── */
 
 .checkbox-label {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  font-size: 14px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   color: var(--text-secondary);
+  user-select: none;
 }
 
-.checkbox-label .checkbox-icon-unchecked,
-.checkbox-label .checkbox-icon-checked {
-  cursor: pointer;
-  transition: var(--transition);
-  color: var(--border-color);
-  flex-shrink: 0;
+.checkbox-label .checkbox-icon-unchecked {
+  color: var(--border-default);
+  transition: color var(--duration-instant) var(--ease-out);
 }
 
 .checkbox-label:hover .checkbox-icon-unchecked {
-  color: var(--accent-primary);
+  color: var(--accent-fg);
 }
 
 .checkbox-label .checkbox-icon-checked {
-  color: var(--accent-primary);
+  color: var(--accent-fg);
 }
 
-/* ==========================================================================
-   COVERS GALLERY
-   ========================================================================== */
+/* ─── Covers gallery ───────────────────────────────────── */
 
 .capas-gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 16px;
-  margin-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .capa-item {
   position: relative;
-  aspect-ratio: 2/3;
-  border-radius: var(--border-radius);
+  width: 120px;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-8);
   overflow: hidden;
-  border: 2px solid var(--border-color);
-  transition: all 0.2s ease;
+  border: 1px solid var(--border-subtle);
+  transition: border-color var(--duration-instant) var(--ease-out);
 }
 
 .capa-item.principal {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.1);
+  border-color: var(--accent-fg);
+  box-shadow: 0 0 0 2px var(--accent-bg);
 }
 
 .capa-item img {
@@ -308,13 +544,13 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  background: linear-gradient(to top, rgba(0,0,0,0.80), transparent);
   padding: 12px 8px 8px;
   display: flex;
   flex-direction: column;
   gap: 6px;
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--duration-quick) var(--ease-out);
 }
 
 .capa-item:hover .capa-overlay {
@@ -323,15 +559,16 @@
 
 .badge-principal {
   display: inline-block;
-  background-color: var(--accent-primary);
-  color: white;
-  font-size: 11px;
+  background: var(--accent-fg);
+  color: var(--cta-text);
+  font-family: var(--font-mono);
+  font-size: 9px;
   font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 4px;
-  align-self: flex-start;
+  padding: 2px 6px;
+  border-radius: 3px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
+  align-self: flex-start;
 }
 
 .capa-actions {
@@ -340,136 +577,169 @@
   gap: 4px;
 }
 
-/* ==========================================================================
-   LINKS LIST
-   ========================================================================== */
+/* ─── Links list ───────────────────────────────────────── */
 
 .links-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .link-item-form {
-  background-color: var(--bg-secondary);
-  border: 2px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 16px;
-  transition: all 0.2s ease;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-8);
+  padding: 14px;
+  transition: border-color var(--duration-instant) var(--ease-out);
 }
 
 .link-item-form.principal {
-  border-color: var(--accent-primary);
-  background-color: rgba(88, 101, 242, 0.05);
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
 }
 
 .link-fields {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .link-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   justify-content: flex-end;
 }
 
 .badge-principal-link {
-  background-color: var(--accent-primary);
-  color: white;
-  font-size: 11px;
+  background: var(--accent-fg);
+  color: var(--cta-text);
+  font-family: var(--font-mono);
+  font-size: 9px;
   font-weight: 600;
-  padding: 4px 12px;
-  border-radius: 4px;
+  padding: 3px 8px;
+  border-radius: 3px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   margin-right: auto;
 }
 
-/* ==========================================================================
-   BUTTONS
-   ========================================================================== */
+/* ─── Buttons ──────────────────────────────────────────── */
+
+.btn-primary {
+  height: 36px;
+  padding: 0 18px;
+  border-radius: var(--radius-8);
+  background: var(--accent-fg);
+  border: none;
+  color: var(--cta-text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity var(--duration-instant) var(--ease-out);
+}
+
+.btn-primary:hover {
+  opacity: 0.88;
+}
+
+.btn-secondary {
+  height: 36px;
+  padding: 0 18px;
+  border-radius: var(--radius-8);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-instant) var(--ease-out);
+}
+
+.btn-secondary:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
 
 .btn-small {
-  padding: 6px 10px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: var(--radius-6);
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
   font-size: 12px;
-  border: none;
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  transition: var(--transition);
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
   font-weight: 500;
+  cursor: pointer;
   white-space: nowrap;
+  transition: all var(--duration-instant) var(--ease-out);
 }
 
 .btn-small:hover {
-  background-color: var(--bg-tertiary);
-  transform: translateY(-1px);
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .btn-danger {
-  background-color: var(--danger-color);
-  color: white;
+  background: rgba(252, 165, 165, 0.12);
+  border-color: rgba(252, 165, 165, 0.3);
+  color: var(--status-dropped);
 }
 
 .btn-danger:hover {
-  background-color: #dc2626;
+  background: rgba(252, 165, 165, 0.20);
+  border-color: rgba(252, 165, 165, 0.5);
+  color: var(--status-dropped);
 }
 
-/* ==========================================================================
-   FORM ACTIONS (SUBMIT/CANCEL BUTTONS)
-   ========================================================================== */
-
+/* Legacy form actions (hidden — actions moved to bar) */
 .form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border-color);
+  display: none;
 }
 
-/* ==========================================================================
-   COVER UPLOAD (LEGACY - KEPT FOR COMPATIBILITY)
-   ========================================================================== */
+/* ─── Cover upload ─────────────────────────────────────── */
 
 .cover-upload-section {
   display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 24px;
+  grid-template-columns: 160px 1fr;
+  gap: 20px;
   align-items: start;
 }
 
 .cover-preview {
-  width: 200px;
-  height: 280px;
-  background-color: var(--bg-tertiary);
-  border-radius: var(--border-radius);
+  width: 160px;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-8);
   overflow: hidden;
-  box-shadow: var(--shadow-md);
+  background: var(--bg-elev);
+  border: 1px solid var(--border-subtle);
 }
 
 .cover-preview img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .cover-inputs {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .form-divider {
   text-align: center;
-  color: var(--text-tertiary);
-  font-size: 14px;
-  font-weight: 500;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
   position: relative;
+  padding: 4px 0;
 }
 
 .form-divider::before,
@@ -477,104 +747,10 @@
   content: '';
   position: absolute;
   top: 50%;
-  width: 40%;
+  width: 42%;
   height: 1px;
-  background-color: var(--border-color);
+  background: var(--border-hairline);
 }
 
-.form-divider::before {
-  left: 0;
-}
-
-.form-divider::after {
-  right: 0;
-}
-
-/* ==========================================================================
-   RESPONSIVE STYLES (MOBILE)
-   ========================================================================== */
-
-@media (max-width: 768px) {
-  .obra-form-container {
-    padding: 20px;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-
-  .cover-upload-section {
-    grid-template-columns: 1fr;
-  }
-
-  .cover-preview {
-    width: 100%;
-    max-width: 200px;
-    margin: 0 auto;
-  }
-
-  .generos-grid {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  }
-
-  .link-fields {
-    grid-template-columns: 1fr;
-  }
-
-  .link-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .badge-principal-link {
-    margin-right: 0;
-    text-align: center;
-  }
-
-  .form-actions {
-    flex-direction: column-reverse;
-  }
-
-  .form-actions button {
-    width: 100%;
-  }
-}
-
-/* ==========================================================================
-   SEARCH BUTTON (AniList Integration)
-   ========================================================================== */
-
-.input-with-button {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.input-with-button input {
-  flex: 1;
-  padding-right: 44px; /* Space for button */
-}
-
-.search-btn {
-  position: absolute;
-  right: 8px;
-  padding: 8px;
-  background-color: var(--accent-primary);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition);
-}
-
-.search-btn:hover {
-  background-color: var(--accent-secondary);
-  transform: scale(1.05);
-}
-
-.search-btn:active {
-  transform: scale(0.95);
-}
+.form-divider::before { left: 0; }
+.form-divider::after  { right: 0; }

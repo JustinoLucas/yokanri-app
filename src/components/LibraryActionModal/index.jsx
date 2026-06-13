@@ -310,10 +310,8 @@ function LibraryActionModal({
 
   const handleExecute = () => runWithProcessing(null, () => onExecute());
 
-  // Chama execute diretamente — sem analyze separado.
-  // O analyze abre e fecha o banco temporário; o execute também abre o mesmo banco.
-  // Chamar os dois em sequência causa "closed pool" no plugin SQL do Tauri.
-  // O executeMerge já lida internamente com 0 obras novas (retorna success com inserted=0).
+  // Chama execute diretamente — o executeMerge já faz deduplicação internamente,
+  // dispensando uma etapa de analyze separada.
   const handleMerge = () => runWithProcessing('merge', () => onImportMerge('execute'));
 
   const handleReplace = () => runWithProcessing('replace', () => onImportReplace());

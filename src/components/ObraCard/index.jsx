@@ -1,7 +1,9 @@
+import { openUrl } from '@tauri-apps/plugin-opener';
 import useCover from './hooks/useCover';
 import CompactCard from './CompactCard';
 import RowCard from './RowCard';
 import GridCard from './GridCard';
+import CarouselCard from './CarouselCard';
 import { getPrincipalLink } from './utils';
 import { useConfig } from '../../context/ConfigContext';
 import { isObraNsfw, getNsfwMode } from '../../utils/nsfwUtils';
@@ -56,10 +58,24 @@ function ObraCard({ obra, viewMode, onViewDetail, onEdit, onDelete, onQuickUpdat
       onQuickUpdate(obra.id, updates);
     }
 
-    window.open(link, '_blank');
+    openUrl(link);
   };
 
   // Route to the appropriate view component
+  if (viewMode === 'carousel') {
+    return (
+      <CarouselCard
+        obra={obra}
+        coverUrl={coverUrl}
+        onViewDetail={onViewDetail}
+        onIncrementCapitulo={handleIncrementCapitulo}
+        onLinkClick={handleLinkClick}
+        isNsfw={isNsfw}
+        nsfwMode={nsfwMode}
+      />
+    );
+  }
+
   if (viewMode === 'compact') {
     return (
       <CompactCard

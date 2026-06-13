@@ -10,6 +10,7 @@ import {
   Settings,
   BarChart3,
   Sparkles,
+  ArrowLeft,
 } from 'lucide-react';
 import { useConfig } from '../../context/ConfigContext';
 import './WorkspaceProfile.css';
@@ -20,7 +21,7 @@ import './WorkspaceProfile.css';
  * Hub central do usuário: mostra identidade da biblioteca,
  * estatísticas visuais, favoritas e leituras recentes.
  */
-function WorkspaceProfile({ workspace, obras, onShowStats, onShowConfig, onViewDetail }) {
+function WorkspaceProfile({ workspace, obras, onShowStats, onShowConfig, onViewDetail, onClose }) {
   const config = useConfig();
 
   const profile = useMemo(() => {
@@ -93,7 +94,24 @@ function WorkspaceProfile({ workspace, obras, onShowStats, onShowConfig, onViewD
     : '';
 
   return (
-    <div className="wsp-page">
+    <div className="wsp-v3f">
+
+      {/* ── Back bar ──────────────────────────────────────── */}
+      <div className="wsp-bar">
+        {onClose && (
+          <button className="wsp-bar-back" onClick={onClose}>
+            <ArrowLeft size={13} />
+            Biblioteca
+          </button>
+        )}
+        <div className="wsp-bar-divider" />
+        <span className="wsp-bar-title">Perfil</span>
+      </div>
+
+      {/* ── Scrollable content ────────────────────────────── */}
+      <div className="wsp-scroll">
+      <div className="wsp-page">
+
       {/* ─── BANNER + AVATAR ─────────────────────────── */}
       <div className="wsp-banner">
         <div className="wsp-banner-gradient" />
@@ -258,6 +276,9 @@ function WorkspaceProfile({ workspace, obras, onShowStats, onShowConfig, onViewD
           </div>
         </div>
       </div>
+
+      </div>{/* wsp-page */}
+      </div>{/* wsp-scroll */}
     </div>
   );
 }

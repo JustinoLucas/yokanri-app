@@ -1,42 +1,43 @@
-/* ==================== SHARED STYLES ==================== */
+/* ═══════════════════════════════════════════════════════════
+   ObraCard V3F — Grid / Row / Compact views
+   ═══════════════════════════════════════════════════════════ */
 
-/* Favorite Star Animations */
+/* ─── Shared: Favorite star ────────────────────────────── */
+
 .favorite-star--gradient {
   filter:
-    drop-shadow(0 0 6px color-mix(in srgb, var(--accent-secondary) 55%, transparent))
-    drop-shadow(0 0 12px color-mix(in srgb, var(--accent-primary) 40%, transparent));
+    drop-shadow(0 0 5px color-mix(in srgb, var(--gold) 55%, transparent))
+    drop-shadow(0 0 10px color-mix(in srgb, var(--gold) 35%, transparent));
   animation: favPulse 2.4s ease-in-out infinite;
 }
 
 .favorite-star--metal {
   filter:
-    drop-shadow(0 0 6px color-mix(in srgb, var(--accent-secondary) 35%, transparent))
-    drop-shadow(0 0 10px color-mix(in srgb, var(--accent-primary) 25%, transparent));
+    drop-shadow(0 0 5px color-mix(in srgb, var(--gold) 35%, transparent))
+    drop-shadow(0 0 9px color-mix(in srgb, var(--gold) 22%, transparent));
 }
 
 @keyframes favPulse {
   0%, 100% {
     transform: translateY(0);
     filter:
-      drop-shadow(0 0 6px color-mix(in srgb, var(--accent-secondary) 55%, transparent))
-      drop-shadow(0 0 12px color-mix(in srgb, var(--accent-primary) 40%, transparent));
+      drop-shadow(0 0 5px color-mix(in srgb, var(--gold) 55%, transparent))
+      drop-shadow(0 0 10px color-mix(in srgb, var(--gold) 35%, transparent));
   }
   50% {
     transform: translateY(-0.5px);
     filter:
-      drop-shadow(0 0 10px color-mix(in srgb, var(--accent-secondary) 75%, transparent))
-      drop-shadow(0 0 18px color-mix(in srgb, var(--accent-primary) 60%, transparent));
+      drop-shadow(0 0 8px color-mix(in srgb, var(--gold) 75%, transparent))
+      drop-shadow(0 0 16px color-mix(in srgb, var(--gold) 55%, transparent));
   }
 }
 
-/* No Cover Placeholder */
+/* ─── Shared: No-cover placeholder ────────────────────── */
+
 .no-cover {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  inset: 0;
+  background: linear-gradient(135deg, var(--bg-panel) 0%, var(--bg-hover) 100%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -44,71 +45,70 @@
 
 .no-cover::before {
   content: '';
-  width: 60%;
-  height: 60%;
+  width: 55%;
+  height: 55%;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20'%3E%3C/path%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
-  opacity: 0.3;
+  opacity: 0.25;
 }
 
-/* Notes Section */
+/* ─── Shared: Notes section ────────────────────────────── */
+
 .notes-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   position: relative;
 }
 
 .btn-close-notes {
   margin-left: auto;
-  background-color: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  width: 28px;
-  height: 28px;
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-6);
+  width: 26px;
+  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: var(--transition);
+  transition: background var(--duration-instant) var(--ease-out),
+              border-color var(--duration-instant) var(--ease-out);
   color: var(--text-secondary);
 }
 
 .btn-close-notes:hover {
-  background-color: var(--bg-tertiary);
-  border-color: var(--border-subtle);
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
   color: var(--text-primary);
 }
 
 .notes-content {
+  font-family: var(--font-sans);
+  font-size: 13px;
   color: var(--text-primary);
-  font-size: 14px;
   line-height: 1.6;
   white-space: pre-wrap;
-  padding: 12px;
-  background-color: var(--bg-tertiary);
-  border-radius: var(--border-radius-sm);
-  border: 1px solid var(--border-color);
+  padding: 11px 13px;
+  background: var(--bg-overlay);
+  border-radius: var(--radius-8);
+  border: 1px solid var(--border-subtle);
 }
 
 @keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Rating Stars */
+/* ─── Shared: Rating stars row ─────────────────────────── */
+
 .user-rating-stars {
   display: flex;
   align-items: center;
@@ -116,14 +116,17 @@
   margin-left: 4px;
 }
 
-/* Badges */
+/* ─── Shared: Status badges ────────────────────────────── */
+
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 10px;
   font-weight: 600;
+  letter-spacing: 0.4px;
   color: white;
   white-space: nowrap;
 }
@@ -131,29 +134,36 @@
 .tipo-badge {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 10px;
   font-weight: 500;
-  background-color: var(--bg-tertiary);
+  background: var(--bg-overlay);
   color: var(--text-secondary);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-subtle);
 }
 
-/* ==================== GRID/CARD VIEW ==================== */
+/* ═══════════════════════════════════════════════════════
+   GRID / CARD VIEW
+   ═══════════════════════════════════════════════════════ */
 
 .obra-card {
-  background-color: var(--bg-card);
-  border-radius: var(--border-radius);
+  background: var(--bg-elev);
+  border-radius: var(--radius-10);
   overflow: hidden;
-  border: 1px solid var(--border-color);
-  transition: var(--transition);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: border-color var(--duration-instant) var(--ease-out);
   display: flex;
   flex-direction: column;
 }
 
 .obra-card.card-notes-expanded {
   overflow: visible;
+}
+
+.obra-card:hover {
+  border-color: rgba(255, 255, 255, 0.10);
 }
 
 .card-main {
@@ -163,27 +173,21 @@
   flex: 1;
 }
 
-.card-main:hover {
-  transform: translateY(-2px);
-  border-color: var(--accent-primary);
-  box-shadow: var(--shadow-glow);
-}
-
 .card-cover {
   position: relative;
   width: 100%;
-  padding-top: 140%;
-  background-color: var(--bg-tertiary);
+  padding-top: 146.7%;   /* 264/180 — aspect ratio spec V3F */
+  background: var(--bg-overlay);
   overflow: hidden;
+  border-radius: var(--radius-10) var(--radius-10) 0 0;
 }
 
 .card-cover img {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   display: block;
 }
 
@@ -191,15 +195,15 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  background-color: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: none;
-  border-radius: 8px;
-  width: 32px;
-  height: 32px;
-  font-size: 16px;
+  border-radius: var(--radius-8);
+  width: 30px;
+  height: 30px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: background var(--duration-instant) var(--ease-out);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -207,20 +211,20 @@
 }
 
 .favorite-btn:hover {
-  transform: scale(1.1);
-  background-color: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.75);
 }
 
 .card-content {
-  padding: 14px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 9px;
   flex: 1;
 }
 
 .card-title {
-  font-size: 15px;
+  font-family: var(--font-sans);
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
@@ -232,8 +236,9 @@
 }
 
 .card-alt-title {
-  font-size: 12px;
-  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  color: var(--text-muted);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -244,7 +249,7 @@
 .card-status {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   flex-wrap: wrap;
   margin-top: auto;
 }
@@ -252,7 +257,7 @@
 .card-progress-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .card-progress {
@@ -264,20 +269,22 @@
 }
 
 .progress-text {
-  font-size: 12px;
-  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
 }
 
 .progress-bar {
-  height: 4px;
-  background-color: var(--bg-tertiary);
+  height: 3px;
+  background: var(--bg-overlay);
   border-radius: 2px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  background: var(--accent-fg);
+  opacity: 0.7;
   transition: width 0.3s ease;
 }
 
@@ -285,70 +292,76 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #fbbf24;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gold);
 }
 
 .card-actions {
   display: flex;
-  gap: 6px;
+  gap: 5px;
   margin-top: auto;
 }
 
 .btn-card-action {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  width: 36px;
-  height: 36px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-6);
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: var(--transition);
-  color: var(--text-secondary);
+  transition: background var(--duration-instant) var(--ease-out),
+              border-color var(--duration-instant) var(--ease-out),
+              color var(--duration-instant) var(--ease-out);
+  color: var(--text-muted);
   flex: 1;
 }
 
 .btn-card-action:hover {
-  background-color: var(--bg-tertiary);
-  border-color: var(--border-subtle);
+  background: var(--bg-hover);
+  border-color: var(--border-default);
   color: var(--text-primary);
 }
 
 .btn-card-action.notes-active {
-  color: var(--accent-primary);
+  color: var(--accent-fg);
 }
 
 .card-notes-section {
-  background-color: var(--bg-card);
-  border-top: 1px solid var(--border-color);
-  padding: 14px;
-  animation: slideDown 0.2s ease-out;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border-hairline);
+  padding: 12px;
+  animation: slideDown 0.18s ease-out;
 }
 
-/* ==================== ROW/TABLE VIEW ==================== */
+/* ═══════════════════════════════════════════════════════
+   ROW / TABLE VIEW
+   ═══════════════════════════════════════════════════════ */
 
 .obra-row-wrapper {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .obra-row {
-  background-color: var(--bg-card);
-  border-radius: var(--border-radius-sm);
-  padding: 12px 16px;
+  background: var(--bg-elev);
+  border-radius: var(--radius-12);
+  padding: 14px;
   display: grid;
-  grid-template-columns: 120px 1fr auto auto;
-  align-items: start;
-  border: 1px solid var(--border-color);
+  grid-template-columns: 112px 1fr auto;
+  align-items: stretch;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   cursor: pointer;
-  transition: var(--transition);
+  transition: border-color var(--duration-instant) var(--ease-out),
+              background    var(--duration-instant) var(--ease-out);
 }
 
 .obra-row:hover {
-  border-color: var(--accent-primary);
-  background-color: var(--bg-hover);
+  border-color: rgba(255, 255, 255, 0.10);
+  background: var(--bg-hover);
 }
 
 .obra-row-wrapper.notes-expanded .obra-row {
@@ -358,56 +371,54 @@
 }
 
 .row-notes-expanded {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
+  background: var(--bg-elev);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-top: none;
-  border-bottom-left-radius: var(--border-radius-sm);
-  border-bottom-right-radius: var(--border-radius-sm);
-  padding: 16px;
-  animation: slideDown 0.2s ease-out;
+  border-bottom-left-radius: var(--radius-12);
+  border-bottom-right-radius: var(--radius-12);
+  padding: 14px;
+  animation: slideDown 0.18s ease-out;
 }
 
 .row-cover {
   position: relative;
-  width: 110px;
-  height: 160px;
-  background-color: var(--bg-tertiary);
-  border-radius: 6px;
+  width: 98px;
+  height: 147px;
+  background: var(--bg-overlay);
+  border-radius: var(--radius-6);
   overflow: hidden;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-subtle);
   flex-shrink: 0;
   align-self: center;
 }
 
 .row-cover img {
-  width: 110px;
-  height: 160px;
-  object-fit: contain;
+  width: 98px;
+  height: 147px;
+  object-fit: cover;
 }
 
 .row-info {
   display: flex;
   flex-direction: column;
   margin-inline: 16px;
-  gap: 6px;
+  justify-content: space-between;
   min-width: 0;
-  padding-top: 4px;
 }
 
 .row-title {
-  font-size: 20px;
+  font-family: var(--font-sans);
+  font-size: 17px;
   font-weight: 600;
   color: var(--text-primary);
+  letter-spacing: -0.4px;
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
-}
-
-.row-title .alt-name {
-  font-weight: 400;
-  color: var(--text-tertiary);
-  font-size: 14px;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .row-meta {
@@ -415,43 +426,67 @@
   gap: 6px;
   align-items: center;
   flex-wrap: wrap;
+  margin-bottom: 4px;
 }
 
 .row-meta .nota {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 12px;
-  color: #fbbf24;
-  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.row-alt {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .row-details {
   display: flex;
   flex-direction: row;
-  gap: 8px;
-  font-size: 13px;
+  gap: 16px;
+  font-family: var(--font-sans);
+  font-size: 12px;
   color: var(--text-secondary);
   align-items: center;
 }
 
 .detail-item {
-  color: var(--text-tertiary);
+  color: var(--text-muted);
+}
+
+.detail-separator {
+  color: var(--border-strong);
 }
 
 .dias-badge {
-  font-size: 14px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
   color: var(--text-secondary);
-  font-weight: 400;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-subtle);
 }
 
 .row-progress-info {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  margin-top: 12px;
 }
 
 .chapter-info {
@@ -461,15 +496,16 @@
 }
 
 .chapter-count {
-  font-size: 18px;
+  font-family: var(--font-sans);
+  font-size: 17px;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .progress-bar-row {
-  height: 6px;
-  background-color: var(--bg-tertiary);
-  border-radius: 3px;
+  height: 3px;
+  background: var(--bg-overlay);
+  border-radius: 2px;
   overflow: hidden;
   width: 100%;
   max-width: 600px;
@@ -477,7 +513,8 @@
 
 .progress-fill-row {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  background: #f5f5f7;
+  border-radius: 2px;
   transition: width 0.3s ease;
 }
 
@@ -485,62 +522,426 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
-  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
   white-space: nowrap;
   padding-top: 4px;
 }
 
 .progress-percentage {
-  font-size: 13px;
-  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* Right column: rating (top) + spacer + actions (bottom) */
+.row-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
+  min-width: 80px;
+}
+
+/* Rating block: stars + numeric value */
+.row-rating {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.row-rating-stars {
+  display: flex;
+  gap: 1px;
+}
+
+.row-rating-val {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.row-rating-max {
+  font-weight: 400;
+  color: var(--text-tertiary);
+}
+
+.row-right-spacer {
+  flex: 1;
 }
 
 .row-actions {
   display: flex;
   gap: 6px;
-  padding-top: 4px;
+  flex-shrink: 0;
 }
 
 .btn-row-action {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  width: 36px;
-  height: 36px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: var(--transition);
+  transition: background var(--duration-instant) var(--ease-out),
+              border-color var(--duration-instant) var(--ease-out),
+              color var(--duration-instant) var(--ease-out);
   color: var(--text-secondary);
 }
 
 .btn-row-action:hover {
-  background-color: var(--bg-tertiary);
-  border-color: var(--border-subtle);
+  background: var(--bg-hover);
+  border-color: var(--border-default);
   color: var(--text-primary);
 }
 
 .btn-row-action.notes-active {
-  color: var(--accent-primary);
+  color: var(--accent-fg);
 }
 
-/* ==================== COMPACT/TABLE ROW VIEW ==================== */
+/* ═══════════════════════════════════════════════════════
+   CAROUSEL CARD (.ccard) — Fiel ao CardV4 do mockup
+   CW=196 CH=268 GAP=12 — screen-library.jsx
+   ═══════════════════════════════════════════════════════ */
+
+/* Wrapper — width vem do .carousel-v3f-card-wrap (196px) */
+.ccard {
+  width: 100%;
+  background: #13131a;
+  border-radius: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  transition: border-color 0.2s;
+}
+
+.ccard:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* ── Cover section: 268px ── */
+.ccard-cover {
+  position: relative;
+  height: 268px;
+  overflow: hidden;
+}
+
+.ccard-cover img {
+  width: 100%;
+  height: 100%;
+  /* fill em vez de cover: object-fit:cover causa aliasing/moiré forte no
+     WebView2 ao escalar+cortar capas com screentone. A proporção das capas
+     (~2:3) já é próxima da do card (196:268), então o esticamento é mínimo. */
+  object-fit: fill;
+  display: block;
+}
+
+.ccard-no-cover {
+  width: 100%;
+  height: 100%;
+  /* Uses country color extracted in Cover component — fallback */
+  background: linear-gradient(135deg, #1e3a8a, #0a0a0c);
+}
+
+/* Fade na base da capa — funde com o fundo do ccard-body (#13131a) */
+.ccard-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  background: linear-gradient(0deg, #13131a 0%, rgba(19, 19, 26, 0) 100%);
+  pointer-events: none;
+}
+
+/* Green novo dot: 8×8 top:10 left:10 */
+.ccard-dot {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #34d399;
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.75);
+  pointer-events: none;
+}
+
+/* Cap badge: GOLD — top:10 right:10 */
+.ccard-cap {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #e0b873;
+  background: rgba(10, 10, 12, 0.82);
+  border: 1px solid rgba(224, 184, 115, 0.28);
+  border-radius: 5px;
+  padding: 2px 7px;
+  pointer-events: none;
+  line-height: 1.4;
+}
+
+/* Título — agora dentro do ccard-body */
+.ccard-title-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.ccard-title {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: #f5f5f7;
+  letter-spacing: -0.2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ccard-alt-title {
+  margin-top: 2px;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 500;
+  color: rgba(245, 245, 247, 0.6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Content section below cover ── */
+.ccard-body {
+  padding: 9px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* Status badges row */
+.ccard-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* Reduz tamanho dos badges no carousel (legado) */
+.ccard-badges .badge {
+  font-size: 9px;
+  padding: 2px 7px;
+}
+
+/* ── Badge styles V3F ──────────────────────────────────────
+   badge-flat     → Status da Obra  (fundo sólido, sem borda)
+   badge-outlined → Meu Status      (sem fundo, borda colorida)
+   ─────────────────────────────────────────────────────── */
+
+/* ── Badge styles V3F — Tailwind soft ─────────────────────
+   --badge-color deve ser setado via inline style no componente.
+   badge-flat     → Status da Obra  (soft background + texto colorido)
+   badge-outlined → Meu Status      (dot indicator + soft background)
+   badge-tipo     → Tipo/País       (bandeira + nome)
+   ─────────────────────────────────────────────────────── */
+
+.badge-flat,
+.badge-outlined {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: var(--radius-pill);
+  font-family: 'Poppins', var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.1px;
+}
+
+/* Status da Obra — fundo sólido, texto branco, sem outline */
+.badge-flat {
+  background: var(--badge-color, #888);
+  color: #fff;
+}
+
+.badge-outlined {
+  background: color-mix(in srgb, var(--badge-color, #888) 13%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--badge-color, #888) 30%, transparent);
+  color: var(--badge-color, #888);
+}
+
+/* Dot indicator para Meu Status */
+.badge-outlined::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* Modificador de tamanho — sidebar de detalhe */
+.badge-lg {
+  height: 26px;
+  padding: 0 12px;
+  font-size: 11.5px;
+}
+
+/* Badge de tipo/país */
+.badge-tipo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 9px 0 6px;
+  border-radius: var(--radius-pill);
+  font-family: 'Poppins', var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  color: var(--text-secondary);
+}
+
+.badge-tipo-flag {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.badge-tipo.badge-lg {
+  height: 26px;
+  padding: 0 12px 0 8px;
+  font-size: 11.5px;
+}
+
+/* Linha de progresso de capítulos */
+.ccard-chapter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.ccard-chapter-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #6e6e78;
+  display: inline-block;
+}
+
+.ccard-chapter-pulse {
+  animation: ccard-chapter-pulse 0.4s ease-out;
+}
+
+@keyframes ccard-chapter-pulse {
+  0% {
+    transform: scale(1);
+    color: #6e6e78;
+  }
+  30% {
+    transform: scale(1.18);
+    color: var(--accent-primary);
+  }
+  100% {
+    transform: scale(1);
+    color: #6e6e78;
+  }
+}
+
+.ccard-rating {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: #e0b873;
+  flex-shrink: 0;
+}
+
+/* Barra de progresso compacta */
+.ccard-progress-bar {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.ccard-progress-fill {
+  height: 100%;
+  background: var(--accent-fg);
+  opacity: 0.65;
+  border-radius: 1px;
+  transition: width 0.3s ease;
+}
+
+/* Botões de ação */
+.ccard-actions {
+  display: flex;
+  gap: 5px;
+  margin-top: 1px;
+}
+
+.ccard-action-btn {
+  height: 28px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: #f5f5f7;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.ccard-action-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Botão link — tamanho fixo */
+.ccard-action-btn--link {
+  width: 32px;
+  flex-shrink: 0;
+}
+
+/* Botão incremento — ocupa o resto */
+.ccard-action-btn--inc {
+  flex: 1;
+}
+
+/* ═══════════════════════════════════════════════════════
+   COMPACT / TABLE ROW VIEW
+   ═══════════════════════════════════════════════════════ */
 
 .compact-row {
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background var(--duration-instant) var(--ease-out);
   height: 70px;
 }
 
 .compact-row:hover {
-  background-color: var(--bg-hover);
+  background: var(--bg-hover);
 }
 
 .compact-cell {
-  padding: 12px;
-  border-bottom: 1px solid var(--border-color);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-hairline);
+  font-family: var(--font-sans);
   font-size: 13px;
   color: var(--text-primary);
   vertical-align: middle;
@@ -555,7 +956,7 @@
   width: 40px;
   height: 56px;
   object-fit: contain;
-  border-radius: 4px;
+  border-radius: var(--radius-4);
   display: block;
 }
 
@@ -586,15 +987,6 @@
   width: 120px;
 }
 
-.compact-badge {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  color: white;
-  display: inline-block;
-  white-space: nowrap;
-}
 
 .compact-cell-tipo {
   text-align: center;
@@ -611,6 +1003,9 @@
   text-align: center;
   width: 100px;
   font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 
 .compact-cell-rating {
@@ -625,6 +1020,9 @@
   justify-content: center;
   gap: 4px;
   vertical-align: middle;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--gold);
 }
 
 .compact-cell-actions {
@@ -635,20 +1033,23 @@
 .compact-btn {
   background: none;
   border: none;
-  padding: 6px;
+  padding: 5px;
   cursor: pointer;
-  color: var(--text-secondary);
-  transition: color 0.2s ease, background-color 0.2s ease;
-  border-radius: 4px;
-  margin-left: 4px;
+  color: var(--text-muted);
+  transition: color var(--duration-instant) var(--ease-out),
+              background var(--duration-instant) var(--ease-out);
+  border-radius: var(--radius-4);
+  margin-left: 3px;
 }
 
 .compact-btn:hover {
   color: var(--text-primary);
-  background-color: var(--bg-hover);
+  background: var(--bg-hover);
 }
 
-/* ==================== RESPONSIVE ==================== */
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════ */
 
 @media (max-width: 768px) {
   .obra-row {
@@ -673,31 +1074,26 @@
   }
 
   .card-content {
-    padding: 12px;
+    padding: 10px;
   }
 
   .card-title {
-    font-size: 14px;
+    font-size: 13px;
   }
 }
 
-/* ─── NSFW BLUR ─────────────────────────────────────── */
+/* ─── NSFW blur ─────────────────────────────────────── */
 
-/* Grid e Row: blur na div wrapper da capa */
 .card-cover.nsfw-blur img,
 .row-cover.nsfw-blur img {
   filter: blur(14px);
-  /* Sem regra :hover — blur permanente; revelado só por clique explícito */
 }
 
-/* Compact: blur diretamente na img */
 .compact-cover-img.nsfw-blur-img {
   filter: blur(8px);
 }
 
-/* ─── Overlay de revelação NSFW ─────────────────────── */
-
-/* Botão overlay — cobre toda a capa e indica que é clicável */
+/* Overlay de revelação NSFW */
 .nsfw-reveal-btn {
   position: absolute;
   inset: 0;
@@ -713,10 +1109,11 @@
   cursor: pointer;
   color: rgba(255, 255, 255, 0.9);
   z-index: 3;
-  transition: background 0.18s;
+  transition: background var(--duration-instant) var(--ease-out);
+  font-family: var(--font-mono);
   font-size: 0.65rem;
   font-weight: 500;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -724,7 +1121,6 @@
   background: rgba(0, 0, 0, 0.45);
 }
 
-/* Variante compacta — wrapper para a img da tabela */
 .compact-cover-wrapper {
   position: relative;
   display: inline-block;
@@ -732,6 +1128,6 @@
 }
 
 .nsfw-reveal-btn--compact {
-  border-radius: 4px;
-  font-size: 0;        /* Esconde o texto na versão compacta — ícone basta */
+  border-radius: var(--radius-4);
+  font-size: 0;
 }

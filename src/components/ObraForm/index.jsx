@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ArrowLeft, Save } from 'lucide-react';
 import { useObraForm } from './hooks/useObraForm';
 import BasicInfoSection from './sections/BasicInfoSection';
 import StatusSection from './sections/StatusSection';
@@ -71,91 +72,103 @@ function ObraForm({ obra, config, onSave, onCancel }) {
   };
 
   return (
-    <div className="obra-form-container">
-      <h2>{obra ? 'Editar Obra' : 'Adicionar Nova Obra'}</h2>
+    <div className="obra-form-v3f">
 
-      {/* Validation errors */}
-      {errors.length > 0 && (
-        <div className="form-errors">
-          <h4>Erros de validação:</h4>
-          <ul>
-            {errors.map((error, index) => (
-              <li key={index}>{error}</li>
-            ))}
-          </ul>
+      {/* ── Back bar ──────────────────────────────────────────── */}
+      <div className="form-bar">
+        <button type="button" className="form-bar-back" onClick={onCancel}>
+          <ArrowLeft size={13} />
+          Biblioteca
+        </button>
+        <div className="form-bar-divider" />
+        <span className="form-bar-title">
+          {obra ? 'Editar obra' : 'Nova obra'}
+        </span>
+        <div className="form-bar-spacer" />
+        <button type="button" className="form-bar-cancel" onClick={onCancel}>
+          Cancelar
+        </button>
+        <button
+          type="button"
+          className="form-bar-save"
+          onClick={handleSubmit}
+        >
+          <Save size={12} />
+          {obra ? 'Salvar' : 'Adicionar'}
+        </button>
+      </div>
+
+      {/* ── Scrollable form content ───────────────────────────── */}
+      <div className="form-scroll">
+        <div className="form-inner">
+
+          {/* Validation errors */}
+          {errors.length > 0 && (
+            <div className="form-errors">
+              <strong>Corrija os erros antes de salvar:</strong>
+              <ul>
+                {errors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="obra-form">
+            <BasicInfoSection
+              formData={formData}
+              onChange={handleChange}
+              onSearchClick={handleOpenSearch}
+            />
+
+            <StatusSection
+              formData={formData}
+              onChange={handleChange}
+              onNumberChange={handleNumberChange}
+              onNumberBlur={handleNumberBlur}
+              statusObraList={config?.statusObra}
+              statusLeituraList={config?.statusLeitura}
+            />
+
+            <ReleaseScheduleSection
+              formData={formData}
+              onChange={handleChange}
+              onNumberChange={handleNumberChange}
+              onNumberBlur={handleNumberBlur}
+              onDayToggle={handleDiaLancamentoToggle}
+              statusObraList={config?.statusObra}
+              tipoLancamentoList={config?.tipoLancamento}
+            />
+
+            <GenresSection
+              formData={formData}
+              onGenreToggle={handleGeneroToggle}
+              generosList={config?.generos}
+            />
+
+            <RatingSection
+              formData={formData}
+              onChange={handleChange}
+              onNumberChange={handleNumberChange}
+              onNumberBlur={handleNumberBlur}
+            />
+
+            <LinksSection
+              formData={formData}
+              onChange={handleChange}
+              linksManager={linksManager}
+            />
+
+            <CoversSection capasManager={capasManager} />
+
+            <NotesSection
+              formData={formData}
+              onChange={handleChange}
+            />
+          </form>
+
         </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="obra-form">
-        {/* Basic Information */}
-        <BasicInfoSection
-          formData={formData}
-          onChange={handleChange}
-          onSearchClick={handleOpenSearch}
-        />
-
-        {/* Status and Progress */}
-        <StatusSection
-          formData={formData}
-          onChange={handleChange}
-          onNumberChange={handleNumberChange}
-          onNumberBlur={handleNumberBlur}
-          statusObraList={config?.statusObra}
-          statusLeituraList={config?.statusLeitura}
-        />
-
-        {/* Release Schedule (hidden if complete/cancelled) */}
-        <ReleaseScheduleSection
-          formData={formData}
-          onChange={handleChange}
-          onNumberChange={handleNumberChange}
-          onNumberBlur={handleNumberBlur}
-          onDayToggle={handleDiaLancamentoToggle}
-          statusObraList={config?.statusObra}
-          tipoLancamentoList={config?.tipoLancamento}
-        />
-
-        {/* Genres */}
-        <GenresSection
-          formData={formData}
-          onGenreToggle={handleGeneroToggle}
-          generosList={config?.generos}
-        />
-
-        {/* Rating */}
-        <RatingSection
-          formData={formData}
-          onChange={handleChange}
-          onNumberChange={handleNumberChange}
-          onNumberBlur={handleNumberBlur}
-        />
-
-        {/* Links */}
-        <LinksSection
-          formData={formData}
-          onChange={handleChange}
-          linksManager={linksManager}
-        />
-
-        {/* Covers */}
-        <CoversSection capasManager={capasManager} />
-
-        {/* Notes */}
-        <NotesSection
-          formData={formData}
-          onChange={handleChange}
-        />
-
-        {/* Action buttons */}
-        <div className="form-actions">
-          <button type="button" onClick={onCancel} className="btn-secondary">
-            Cancelar
-          </button>
-          <button type="submit" className="btn-primary">
-            {obra ? 'Salvar Alterações' : 'Adicionar Obra'}
-          </button>
-        </div>
-      </form>
+      </div>
 
       {/* Search Modal */}
       <SearchModal

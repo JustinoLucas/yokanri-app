@@ -1,45 +1,49 @@
-/* ─── WORKSPACE MENU ────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   WorkspaceMenu V3F — trigger pill + dropdown
+   ═══════════════════════════════════════════════════════════ */
 
 .ws-menu {
   position: relative;
 }
 
-/* ─── TRIGGER BUTTON ─────────────────────────────────── */
+/* ─── Trigger button ────────────────────────────────────── */
 
 .ws-trigger {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 4px 12px 4px 4px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-full);
+  gap: 8px;
+  padding: 3px 10px 3px 3px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
   cursor: pointer;
-  transition: var(--transition);
+  transition: all var(--duration-instant) var(--ease-out);
   color: var(--text-primary);
   max-width: 220px;
 }
 
 .ws-trigger:hover {
   background: var(--bg-hover);
-  border-color: var(--accent-primary);
+  border-color: var(--border-default);
 }
 
 .ws-trigger--active {
   background: var(--bg-hover);
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 1px var(--accent-primary);
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 1px var(--accent-border);
 }
 
+/* Avatar circle */
 .ws-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--border-radius-full);
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--accent-fg), rgba(165, 180, 252, 0.55));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: 10px;
   font-weight: 700;
   color: white;
   letter-spacing: 0.5px;
@@ -47,43 +51,47 @@
 }
 
 .ws-trigger-name {
-  font-size: 13px;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
   font-weight: 500;
+  color: var(--text-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .ws-chevron {
-  color: var(--text-tertiary);
+  color: var(--text-muted);
   flex-shrink: 0;
-  transition: transform 0.2s ease;
+  transition: transform var(--duration-instant) var(--ease-out);
 }
 
 .ws-chevron--open {
   transform: rotate(180deg);
 }
 
-/* ─── DROPDOWN ───────────────────────────────────────── */
+/* ─── Dropdown ──────────────────────────────────────────── */
 
 .ws-dropdown {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: 280px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255, 255, 255, 0.03);
-  z-index: var(--z-dropdown);
-  animation: wsDropdownIn 0.15s ease-out;
+  width: 268px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-12);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  z-index: var(--z-dropdown, 500);
+  animation: wsDropdownIn 0.14s cubic-bezier(0.22, 1, 0.36, 1);
   overflow: hidden;
 }
 
 @keyframes wsDropdownIn {
   from {
     opacity: 0;
-    transform: translateY(-4px) scale(0.98);
+    transform: translateY(-6px) scale(0.97);
   }
   to {
     opacity: 1;
@@ -91,24 +99,25 @@
   }
 }
 
-/* ─── DROPDOWN HEADER ────────────────────────────────── */
+/* ─── Dropdown header ───────────────────────────────────── */
 
 .ws-dropdown-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
+  gap: 11px;
+  padding: 14px 14px 12px;
 }
 
 .ws-dropdown-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--border-radius-sm);
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-8);
+  background: linear-gradient(135deg, var(--accent-fg), rgba(165, 180, 252, 0.55));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 700;
   color: white;
   letter-spacing: 0.5px;
@@ -124,7 +133,8 @@
 }
 
 .ws-dropdown-name {
-  font-size: 14px;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
@@ -133,51 +143,53 @@
 }
 
 .ws-dropdown-label {
-  font-size: 11px;
-  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 500;
+  color: var(--text-muted);
 }
 
-/* ─── SECTIONS ───────────────────────────────────────── */
+/* ─── Sections ──────────────────────────────────────────── */
 
 .ws-section {
-  padding: 6px;
+  padding: 4px 6px;
 }
 
 .ws-section-title {
   display: block;
-  padding: 6px 10px 4px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-tertiary);
+  padding: 6px 8px 3px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.4px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: var(--text-muted);
 }
 
 .ws-divider {
   height: 1px;
-  background: var(--border-color);
+  background: var(--border-hairline);
   margin: 0;
 }
 
-/* ─── MENU ITEMS ─────────────────────────────────────── */
+/* ─── Menu items ────────────────────────────────────────── */
 
 .ws-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
   width: 100%;
-  padding: 8px 10px;
+  padding: 7px 9px;
   background: none;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-6);
   cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 400;
   color: var(--text-secondary);
-  font-size: 13px;
-  font-family: inherit;
-  transition: var(--transition-fast);
+  transition: background var(--duration-instant) var(--ease-out),
+              color var(--duration-instant) var(--ease-out);
   text-align: left;
 }
 
@@ -192,37 +204,24 @@
 }
 
 .ws-item--accent {
-  color: var(--accent-primary);
+  color: var(--accent-fg);
 }
 
 .ws-item--accent:hover:not(:disabled) {
-  color: var(--accent-primary);
-  background: rgba(59, 130, 246, 0.08);
+  color: var(--accent-fg);
+  background: var(--accent-bg);
 }
 
 .ws-item--danger {
-  color: var(--danger-color);
+  color: var(--status-dropped);
 }
 
 .ws-item--danger:hover:not(:disabled) {
-  color: var(--danger-color);
-  background: rgba(239, 68, 68, 0.08);
+  color: var(--status-dropped);
+  background: rgba(252, 165, 165, 0.1);
 }
 
-/* ─── BADGE "EM BREVE" ───────────────────────────────── */
-
-.ws-badge-soon {
-  margin-left: auto;
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: var(--bg-tertiary);
-  color: var(--text-tertiary);
-  font-weight: 500;
-  border: 1px solid var(--border-color);
-}
-
-/* ─── WORKSPACE SWITCHER ─────────────────────────────── */
+/* ─── Workspace switcher ────────────────────────────────── */
 
 .ws-switcher {
   display: flex;
@@ -234,45 +233,42 @@
 }
 
 .ws-switch-item--active {
-  color: var(--accent-primary);
-  background: rgba(59, 130, 246, 0.06);
+  color: var(--accent-fg);
+  background: var(--accent-bg);
 }
 
 .ws-check {
   margin-left: auto;
-  color: var(--accent-primary);
+  color: var(--accent-fg);
 }
 
-/* ─── INLINE INPUT ───────────────────────────────────── */
+/* ─── Inline input ──────────────────────────────────────── */
 
 .ws-inline-input {
   width: 100%;
   padding: 6px 10px;
-  background: var(--bg-primary);
-  border: 1px solid var(--accent-primary);
-  border-radius: 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-6);
   color: var(--text-primary);
-  font-size: 13px;
-  font-family: inherit;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
   outline: none;
-  transition: var(--transition-fast);
-}
-
-.ws-inline-input:focus {
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  transition: box-shadow var(--duration-instant) var(--ease-out);
+  box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
 .ws-inline-input::placeholder {
-  color: var(--text-tertiary);
+  color: var(--text-muted);
 }
 
-/* ─── CREATE WORKSPACE ───────────────────────────────── */
+/* ─── Create workspace section ──────────────────────────── */
 
 .ws-create {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 4px 10px 4px;
+  padding: 4px 8px 4px;
 }
 
 .ws-create-actions {
@@ -280,35 +276,37 @@
   gap: 6px;
 }
 
+/* ─── Action buttons ────────────────────────────────────── */
+
 .ws-btn {
-  padding: 5px 14px;
-  border-radius: 6px;
+  padding: 5px 13px;
+  border-radius: var(--radius-6);
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 500;
-  font-family: inherit;
   cursor: pointer;
-  transition: var(--transition-fast);
+  transition: opacity var(--duration-instant) var(--ease-out);
   border: none;
 }
 
 .ws-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
 .ws-btn--primary {
-  background: var(--accent-primary);
-  color: white;
+  background: var(--accent-fg);
+  color: var(--cta-text, #fff);
 }
 
 .ws-btn--primary:hover:not(:disabled) {
-  background: var(--accent-hover);
+  opacity: 0.88;
 }
 
 .ws-btn--ghost {
   background: none;
   color: var(--text-secondary);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-default);
 }
 
 .ws-btn--ghost:hover:not(:disabled) {
@@ -316,20 +314,30 @@
   color: var(--text-primary);
 }
 
-/* ─── RESPONSIVE ─────────────────────────────────────── */
+/* ─── Badge "em breve" ──────────────────────────────────── */
+
+.ws-badge-soon {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-overlay);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ─── Responsive ────────────────────────────────────────── */
 
 @media (max-width: 768px) {
-  .ws-trigger-name {
+  .ws-trigger-name,
+  .ws-chevron {
     display: none;
   }
 
   .ws-trigger {
-    padding: 4px;
-    border-radius: var(--border-radius-full);
-  }
-
-  .ws-chevron {
-    display: none;
+    padding: 3px;
   }
 
   .ws-dropdown {
