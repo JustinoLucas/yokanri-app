@@ -3,10 +3,10 @@ import { getDiasOrdenados, lancaNoDia, isLancamentoIndeterminado } from '../util
 import { useConfig } from '../../../context/ConfigContext';
 import { filterNsfwObras } from '../../../utils/nsfwUtils';
 
-export const useReleasesData = (obras, filterStatusLeitura) => {
+export const useReleasesData = (obras, filterStatusLeitura, weekOffset = 0) => {
   const config = useConfig();
 
-  const diasOrdenados = useMemo(() => getDiasOrdenados(), []);
+  const diasOrdenados = useMemo(() => getDiasOrdenados(weekOffset), [weekOffset]);
 
   const obrasAtivas = useMemo(() => {
     // Aplica filtro NSFW (modo 'hidden') antes de qualquer outro filtro

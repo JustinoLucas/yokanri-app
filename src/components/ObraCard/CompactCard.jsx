@@ -77,10 +77,10 @@ function CompactCard({
         <span className="compact-title">{obra.nome}</span>
       </td>
       <td className="compact-cell compact-cell-status">
-        <StatusBadge status={obra.statusUsuario} className="compact-badge" />
+        <StatusBadge status={obra.statusUsuario} className="badge-outlined" />
       </td>
       <td className="compact-cell compact-cell-obra-status">
-        <ObraStatusBadge status={obra.status} className="compact-badge" />
+        <ObraStatusBadge status={obra.status} className="badge-flat" />
       </td>
       <td className="compact-cell compact-cell-tipo">
         <FlagIcon tipo={obra.tipo} size={24} />

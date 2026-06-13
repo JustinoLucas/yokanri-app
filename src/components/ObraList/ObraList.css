@@ -1,123 +1,173 @@
-/* ==================== CONTAINER ==================== */
+/* ═══════════════════════════════════════════════════════════
+   ObraList V3F
+   ═══════════════════════════════════════════════════════════ */
 
-.obra-list-container {
+.obra-list-v3f {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  /* flex-shrink: 0 prevents the carousel from collapsing when
+     obra-list-body overflows. app-shell-main handles scrolling. */
+  flex: 1 0 auto;
 }
 
-/* ==================== HEADER ==================== */
-
-.obra-list-header {
+.obra-list-body {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding: 14px 24px 24px;
 }
 
-.obra-list-controls {
+/* ─── Pills row (tipo + sort) ───────────────────────────── */
+
+.lib-pills-row {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  min-height: 30px;
 }
 
-/* ==================== FILTERS BAR ==================== */
-
-.filters-bar-compact {
-  background-color: var(--bg-card);
-  padding: 16px;
-  border-radius: var(--border-radius);
-  border: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.search-and-view {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.search-box {
+.lib-pills-actions {
   flex: 1;
-  position: relative;
-}
-
-.search-icon {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-tertiary);
-  pointer-events: none;
-}
-
-.search-input {
-  width: 100%;
-  padding: 10px 14px 10px 42px !important;
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  color: var(--text-primary);
-  font-size: 14px;
-  transition: var(--transition);
-}
-
-.search-input:focus {
-  border-color: var(--accent-primary);
-  outline: none;
-}
-
-/* ==================== VIEW MODE TOGGLE ==================== */
-
-.view-mode-toggle {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
 }
 
-.view-mode-toggle .btn-icon.active {
-  background-color: var(--accent-primary);
-  color: white;
-  border-color: var(--accent-primary);
-}
+/* ─── View mode toggle ────────────────────────────────── */
 
-/* ==================== LISTING MODE TOGGLE ==================== */
-
-.listing-mode-toggle {
+.lib-toolbar-view-toggle {
   display: flex;
-  gap: 2px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
+  background: var(--bg-overlay);
+  border-radius: var(--radius-8);
+  border: 1px solid var(--border-default);
   padding: 2px;
+  gap: 0;
 }
 
-.listing-mode-btn {
-  display: flex;
+.lib-toolbar-view-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-6);
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-tertiary);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: none;
-  border-radius: calc(var(--border-radius-sm) - 2px);
-  background: transparent;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--duration-instant) var(--ease-out),
+              color var(--duration-instant) var(--ease-out);
 }
 
-.listing-mode-btn:hover {
+.lib-toolbar-view-btn:hover {
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+}
+
+.lib-toolbar-view-btn--active {
   background: var(--bg-hover);
   color: var(--text-primary);
 }
 
-.listing-mode-btn.active {
-  background: var(--accent-primary);
-  color: white;
+/* ─── Filtros button ──────────────────────────────────── */
+
+.lib-toolbar-filters-btn {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--radius-8);
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  transition: all var(--duration-instant) var(--ease-out);
 }
 
-/* ==================== INFINITE SCROLL ==================== */
+.lib-toolbar-filters-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* Active (panel open) state */
+.lib-toolbar-filters-btn--active {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent-fg);
+}
+
+.lib-toolbar-filters-btn--active:hover {
+  background: var(--accent-bg);
+  color: var(--accent-fg);
+}
+
+/* Badge contador */
+.lib-toolbar-filters-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--cta-text);
+  background: var(--accent-fg);
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  line-height: 16px;
+}
+
+/* Sort control */
+.lib-pills-sort {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.lib-pills-sort-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.lib-pills-sort-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 2px 4px;
+  border-radius: var(--radius-4);
+  transition: color var(--duration-instant) var(--ease-out),
+              background var(--duration-instant) var(--ease-out);
+}
+
+.lib-pills-sort-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.lib-pills-sort-order {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 2px 3px;
+  border-radius: var(--radius-4);
+  transition: color var(--duration-instant) var(--ease-out);
+  line-height: 1;
+}
+
+.lib-pills-sort-order:hover {
+  color: var(--text-secondary);
+}
+
+/* ─── Infinite scroll ───────────────────────────────────── */
 
 .infinite-scroll-sentinel {
   height: 40px;
@@ -131,172 +181,7 @@
   padding: 16px 0 8px;
 }
 
-.btn-icon {
-  background-color: var(--bg-secondary);
-  color: var(--text-secondary);
-  padding: 8px;
-  border-radius: var(--border-radius-sm);
-  border: 1px solid var(--border-color);
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  transition: var(--transition);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-icon:hover {
-  background-color: var(--bg-tertiary);
-  border-color: var(--border-subtle);
-}
-
-/* ==================== FILTER ACTIONS ==================== */
-
-.filters-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.filters-toggle {
-  background-color: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  padding: 8px 14px;
-  border-radius: var(--border-radius-sm);
-  color: var(--text-secondary);
-  font-size: 13px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: var(--transition);
-  align-self: flex-start;
-}
-
-.filters-toggle:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
-}
-
-.btn-clear-filters {
-  background-color: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  padding: 8px 14px;
-  border-radius: var(--border-radius-sm);
-  color: var(--text-secondary);
-  font-size: 13px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: var(--transition);
-  align-self: flex-start;
-}
-
-.btn-clear-filters:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
-}
-
-/* ==================== FILTERS EXPANDED ==================== */
-
-.filters-expanded {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-color);
-}
-
-.filters-expanded select {
-  background-color: var(--bg-secondary);
-  padding: 8px 12px;
-  font-size: 13px;
-}
-
-/* ==================== SORT GROUP ==================== */
-
-.sort-group {
-  display: flex;
-  gap: 6px;
-  align-items: stretch;
-}
-
-.sort-order-btn {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  padding: 0 10px;
-  cursor: pointer;
-  transition: var(--transition);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--text-secondary);
-  min-width: 50px;
-  justify-content: center;
-}
-
-.sort-order-btn:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
-  border-color: var(--border-subtle);
-}
-
-.sort-order-indicator {
-  font-size: 16px;
-  font-weight: bold;
-  line-height: 1;
-}
-
-/* ==================== CHECKBOX ==================== */
-
-.checkbox-compact {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
-  font-size: 13px;
-  color: var(--text-secondary);
-  transition: var(--transition);
-  user-select: none;
-}
-
-.checkbox-compact:hover {
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.checkbox-icon-unchecked,
-.checkbox-icon-checked {
-  cursor: pointer;
-  transition: var(--transition);
-  color: var(--border-color);
-  flex-shrink: 0;
-}
-
-.checkbox-icon-unchecked:hover {
-  color: var(--accent-primary);
-}
-
-.checkbox-icon-checked {
-  color: var(--accent-primary);
-}
-
-/* ==================== RESULTS INFO ==================== */
-
-.results-info {
-  font-size: 13px;
-  color: var(--text-tertiary);
-  padding: 0 4px;
-}
-
-/* ==================== OBRA LIST ==================== */
+/* ─── Obra list ─────────────────────────────────────────── */
 
 .obra-list.grid {
   display: grid;
@@ -310,7 +195,7 @@
   gap: 8px;
 }
 
-/* ==================== COMPACT TABLE ==================== */
+/* ─── Compact table ─────────────────────────────────────── */
 
 .compact-table {
   width: 100%;
@@ -349,7 +234,7 @@
   text-align: right;
 }
 
-/* ==================== PAGINATION ==================== */
+/* ─── Pagination ─────────────────────────────────────────── */
 
 .pagination {
   display: flex;
@@ -400,7 +285,7 @@
   text-align: center;
 }
 
-/* ==================== RESPONSIVE ==================== */
+/* ─── Responsive ─────────────────────────────────────────── */
 
 @media (max-width: 1024px) {
   .obra-list.grid {
@@ -409,23 +294,6 @@
 }
 
 @media (max-width: 768px) {
-  .search-and-view {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .view-mode-toggle {
-    justify-content: stretch;
-  }
-
-  .view-mode-toggle .btn-icon {
-    flex: 1;
-  }
-
-  .filters-expanded {
-    grid-template-columns: 1fr;
-  }
-
   .obra-list.grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 12px;

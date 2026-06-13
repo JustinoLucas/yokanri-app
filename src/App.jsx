@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
-import Header from './components/Header';
+import AppShell from './components/AppShell';
+import WorkspaceMenu from './components/WorkspaceMenu';
 import ReleasesToday from './components/ReleasesToday';
 import ObraList from './components/ObraList';
 import ObraForm from './components/ObraForm';
 import ObraDetail from './components/ObraDetail/index';
 import Statistics from './components/Statistics';
+import Calendar from './components/Calendar';
 import Configuracoes from './components/Configuracoes';
 import WorkspaceProfile from './components/WorkspaceProfile';
+import UpdateNotification from './components/UpdateNotification';
 import storage from './services/storage/storageService';
 import * as onboardingService from './onboarding/services/onboardingService';
 import OnboardingApp from './onboarding/OnboardingApp';
@@ -185,9 +188,10 @@ function App() {
     setCurrentView('list');
   };
 
-  const handleShowStats = () => setCurrentView('stats');
-  const handleShowConfig = () => setCurrentView('config');
-  const handleShowProfile = () => setCurrentView('profile');
+  const handleShowStats    = () => setCurrentView('stats');
+  const handleShowConfig   = () => setCurrentView('config');
+  const handleShowProfile  = () => setCurrentView('profile');
+  const handleShowCalendar = () => setCurrentView('calendar');
 
   const handleWorkspaceChange = (newWorkspace) => {
     setActiveWorkspace(newWorkspace);
@@ -226,95 +230,136 @@ function App() {
     return <OnboardingApp onComplete={handleOnboardingComplete} />;
   }
 
+  // Mapeia currentView → activePage para a sidebar
+  const getActivePage = () => {
+    switch (currentView) {
+      case 'list':     return 'library';
+      case 'calendar': return 'calendar';
+      case 'stats':    return 'stats';
+      case 'profile':  return 'profile';
+      case 'config':   return 'config';
+      default:         return 'library';
+    }
+  };
+
+  // Navegação via sidebar
+  const handleSidebarNavigate = (page) => {
+    switch (page) {
+      case 'library':  handleBackToList();    break;
+      case 'calendar': handleShowCalendar();  break;
+      case 'stats':    handleShowStats();     break;
+      case 'profile':  handleShowProfile();   break;
+      default: handleBackToList();
+    }
+  };
+
   return (
     <ConfigProvider config={config}>
-      <div className="app">
-        <Header
-          workspace={activeWorkspace}
-          onNewObra={handleNewManwha}
-          onRefresh={loadData}
-          onShowStats={handleShowStats}
-          onShowConfig={handleShowConfig}
-          onShowProfile={handleShowProfile}
-          showBackButton={currentView !== 'list'}
-          onBack={handleBackToList}
-          onWorkspaceChange={handleWorkspaceChange}
-        />
-
-        <main className="main-content">
-          {loading ? (
-            <div className="loading">Carregando...</div>
-          ) : (
-            <>
-              {currentView === 'list' && (
-                <>
-                  <ReleasesToday
-                    obras={obras}
-                    onViewDetail={handleViewDetail}
-                    onEdit={handleEditManwha}
-                    onDelete={handleDeleteManwha}
-                    onQuickUpdate={handleQuickUpdate}
-                  />
-                  <ObraList
-                    obras={obras}
-                    config={config}
-                    onViewDetail={handleViewDetail}
-                    onEdit={handleEditManwha}
-                    onDelete={handleDeleteManwha}
-                    onQuickUpdate={handleQuickUpdate}
-                  />
-                </>
-              )}
-
-              {currentView === 'form' && (
-                <ObraForm
-                  obra={selectedObra}
-                  config={config}
-                  onSave={selectedObra ? handleUpdateManwha : handleAddManwha}
-                  onCancel={handleBackToList}
-                />
-              )}
-
-              {currentView === 'detail' && selectedObra && (
-                <ObraDetail
-                  obra={selectedObra}
-                  onEdit={() => handleEditManwha(selectedObra)}
-                  onDelete={() => handleDeleteManwha(selectedObra.id)}
-                  onClose={handleBackToList}
-                />
-              )}
-
-              {currentView === 'stats' && (
-                <Statistics obras={obras} />
-              )}
-
-              {currentView === 'config' && (
-                <Configuracoes
-                  config={config}
+      <UpdateNotification />
+      <AppShell
+        workspace={activeWorkspace}
+        activePage={getActivePage()}
+        obraCount={obras.length}
+        onNavigate={handleSidebarNavigate}
+        onNewObra={handleNewManwha}
+        onShowStats={handleShowStats}
+        onShowConfig={handleShowConfig}
+        obras={obras}
+        onNavigateObra={handleViewDetail}
+        workspaceMenu={
+          <WorkspaceMenu
+            workspace={activeWorkspace}
+            onShowStats={handleShowStats}
+            onShowConfig={handleShowConfig}
+            onShowProfile={handleShowProfile}
+            onWorkspaceChange={handleWorkspaceChange}
+            onRefresh={loadData}
+          />
+        }
+      >
+        {loading ? (
+          <div className="loading">Carregando...</div>
+        ) : (
+          <>
+            {currentView === 'list' && (
+              <ObraList
+                obras={obras}
+                config={config}
+                onViewDetail={handleViewDetail}
+                onEdit={handleEditManwha}
+                onDelete={handleDeleteManwha}
+                onQuickUpdate={handleQuickUpdate}
+                onSetNsfwMode={setNsfwMode}
+              >
+                <ReleasesToday
                   obras={obras}
-                  onAdd={addItem}
-                  onRename={renameItem}
-                  onDelete={deleteItem}
-                  onUpdateColor={updateColor}
-                  onToggleHideSchedule={toggleHideSchedule}
-                  onToggleGenreNsfw={toggleGenreNsfw}
-                  onSetNsfwMode={setNsfwMode}
-                />
-              )}
-
-              {currentView === 'profile' && (
-                <WorkspaceProfile
-                  workspace={activeWorkspace}
-                  obras={obras}
-                  onShowStats={handleShowStats}
-                  onShowConfig={handleShowConfig}
                   onViewDetail={handleViewDetail}
+                  onEdit={handleEditManwha}
+                  onDelete={handleDeleteManwha}
+                  onQuickUpdate={handleQuickUpdate}
+                  onShowCalendar={handleShowCalendar}
                 />
-              )}
-            </>
-          )}
-        </main>
-      </div>
+              </ObraList>
+            )}
+
+            {currentView === 'form' && (
+              <ObraForm
+                obra={selectedObra}
+                config={config}
+                onSave={selectedObra ? handleUpdateManwha : handleAddManwha}
+                onCancel={handleBackToList}
+              />
+            )}
+
+            {currentView === 'detail' && selectedObra && (
+              <ObraDetail
+                obra={selectedObra}
+                onEdit={() => handleEditManwha(selectedObra)}
+                onDelete={() => handleDeleteManwha(selectedObra.id)}
+                onClose={handleBackToList}
+              />
+            )}
+
+            {currentView === 'calendar' && (
+              <Calendar
+                obras={obras}
+                onClose={handleBackToList}
+                onViewDetail={handleViewDetail}
+              />
+            )}
+
+            {currentView === 'stats' && (
+              <Statistics obras={obras} onClose={handleBackToList} />
+            )}
+
+            {currentView === 'config' && (
+              <Configuracoes
+                config={config}
+                obras={obras}
+                onAdd={addItem}
+                onRename={renameItem}
+                onDelete={deleteItem}
+                onUpdateColor={updateColor}
+                onToggleHideSchedule={toggleHideSchedule}
+                onToggleGenreNsfw={toggleGenreNsfw}
+                onSetNsfwMode={setNsfwMode}
+                onClose={handleBackToList}
+              />
+            )}
+
+            {currentView === 'profile' && (
+              <WorkspaceProfile
+                workspace={activeWorkspace}
+                obras={obras}
+                onShowStats={handleShowStats}
+                onShowConfig={handleShowConfig}
+                onViewDetail={handleViewDetail}
+                onClose={handleBackToList}
+              />
+            )}
+          </>
+        )}
+      </AppShell>
     </ConfigProvider>
   );
 }

@@ -241,13 +241,11 @@ function normalizeName(name) {
  */
 async function writeTempDb(dbBytes) {
   const wsDir = await getActiveWorkspaceDir();
-  const tempPath = await join(wsDir, '_import_temp.db');
-
-  // Remove temp anterior se existir
-  const tempExists = await exists(tempPath);
-  if (tempExists) {
-    await remove(tempPath);
-  }
+  // Usa nome único (timestamp) para evitar colisão de pool no tauri-plugin-sql.
+  // O plugin mantém pools por URI — reusar o mesmo nome após close pode
+  // retornar um pool fechado do cache interno.
+  const tempName = `_import_temp_${Date.now()}.db`;
+  const tempPath = await join(wsDir, tempName);
 
   await writeFile(tempPath, dbBytes);
   return tempPath;
@@ -259,7 +257,10 @@ async function writeTempDb(dbBytes) {
 async function cleanupTempDb(tempDb, tempDbPath) {
   if (tempDb) {
     try {
-      await tempDb.close();
+      // IMPORTANTE: sempre passar o path para fechar SOMENTE este pool.
+      // Sem argumento, tauri-plugin-sql fecha TODOS os pools (inclusive o DB principal),
+      // causando "attempted to acquire a connection on a closed pool".
+      await tempDb.close(tempDb.path);
     } catch (e) {
       console.warn('[Merge] Erro ao fechar DB temporário:', e);
     }

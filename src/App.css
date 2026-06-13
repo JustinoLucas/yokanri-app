@@ -1,19 +1,11 @@
-.app {
-  min-height: 100vh;
+/* App.css — layout principal controlado por AppShell.css */
+
+.loading {
   display: flex;
-  flex-direction: column;
-}
-
-.main-content {
-  flex: 1;
-  max-width: 1600px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-@media (max-width: 768px) {
-  .main-content {
-    padding: 10px;
-  }
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
 }

@@ -7,17 +7,29 @@ const DIAS_SEMANA_COMPLETOS = [
 
 const DIAS_SEMANA_ABREV = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
+const MESES = [
+  'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+  'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
+];
+
 /**
- * Retorna array de 7 objetos representando hoje + próximos 6 dias
+ * Retorna array de 7 objetos representando uma semana de dias.
+ * weekOffset desloca a janela em semanas inteiras (0 = semana atual, começando hoje).
  */
-export const getDiasOrdenados = () => {
+export const getDiasOrdenados = (weekOffset = 0) => {
   const hoje = new Date().getDay();
-  return Array.from({ length: 7 }, (_, offset) => {
-    const idx = (hoje + offset) % 7;
+  const baseOffset = weekOffset * 7;
+  return Array.from({ length: 7 }, (_, i) => {
+    const offset = baseOffset + i;
+    const idx = ((hoje + offset) % 7 + 7) % 7;
+    const data = new Date();
+    data.setDate(data.getDate() + offset);
     return {
       offset,
       nomeCompleto: DIAS_SEMANA_COMPLETOS[idx],
       nomeAbrev: DIAS_SEMANA_ABREV[idx],
+      diaDoMes: data.getDate(),
+      mes: MESES[data.getMonth()],
     };
   });
 };

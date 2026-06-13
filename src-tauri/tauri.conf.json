@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Yokanri",
-  "version": "1.0.0",
+  "version": "0.5.0",
   "identifier": "com.yokanri.app",
   "build": {
     "frontendDist": "../dist",
@@ -29,6 +29,7 @@
   },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": true,
     "targets": ["nsis", "msi"],
     "icon": [
       "icons/32x32.png",
@@ -43,6 +44,14 @@
         "displayLanguageSelector": false,
         "languages": ["PortugueseBR", "English"]
       }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDRGQzA3OEM5MkMzNTFGRDEKUldUUkh6VXN5WGpBVDRUcGtaV0p5cFMwZE5uWExNYlVPZERWZTlUSzJweDM5QTJHaUJYYm1EOUIK",
+      "endpoints": [
+        "https://github.com/JustinoLucas/yokanri-app/releases/latest/download/latest.json"
+      ]
     }
   }
 }

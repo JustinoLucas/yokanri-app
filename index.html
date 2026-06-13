@@ -8,13 +8,19 @@
       Elimina o flash branco que ocorre antes do CSS ser processado.
     -->
     <style>
-      /* Fundo escuro imediato — a cor deve coincidir com --bg-primary */
+      /* Fundo escuro imediato — a cor deve coincidir com --bg-app (V3F dark) */
       html,
       body {
         margin: 0;
         padding: 0;
         min-height: 100vh;
-        background: #0a0a0a;
+        background: #0a0a0c;
+      }
+
+      /* Light theme: trocar fundo imediatamente via data-theme */
+      html[data-theme="light"],
+      html[data-theme="light"] body {
+        background: #f4f3ef;
       }
 
       /* ── Splash screen ─────────────────────────────────── */
@@ -30,9 +36,13 @@
         align-items: center;
         justify-content: center;
         gap: 18px;
-        background: linear-gradient(135deg, #0a0a0a 0%, #0d1525 50%, #0a0a0a 100%);
-        /* Transição de saída — deve coincidir com SPLASH_HIDE_DURATION em splashUtils.js */
+        background: #0a0a0c;
+        /* Transicao de saida — deve coincidir com SPLASH_HIDE_DURATION em splashUtils.js */
         transition: opacity 0.35s ease;
+      }
+
+      html[data-theme="light"] #app-splash {
+        background: #f4f3ef;
       }
 
       /* Classe adicionada por splashUtils.hideSplash() */
@@ -44,21 +54,29 @@
       /* Wordmark "Yokanri" */
       .splash-wordmark {
         font-size: 26px;
-        font-weight: 700;
-        color: #ffffff;
-        letter-spacing: -0.4px;
-        /* System font — Poppins pode não estar carregada ainda */
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-weight: 600;
+        color: #f5f5f7;
+        letter-spacing: -0.6px;
+        font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       }
 
-      /* Spinner minimalista */
+      html[data-theme="light"] .splash-wordmark {
+        color: #1c1b18;
+      }
+
+      /* Spinner minimalista — V3F accent indigo */
       .splash-spinner {
         width: 18px;
         height: 18px;
-        border: 2px solid rgba(59, 130, 246, 0.2);
-        border-top-color: #3b82f6;
+        border: 2px solid rgba(165, 180, 252, 0.2);
+        border-top-color: #a5b4fc;
         border-radius: 50%;
         animation: splash-spin 0.75s linear infinite;
+      }
+
+      html[data-theme="light"] .splash-spinner {
+        border-color: rgba(75, 91, 214, 0.15);
+        border-top-color: #4b5bd6;
       }
 
       @keyframes splash-spin {
@@ -70,12 +88,16 @@
       /* Texto de status — atualizado via splashUtils.setSplashStatus() */
       #splash-status {
         font-size: 11px;
-        color: rgba(255, 255, 255, 0.3);
+        color: rgba(255, 255, 255, 0.25);
         letter-spacing: 0.3px;
         min-height: 16px;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        /* Transição suave entre fases */
+        font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        /* Transicao suave entre fases */
         transition: opacity 0.15s ease;
+      }
+
+      html[data-theme="light"] #splash-status {
+        color: rgba(28, 27, 24, 0.35);
       }
     </style>
 
@@ -83,28 +105,19 @@
     <meta name="tauri-app" content="true" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!--
-      Google Fonts — carregado de forma NÃO bloqueante.
-      O truque "media=print → onload → media=all" evita que o navegador
-      bloqueie o primeiro paint esperando a fonte externa.
-      O noscript é o fallback para ambientes sem JS.
-    -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-      media="print"
-      onload="this.media='all'"
-    />
-    <noscript>
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-      />
-    </noscript>
+    <!-- Fontes V3F: Geist + Geist Mono — bundled via @fontsource-variable -->
 
     <title>Yokanri</title>
+
+    <!-- Aplica tema ANTES do primeiro paint para evitar flash -->
+    <script>
+      (function() {
+        try {
+          var t = localStorage.getItem('yokanri-theme');
+          if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        } catch(e) {}
+      })();
+    </script>
   </head>
   <body>
     <!--

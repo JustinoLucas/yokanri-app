@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import { Book, TrendingUp, Clock, Heart, Flag, CheckCircle, Star, Award } from 'lucide-react';
+import { Book, TrendingUp, Clock, Heart, Flag, CheckCircle, Star, Award, ArrowLeft } from 'lucide-react';
 import FlagIcon from '../ObraCard/shared/FlagIcon';
 import { useConfig } from '../../context/ConfigContext';
 import './Statistics.css';
 
 
-function Statistics({ obras }) {
+function Statistics({ obras, onClose }) {
   const config = useConfig();
 
   const stats = useMemo(() => {
@@ -102,11 +102,23 @@ function Statistics({ obras }) {
   }, [obras]);
 
   return (
-    <div className="statistics-page">
-      <div className="statistics-header">
-        <h2>Estatísticas da Biblioteca</h2>
-        <p className="statistics-subtitle">Análise detalhada da sua coleção</p>
+    <div className="statistics-v3f">
+
+      {/* ── Back bar ──────────────────────────────────────── */}
+      <div className="stats-bar">
+        {onClose && (
+          <button className="stats-bar-back" onClick={onClose}>
+            <ArrowLeft size={13} />
+            Biblioteca
+          </button>
+        )}
+        <div className="stats-bar-divider" />
+        <span className="stats-bar-title">Estatísticas</span>
       </div>
+
+      {/* ── Scrollable content ────────────────────────────── */}
+      <div className="statistics-scroll">
+      <div className="statistics-inner">
 
       <div className="stats-grid">
         {/* Total Overview Cards */}
@@ -359,6 +371,9 @@ function Statistics({ obras }) {
           </div>
         </div>
       </div>
+
+      </div>{/* statistics-inner */}
+      </div>{/* statistics-scroll */}
     </div>
   );
 }
