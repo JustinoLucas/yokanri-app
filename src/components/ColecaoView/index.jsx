@@ -35,7 +35,7 @@ function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObra
       return;
     }
     let cancelled = false;
-    storage.loadCover(bannerFileName).then(url => {
+    storage.loadBanner(bannerFileName).then(url => {
       if (!cancelled) setBannerUrl(url);
     });
     return () => { cancelled = true; };
