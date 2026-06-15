@@ -13,6 +13,7 @@ import SearchModal from './components/SearchModal';
 import { convertAniListToObra } from '../../services/anilistService';
 import { convertMangaDexToObra } from '../../services/mangadexService';
 import { convertMangaUpdatesToObra } from '../../services/mangaUpdatesService';
+import { downloadCoverAsFile } from '../../services/coverDownloader';
 import './ObraForm.css';
 
 /**
@@ -53,7 +54,7 @@ function ObraForm({ obra, config, onSave, onCancel }) {
     setShowSearchModal(true);
   };
 
-  const handleMangaSelect = (manga) => {
+  const handleMangaSelect = async (manga) => {
     // Convert based on source
     let obraData;
     if (manga._source === 'mangadex') {
@@ -71,9 +72,14 @@ function ObraForm({ obra, config, onSave, onCancel }) {
       }
     });
 
-    // Store cover URL for potential later use
+    // Download e adiciona a capa escolhida ao gerenciador de capas
     if (obraData._coverUrl) {
-      console.log(`Cover URL available (${obraData._source || 'anilist'}):`, obraData._coverUrl);
+      try {
+        const file = await downloadCoverAsFile(obraData._coverUrl, obraData._source || 'capa');
+        capasManager.handleAddCapas([file]);
+      } catch (error) {
+        console.error('Erro ao baixar capa:', error);
+      }
     }
   };
 

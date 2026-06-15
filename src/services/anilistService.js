@@ -38,6 +38,16 @@ export async function searchManga(searchTerm) {
             month
             day
           }
+          staff(sort: RELEVANCE, perPage: 6) {
+            edges {
+              role
+              node {
+                name {
+                  full
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -154,6 +164,34 @@ function mapGenres(anilistGenres) {
 }
 
 /**
+ * Extract author(s) and artist(s) from AniList staff edges
+ * @param {Array} staffEdges - Edges from anilistManga.staff.edges
+ * @returns {{ authors: string[], artists: string[] }}
+ */
+function extractStaff(staffEdges) {
+  const authors = [];
+  const artists = [];
+
+  for (const edge of staffEdges || []) {
+    const role = (edge.role || '').toLowerCase();
+    const name = edge.node?.name?.full;
+    if (!name) continue;
+
+    if (role.includes('story') || role.includes('original creator')) {
+      authors.push(name);
+    }
+    if (role.includes('art') && !role.includes('character design')) {
+      artists.push(name);
+    }
+  }
+
+  return {
+    authors: [...new Set(authors)],
+    artists: [...new Set(artists)],
+  };
+}
+
+/**
  * Convert AniList manga data to our obra format
  * @param {Object} anilistManga - Manga data from AniList
  * @returns {Object} Partial obra data that can be used to fill the form
@@ -161,10 +199,13 @@ function mapGenres(anilistGenres) {
 export function convertAniListToObra(anilistManga) {
   const primaryTitle = anilistManga.title.english || anilistManga.title.romaji;
   const alternativeTitle = anilistManga.title.native || anilistManga.title.romaji;
+  const { authors, artists } = extractStaff(anilistManga.staff?.edges);
 
   return {
     nome: primaryTitle,
     nomeAlternativo: alternativeTitle !== primaryTitle ? alternativeTitle : '',
+    autor: authors.join(', '),
+    estudio: artists.length && artists.join(', ') !== authors.join(', ') ? artists.join(', ') : '',
     tipo: mapCountryToType(anilistManga.countryOfOrigin),
     status: mapStatus(anilistManga.status),
     capituloAtual: anilistManga.chapters || 0,
@@ -175,7 +216,8 @@ export function convertAniListToObra(anilistManga) {
     // Store cover URL for user to optionally save
     _coverUrl: anilistManga.coverImage.large || anilistManga.coverImage.medium,
     // Store AniList ID for reference
-    _anilistId: anilistManga.id
+    _anilistId: anilistManga.id,
+    _source: 'anilist',
   };
 }
 
