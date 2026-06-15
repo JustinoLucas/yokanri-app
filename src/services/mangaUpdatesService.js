@@ -28,6 +28,10 @@ export async function searchManga(searchTerm) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          // O WAF do MangaUpdates retorna 403 quando o header Origin está
+          // presente. O tauri-plugin-http adiciona esse header por padrão,
+          // mas remove se ele vier vazio (feature "unsafe-headers").
+          'Origin': '',
         },
         body: JSON.stringify({
           search: searchTerm.trim(),
@@ -57,7 +61,11 @@ export async function searchManga(searchTerm) {
 export async function getSeriesDetails(seriesId) {
   try {
     return await mangaUpdatesLimiter.schedule(async () => {
-      const response = await apiFetch(`${MANGAUPDATES_API_URL}/series/${seriesId}`);
+      const response = await apiFetch(`${MANGAUPDATES_API_URL}/series/${seriesId}`, {
+        headers: {
+          'Origin': '',
+        },
+      });
 
       if (!response.ok) {
         throw new Error(`MangaUpdates API error: ${response.status}`);
