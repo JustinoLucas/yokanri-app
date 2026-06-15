@@ -6,6 +6,16 @@ import { searchManga as searchMangaUpdates, getSeriesDetails as getMangaUpdatesD
 import './SearchModal.css';
 
 /**
+ * Fontes de busca disponíveis. O usuário pode escolher quais delas
+ * são consultadas a cada busca.
+ */
+const SOURCES = [
+  { key: 'anilist', label: 'AniList', color: '#3db4f2', search: searchAniList },
+  { key: 'mangadex', label: 'MangaDex', color: '#ff6740', search: searchMangaDex },
+  { key: 'mangaupdates', label: 'MangaUpdates', color: '#2563eb', search: searchMangaUpdates },
+];
+
+/**
  * Normaliza os dados de exibição de um resultado de busca, que tem
  * formatos diferentes dependendo da fonte (AniList, MangaDex, MangaUpdates).
  */
@@ -79,44 +89,41 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
   const [error, setError] = useState(null);
   const [searched, setSearched] = useState(false);
   const [selectingKey, setSelectingKey] = useState(null);
+  const [enabledSources, setEnabledSources] = useState(
+    () => Object.fromEntries(SOURCES.map(s => [s.key, true]))
+  );
+
+  const activeSources = SOURCES.filter(s => enabledSources[s.key]);
+
+  const toggleSource = (key) => {
+    setEnabledSources(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const handleSearch = async (e) => {
     e?.preventDefault();
 
-    if (!searchTerm.trim()) return;
+    if (!searchTerm.trim() || activeSources.length === 0) return;
 
     setLoading(true);
     setError(null);
     setSearched(true);
 
     try {
-      const [anilistResult, mangadexResult, mangaUpdatesResult] = await Promise.allSettled([
-        searchAniList(searchTerm),
-        searchMangaDex(searchTerm),
-        searchMangaUpdates(searchTerm),
-      ]);
+      const settled = await Promise.allSettled(activeSources.map(source => source.search(searchTerm)));
 
       const combinedResults = [];
+      let allFailed = true;
 
-      if (anilistResult.status === 'fulfilled') {
-        combinedResults.push(...anilistResult.value.map(manga => ({ ...manga, _source: 'anilist' })));
-      } else {
-        console.error('AniList search error:', anilistResult.reason);
-      }
+      settled.forEach((result, idx) => {
+        const source = activeSources[idx];
+        if (result.status === 'fulfilled') {
+          allFailed = false;
+          combinedResults.push(...result.value.map(manga => ({ ...manga, _source: source.key })));
+        } else {
+          console.error(`${source.label} search error:`, result.reason);
+        }
+      });
 
-      if (mangadexResult.status === 'fulfilled') {
-        combinedResults.push(...mangadexResult.value.map(manga => ({ ...manga, _source: 'mangadex' })));
-      } else {
-        console.error('MangaDex search error:', mangadexResult.reason);
-      }
-
-      if (mangaUpdatesResult.status === 'fulfilled') {
-        combinedResults.push(...mangaUpdatesResult.value.map(manga => ({ ...manga, _source: 'mangaupdates' })));
-      } else {
-        console.error('MangaUpdates search error:', mangaUpdatesResult.reason);
-      }
-
-      const allFailed = [anilistResult, mangadexResult, mangaUpdatesResult].every(r => r.status === 'rejected');
       if (combinedResults.length === 0 && allFailed) {
         setError('Erro ao buscar mangás. Tente novamente.');
       }
@@ -184,12 +191,33 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
             <button
               type="submit"
               className="search-submit-btn"
-              disabled={loading || !searchTerm.trim()}
+              disabled={loading || !searchTerm.trim() || activeSources.length === 0}
             >
               {loading ? <Loader size={18} className="spinning" /> : <Search size={18} />}
               {loading ? 'Buscando...' : 'Buscar'}
             </button>
           </div>
+
+          <div className="search-source-toggles">
+            {SOURCES.map((source) => {
+              const active = enabledSources[source.key];
+              return (
+                <button
+                  key={source.key}
+                  type="button"
+                  className={`search-source-toggle${active ? ' search-source-toggle--active' : ''}`}
+                  style={active ? { borderColor: source.color, color: source.color } : undefined}
+                  onClick={() => toggleSource(source.key)}
+                >
+                  {source.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {activeSources.length === 0 && (
+            <p className="search-source-warning">Selecione ao menos uma fonte de busca.</p>
+          )}
         </form>
 
         <div className="search-results">
