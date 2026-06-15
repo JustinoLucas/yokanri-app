@@ -12,6 +12,7 @@ import NotesSection from './sections/NotesSection';
 import SearchModal from './components/SearchModal';
 import { convertAniListToObra } from '../../services/anilistService';
 import { convertMangaDexToObra } from '../../services/mangadexService';
+import { convertMangaUpdatesToObra } from '../../services/mangaUpdatesService';
 import './ObraForm.css';
 
 /**
@@ -54,9 +55,14 @@ function ObraForm({ obra, config, onSave, onCancel }) {
 
   const handleMangaSelect = (manga) => {
     // Convert based on source
-    const obraData = manga._source === 'mangadex'
-      ? convertMangaDexToObra(manga)
-      : convertAniListToObra(manga);
+    let obraData;
+    if (manga._source === 'mangadex') {
+      obraData = convertMangaDexToObra(manga);
+    } else if (manga._source === 'mangaupdates') {
+      obraData = convertMangaUpdatesToObra(manga);
+    } else {
+      obraData = convertAniListToObra(manga);
+    }
 
     // Auto-fill all available fields
     Object.entries(obraData).forEach(([key, value]) => {

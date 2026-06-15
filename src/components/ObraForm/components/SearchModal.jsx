@@ -2,10 +2,75 @@ import { useState } from 'react';
 import { Search, X, Loader } from 'lucide-react';
 import { searchManga as searchAniList } from '../../../services/anilistService';
 import { searchManga as searchMangaDex } from '../../../services/mangadexService';
+import { searchManga as searchMangaUpdates, getSeriesDetails as getMangaUpdatesDetails } from '../../../services/mangaUpdatesService';
 import './SearchModal.css';
 
 /**
- * SearchModal - Modal for searching manga on AniList and MangaDex
+ * Normaliza os dados de exibição de um resultado de busca, que tem
+ * formatos diferentes dependendo da fonte (AniList, MangaDex, MangaUpdates).
+ */
+function getDisplayInfo(manga) {
+  switch (manga._source) {
+    case 'mangadex': {
+      const title = manga.attributes?.title;
+      const displayTitle = title?.['pt-br'] || title?.['pt'] || title?.en || Object.values(title || {})[0] || 'Sem título';
+      const coverRel = manga.relationships?.find(r => r.type === 'cover_art');
+
+      return {
+        id: manga.id,
+        displayTitle,
+        altTitle: title?.en !== displayTitle ? title?.en : title?.['ja-ro'] || '',
+        coverUrl: coverRel ? `https://uploads.mangadex.org/covers/${manga.id}/${coverRel.attributes?.fileName}.256.jpg` : null,
+        country: manga.attributes?.originalLanguage,
+        status: manga.attributes?.status,
+        chapters: manga.attributes?.lastChapter,
+        scoreLabel: null,
+        genres: manga.attributes?.tags?.slice(0, 4).map(t => t.attributes?.name?.en).filter(Boolean) || [],
+        badgeLabel: 'MangaDex',
+        badgeColor: '#ff6740',
+      };
+    }
+
+    case 'mangaupdates': {
+      const typeToCountry = { 'Manga': 'JP', 'Manhwa': 'KR', 'Manhua': 'CN' };
+
+      return {
+        id: manga.series_id,
+        displayTitle: manga.title || 'Sem título',
+        altTitle: '',
+        coverUrl: manga.image?.url?.thumb || manga.image?.url?.original || null,
+        country: typeToCountry[manga.type] || null,
+        status: null,
+        chapters: null,
+        scoreLabel: manga.bayesian_rating ? `⭐ ${manga.bayesian_rating.toFixed(1)}/10` : null,
+        genres: (manga.genres || []).slice(0, 4).map(g => g.genre),
+        badgeLabel: 'MangaUpdates',
+        badgeColor: '#2563eb',
+      };
+    }
+
+    default: { // anilist
+      const title = manga.title;
+
+      return {
+        id: manga.id,
+        displayTitle: title?.english || title?.romaji || 'Sem título',
+        altTitle: title?.native || '',
+        coverUrl: manga.coverImage?.medium,
+        country: manga.countryOfOrigin,
+        status: manga.status,
+        chapters: manga.chapters,
+        scoreLabel: manga.averageScore ? `⭐ ${manga.averageScore}%` : null,
+        genres: manga.genres || [],
+        badgeLabel: 'AniList',
+        badgeColor: '#3db4f2',
+      };
+    }
+  }
+}
+
+/**
+ * SearchModal - Modal for searching manga on AniList, MangaDex and MangaUpdates
  */
 function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
   const [searchTerm, setSearchTerm] = useState(initialSearch);
@@ -13,6 +78,7 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searched, setSearched] = useState(false);
+  const [selectingKey, setSelectingKey] = useState(null);
 
   const handleSearch = async (e) => {
     e?.preventDefault();
@@ -24,9 +90,10 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
     setSearched(true);
 
     try {
-      const [anilistResult, mangadexResult] = await Promise.allSettled([
+      const [anilistResult, mangadexResult, mangaUpdatesResult] = await Promise.allSettled([
         searchAniList(searchTerm),
         searchMangaDex(searchTerm),
+        searchMangaUpdates(searchTerm),
       ]);
 
       const combinedResults = [];
@@ -43,7 +110,14 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
         console.error('MangaDex search error:', mangadexResult.reason);
       }
 
-      if (combinedResults.length === 0 && anilistResult.status === 'rejected' && mangadexResult.status === 'rejected') {
+      if (mangaUpdatesResult.status === 'fulfilled') {
+        combinedResults.push(...mangaUpdatesResult.value.map(manga => ({ ...manga, _source: 'mangaupdates' })));
+      } else {
+        console.error('MangaUpdates search error:', mangaUpdatesResult.reason);
+      }
+
+      const allFailed = [anilistResult, mangadexResult, mangaUpdatesResult].every(r => r.status === 'rejected');
+      if (combinedResults.length === 0 && allFailed) {
         setError('Erro ao buscar mangás. Tente novamente.');
       }
 
@@ -56,7 +130,22 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
     }
   };
 
-  const handleSelect = (manga) => {
+  const handleSelect = async (manga, key) => {
+    if (manga._source === 'mangaupdates') {
+      setSelectingKey(key);
+      try {
+        const details = await getMangaUpdatesDetails(manga.series_id);
+        onSelect({ ...details, _source: 'mangaupdates' });
+        onClose();
+      } catch (err) {
+        console.error('MangaUpdates details error:', err);
+        setError('Erro ao carregar detalhes da obra. Tente novamente.');
+      } finally {
+        setSelectingKey(null);
+      }
+      return;
+    }
+
     onSelect(manga);
     onClose();
   };
@@ -66,6 +155,7 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
     setResults([]);
     setError(null);
     setSearched(false);
+    setSelectingKey(null);
     onClose();
   };
 
@@ -126,94 +216,61 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
           {!loading && results.length > 0 && (
             <div className="search-results-list">
               {results.map((manga) => {
-                const isMangaDex = manga._source === 'mangadex';
-
-                // Get data based on source
-                const title = isMangaDex
-                  ? manga.attributes?.title
-                  : manga.title;
-
-                const displayTitle = isMangaDex
-                  ? (title?.['pt-br'] || title?.['pt'] || title?.en || Object.values(title || {})[0] || 'Sem título')
-                  : (title?.english || title?.romaji || 'Sem título');
-
-                const altTitle = isMangaDex
-                  ? (title?.en !== displayTitle ? title?.en : title?.['ja-ro'] || '')
-                  : (title?.native || '');
-
-                const coverUrl = isMangaDex
-                  ? (() => {
-                      const coverRel = manga.relationships?.find(r => r.type === 'cover_art');
-                      return coverRel ? `https://uploads.mangadex.org/covers/${manga.id}/${coverRel.attributes?.fileName}.256.jpg` : null;
-                    })()
-                  : manga.coverImage?.medium;
-
-                const country = isMangaDex
-                  ? manga.attributes?.originalLanguage
-                  : manga.countryOfOrigin;
-
-                const status = isMangaDex
-                  ? manga.attributes?.status
-                  : manga.status;
-
-                const chapters = isMangaDex
-                  ? manga.attributes?.lastChapter
-                  : manga.chapters;
-
-                const score = isMangaDex
-                  ? null
-                  : manga.averageScore;
-
-                const genres = isMangaDex
-                  ? manga.attributes?.tags?.slice(0, 4).map(t => t.attributes?.name?.en).filter(Boolean) || []
-                  : manga.genres || [];
+                const info = getDisplayInfo(manga);
+                const key = `${manga._source}-${info.id}`;
+                const isSelecting = selectingKey === key;
 
                 return (
                   <div
-                    key={`${manga._source}-${manga.id}`}
-                    className="search-result-item"
-                    onClick={() => handleSelect(manga)}
+                    key={key}
+                    className={`search-result-item${isSelecting ? ' search-result-item--loading' : ''}`}
+                    onClick={() => handleSelect(manga, key)}
                   >
                     <div className="result-cover">
-                      {coverUrl ? (
-                        <img src={coverUrl} alt={displayTitle} />
+                      {info.coverUrl ? (
+                        <img src={info.coverUrl} alt={info.displayTitle} />
                       ) : (
                         <div className="result-cover-placeholder">?</div>
                       )}
                     </div>
                     <div className="result-info">
-                      <h3 className="result-title">{displayTitle}</h3>
-                      {altTitle && <p className="result-title-alt">{altTitle}</p>}
+                      <h3 className="result-title">{info.displayTitle}</h3>
+                      {info.altTitle && <p className="result-title-alt">{info.altTitle}</p>}
                       <div className="result-meta">
                         <span className="result-badge" style={{
-                          background: isMangaDex ? '#ff6740' : '#3db4f2',
+                          background: info.badgeColor,
                           color: 'white'
                         }}>
-                          {isMangaDex ? 'MangaDex' : 'AniList'}
+                          {info.badgeLabel}
                         </span>
-                        {country && (
+                        {info.country && (
                           <span className="result-badge">
-                            {country === 'KR' || country === 'ko' ? '🇰🇷 Manhwa' : ''}
-                            {country === 'CN' || country === 'zh' || country === 'zh-hk' ? '🇨🇳 Manhua' : ''}
-                            {country === 'JP' || country === 'ja' ? '🇯🇵 Manga' : ''}
-                            {country === 'TW' ? '🇹🇼 Manhua' : ''}
+                            {info.country === 'KR' || info.country === 'ko' ? '🇰🇷 Manhwa' : ''}
+                            {info.country === 'CN' || info.country === 'zh' || info.country === 'zh-hk' ? '🇨🇳 Manhua' : ''}
+                            {info.country === 'JP' || info.country === 'ja' ? '🇯🇵 Manga' : ''}
+                            {info.country === 'TW' ? '🇹🇼 Manhua' : ''}
                           </span>
                         )}
-                        {status && <span className="result-badge">{status}</span>}
-                        {chapters && <span className="result-badge">{chapters} caps</span>}
-                        {score && <span className="result-badge">⭐ {score}%</span>}
+                        {info.status && <span className="result-badge">{info.status}</span>}
+                        {info.chapters && <span className="result-badge">{info.chapters} caps</span>}
+                        {info.scoreLabel && <span className="result-badge">{info.scoreLabel}</span>}
                       </div>
-                      {genres.length > 0 && (
+                      {info.genres.length > 0 && (
                         <div className="result-genres">
-                          {genres.slice(0, 4).map((genre, idx) => (
+                          {info.genres.slice(0, 4).map((genre, idx) => (
                             <span key={idx} className="result-genre-tag">{genre}</span>
                           ))}
-                          {genres.length > 4 && (
-                            <span className="result-genre-tag">+{genres.length - 4}</span>
+                          {info.genres.length > 4 && (
+                            <span className="result-genre-tag">+{info.genres.length - 4}</span>
                           )}
                         </div>
                       )}
                     </div>
+                    {isSelecting && (
+                      <div className="result-loading-overlay">
+                        <Loader size={20} className="spinning" />
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -225,7 +282,7 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
               <Search size={48} />
               <p>Digite o nome do manga e clique em buscar</p>
               <p className="search-hint-small">
-                Busca em <strong>AniList</strong> e <strong>MangaDex</strong> (use títulos em inglês ou romanizados)
+                Busca em <strong>AniList</strong>, <strong>MangaDex</strong> e <strong>MangaUpdates</strong> (use títulos em inglês ou romanizados)
               </p>
             </div>
           )}
