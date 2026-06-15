@@ -55,10 +55,12 @@
       "identifier": "http:default",
       "allow": [
         { "url": "https://graphql.anilist.co" },
+        { "url": "https://s4.anilist.co/*" },
         { "url": "https://api.mangadex.org/*" },
         { "url": "https://auth.mangadex.org/*" },
         { "url": "https://uploads.mangadex.org/*" },
-        { "url": "https://api.mangaupdates.com/*" }
+        { "url": "https://api.mangaupdates.com/*" },
+        { "url": "https://cdn.mangaupdates.com/*" }
       ]
     }
   ]
