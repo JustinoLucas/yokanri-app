@@ -50,6 +50,16 @@
       "allow": [{ "path": "**" }]
     },
     "updater:default",
-    "process:allow-restart"
+    "process:allow-restart",
+    {
+      "identifier": "http:default",
+      "allow": [
+        { "url": "https://graphql.anilist.co" },
+        { "url": "https://api.mangadex.org/*" },
+        { "url": "https://auth.mangadex.org/*" },
+        { "url": "https://uploads.mangadex.org/*" },
+        { "url": "https://api.mangaupdates.com/*" }
+      ]
+    }
   ]
 }

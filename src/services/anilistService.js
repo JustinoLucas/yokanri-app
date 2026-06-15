@@ -2,6 +2,8 @@
  * AniList API Service
  * Documentation: https://anilist.github.io/ApiV2-GraphQL-Docs/
  */
+import { apiFetch } from './httpClient';
+import { anilistLimiter } from './apiRateLimiter';
 
 const ANILIST_API_URL = 'https://graphql.anilist.co';
 
@@ -46,29 +48,31 @@ export async function searchManga(searchTerm) {
   };
 
   try {
-    const response = await fetch(ANILIST_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({
-        query,
-        variables
-      })
+    return await anilistLimiter.schedule(async () => {
+      const response = await apiFetch(ANILIST_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          query,
+          variables
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.errors) {
+        throw new Error(data.errors[0].message);
+      }
+
+      return data.data.Page.media;
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    if (data.errors) {
-      throw new Error(data.errors[0].message);
-    }
-
-    return data.data.Page.media;
   } catch (error) {
     console.error('Error searching manga on AniList:', error);
     throw error;
