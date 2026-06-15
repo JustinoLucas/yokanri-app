@@ -3,6 +3,8 @@
  * Handles authentication and manga search from MangaDex API
  * Documentation: https://api.mangadex.org/docs/
  */
+import { apiFetch } from './httpClient';
+import { mangadexLimiter } from './apiRateLimiter';
 
 const MANGADEX_API_URL = 'https://api.mangadex.org';
 const MANGADEX_AUTH_URL = 'https://auth.mangadex.org/realms/mangadex/protocol/openid-connect';
@@ -27,7 +29,7 @@ async function refreshAccessToken() {
   }
 
   try {
-    const response = await fetch(`${MANGADEX_AUTH_URL}/token`, {
+    const response = await mangadexLimiter.schedule(() => apiFetch(`${MANGADEX_AUTH_URL}/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -38,7 +40,7 @@ async function refreshAccessToken() {
         client_id: clientId,
         client_secret: clientSecret,
       }),
-    });
+    }));
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -94,7 +96,7 @@ async function getAccessToken() {
   }
 
   try {
-    const response = await fetch(`${MANGADEX_AUTH_URL}/token`, {
+    const response = await mangadexLimiter.schedule(() => apiFetch(`${MANGADEX_AUTH_URL}/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -106,7 +108,7 @@ async function getAccessToken() {
         client_id: clientId,
         client_secret: clientSecret,
       }),
-    });
+    }));
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -158,11 +160,11 @@ export async function searchManga(searchTerm) {
     const url = `${MANGADEX_API_URL}/manga?${params}`;
     console.log('Request URL:', url);
 
-    const response = await fetch(url, {
+    const response = await mangadexLimiter.schedule(() => apiFetch(url, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
-    });
+    }));
 
     if (!response.ok) {
       const errorText = await response.text();

@@ -24,14 +24,28 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
     setSearched(true);
 
     try {
-      // Use only AniList (MangaDex has CORS issues in development)
-      const anilistResults = await searchAniList(searchTerm);
+      const [anilistResult, mangadexResult] = await Promise.allSettled([
+        searchAniList(searchTerm),
+        searchMangaDex(searchTerm),
+      ]);
 
-      // Add source tag to results
-      const combinedResults = anilistResults.map(manga => ({
-        ...manga,
-        _source: 'anilist',
-      }));
+      const combinedResults = [];
+
+      if (anilistResult.status === 'fulfilled') {
+        combinedResults.push(...anilistResult.value.map(manga => ({ ...manga, _source: 'anilist' })));
+      } else {
+        console.error('AniList search error:', anilistResult.reason);
+      }
+
+      if (mangadexResult.status === 'fulfilled') {
+        combinedResults.push(...mangadexResult.value.map(manga => ({ ...manga, _source: 'mangadex' })));
+      } else {
+        console.error('MangaDex search error:', mangadexResult.reason);
+      }
+
+      if (combinedResults.length === 0 && anilistResult.status === 'rejected' && mangadexResult.status === 'rejected') {
+        setError('Erro ao buscar mangás. Tente novamente.');
+      }
 
       setResults(combinedResults);
     } catch (err) {
@@ -211,7 +225,7 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
               <Search size={48} />
               <p>Digite o nome do manga e clique em buscar</p>
               <p className="search-hint-small">
-                Busca em <strong>AniList</strong> (use títulos em inglês ou romanizados)
+                Busca em <strong>AniList</strong> e <strong>MangaDex</strong> (use títulos em inglês ou romanizados)
               </p>
             </div>
           )}
