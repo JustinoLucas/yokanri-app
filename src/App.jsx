@@ -185,10 +185,10 @@ function App() {
     setCurrentView('list');
   };
 
-  const handleDeleteManwha = async (id) => {
+  const handleDeleteManwha = async (id, skipConfirm = false) => {
     const obra = obras.find(m => m.id === id);
 
-    if (!confirm(`Tem certeza que deseja excluir "${obra.nome}"?`)) {
+    if (!skipConfirm && !confirm(`Tem certeza que deseja excluir "${obra.nome}"?`)) {
       return;
     }
 
@@ -388,7 +388,7 @@ function App() {
               <ObraDetail
                 obra={selectedObra}
                 onEdit={() => handleEditManwha(selectedObra)}
-                onDelete={() => handleDeleteManwha(selectedObra.id)}
+                onDelete={() => handleDeleteManwha(selectedObra.id, true)}
                 onClose={handleBackToList}
               />
             )}

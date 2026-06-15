@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { ArrowLeft, Edit2, Trash2, Star, ExternalLink } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowLeft, Edit2, Trash2, Star, ExternalLink, AlertTriangle } from 'lucide-react';
 import { useCoverLoader } from './hooks/useCoverLoader';
 import CoversGallery from './components/CoversGallery';
 import ObraStatusBadge from '../ObraCard/shared/ObraStatusBadge';
@@ -19,6 +19,7 @@ import './ObraDetail.css';
  */
 function ObraDetail({ obra, onEdit, onDelete, onClose }) {
   const { coverUrl, allCovers, selectedCoverIndex, selectCover } = useCoverLoader(obra);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -46,7 +47,7 @@ function ObraDetail({ obra, onEdit, onDelete, onClose }) {
           Editar
         </button>
         <div className="detail-bar-divider" />
-        <button className="detail-delete-btn" onClick={onDelete} title="Excluir">
+        <button className="detail-delete-btn" onClick={() => setConfirmDeleteOpen(true)} title="Excluir">
           <Trash2 size={13} />
         </button>
       </div>
@@ -199,6 +200,29 @@ function ObraDetail({ obra, onEdit, onDelete, onClose }) {
         </div>
 
       </div>
+
+      {confirmDeleteOpen && (
+        <div className="detail-confirm-overlay" onClick={() => setConfirmDeleteOpen(false)}>
+          <div className="detail-confirm-modal" onClick={e => e.stopPropagation()}>
+            <div className="detail-confirm-icon">
+              <AlertTriangle size={22} />
+            </div>
+            <h2 className="detail-confirm-title">Excluir obra</h2>
+            <p className="detail-confirm-text">
+              Tem certeza que deseja excluir <strong>{obra.nome}</strong>?
+              Essa ação não pode ser desfeita.
+            </p>
+            <div className="detail-confirm-actions">
+              <button className="detail-confirm-btn detail-confirm-btn--ghost" onClick={() => setConfirmDeleteOpen(false)}>
+                Cancelar
+              </button>
+              <button className="detail-confirm-btn detail-confirm-btn--danger" onClick={() => { setConfirmDeleteOpen(false); onDelete(); }}>
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
