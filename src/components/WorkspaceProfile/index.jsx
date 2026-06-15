@@ -48,7 +48,7 @@ function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSe
       return;
     }
     let cancelled = false;
-    storage.loadCover(bannerFileName).then(url => {
+    storage.loadBanner(bannerFileName).then(url => {
       if (!cancelled) setBannerUrl(url);
     });
     return () => { cancelled = true; };
@@ -68,10 +68,10 @@ function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSe
 
     const extension = file.name.split('.').pop();
     const fileName = `profile-banner-${Date.now()}.${extension}`;
-    await storage.saveCover(file, fileName);
+    await storage.saveBanner(file, fileName);
 
     if (bannerFileName) {
-      await storage.deleteCover(bannerFileName);
+      await storage.deleteBanner(bannerFileName);
     }
 
     setPreviewPositionY(null);
@@ -80,7 +80,7 @@ function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSe
 
   const handleRemoveBanner = async () => {
     if (bannerFileName) {
-      await storage.deleteCover(bannerFileName);
+      await storage.deleteBanner(bannerFileName);
     }
     setPreviewPositionY(null);
     onSetBanner(null);

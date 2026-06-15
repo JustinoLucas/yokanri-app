@@ -88,6 +88,23 @@ export async function deleteCover(fileName) {
   await db.deleteCover(fileName);
 }
 
+// ─── BANNERS ────────────────────────────────────────────
+
+/** Salva uma imagem de banner (perfil ou coleção) no workspace ativo */
+export async function saveBanner(fileData, fileName) {
+  return await db.saveBanner(fileData, fileName);
+}
+
+/** Carrega um banner do workspace ativo e retorna como Object URL */
+export async function loadBanner(fileName) {
+  return await db.loadBanner(fileName);
+}
+
+/** Remove um banner do workspace ativo */
+export async function deleteBanner(fileName) {
+  await db.deleteBanner(fileName);
+}
+
 // ─── WORKSPACES ─────────────────────────────────────────
 
 /** Lista todos os workspaces */
@@ -273,6 +290,9 @@ const storage = {
   saveCover,
   loadCover,
   deleteCover,
+  saveBanner,
+  loadBanner,
+  deleteBanner,
   // Workspaces
   listWorkspaces,
   getActiveWorkspace,

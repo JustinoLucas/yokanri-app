@@ -390,7 +390,37 @@ async function migrateAppDirectory() {
 async function ensureWorkspaceDirectories(slug, customPath = null) {
   const wsDir = await getWorkspaceDir(slug, customPath);
   const coversDir = await join(wsDir, DIRS.COVERS);
+  const bannersDir = await join(wsDir, DIRS.BANNERS);
   await mkdir(coversDir, { recursive: true });
+  await mkdir(bannersDir, { recursive: true });
+  await migrateBannerFiles(coversDir, bannersDir);
+}
+
+/**
+ * Migra banners salvos antigamente dentro de covers/ para a pasta
+ * banners/ própria. Identifica os arquivos pelo padrão de nome usado
+ * ao salvá-los (profile-banner-*, colecao-banner-*).
+ *
+ * Idempotente — em workspaces já migrados ou novos, covers/ não tem
+ * nenhum arquivo com "banner" no nome e a função não faz nada.
+ * @param {string} coversDir
+ * @param {string} bannersDir
+ */
+async function migrateBannerFiles(coversDir, bannersDir) {
+  try {
+    const entries = await readDir(coversDir);
+
+    for (const entry of entries) {
+      if (!entry.name || !entry.name.includes('banner')) continue;
+
+      const oldPath = await join(coversDir, entry.name);
+      const newPath = await join(bannersDir, entry.name);
+      await rename(oldPath, newPath);
+    }
+  } catch (error) {
+    console.error('[Migration] Erro ao migrar banners para pasta própria:', error);
+    // Não relança — o app deve funcionar mesmo se a migração falhar.
+  }
 }
 
 // ─── EXPORT DEFAULT ─────────────────────────────────────

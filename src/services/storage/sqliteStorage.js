@@ -15,7 +15,7 @@ import {
   exists,
   remove,
 } from '@tauri-apps/plugin-fs';
-import { getCoverPath } from '../workspace/workspacePaths';
+import { getCoverPath, getBannerPath } from '../workspace/workspacePaths';
 import { getDb, insertObra } from './sqliteConnection';
 import { getCachedCover, setCachedCover, hasCachedCover } from './coverCache';
 
@@ -86,16 +86,26 @@ export async function saveConfig(config) {
   );
 }
 
-// ─── CAPAS (filesystem — mesmo código do jsonStorage) ───
+// ─── IMAGENS (filesystem — capas e banners) ─────────────
+
+const IMAGE_MIME_TYPES = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  avif: 'image/avif',
+};
 
 /**
- * Salva uma imagem de capa no workspace ativo
+ * Salva uma imagem no caminho resolvido por getPath
+ * @param {(fileName: string) => Promise<string>} getPath
  * @param {File|Blob|Uint8Array} fileData - Dados do arquivo
  * @param {string} fileName - Nome do arquivo destino
  * @returns {Promise<string>} Nome do arquivo salvo
  */
-export async function saveCover(fileData, fileName) {
-  const filePath = await getCoverPath(fileName);
+async function saveImage(getPath, fileData, fileName) {
+  const filePath = await getPath(fileName);
 
   let bytes;
   if (fileData instanceof Uint8Array) {
@@ -110,23 +120,24 @@ export async function saveCover(fileData, fileName) {
 }
 
 /**
- * Carrega uma imagem de capa e retorna como Object URL.
+ * Carrega uma imagem do caminho resolvido por getPath e retorna como Object URL.
  *
  * Usa cache em memória (coverCache) para evitar leituras repetidas de disco.
  * Na primeira chamada para um arquivo: lê disco + cria URL + armazena no cache.
  * Nas chamadas seguintes: retorna a URL cacheada imediatamente (sem I/O).
  *
- * @param {string} fileName - Nome do arquivo da capa
+ * @param {(fileName: string) => Promise<string>} getPath
+ * @param {string} fileName - Nome do arquivo
  * @returns {Promise<string|null>} URL da imagem ou null se não encontrada
  */
-export async function loadCover(fileName) {
+async function loadImage(getPath, fileName) {
   // Cache hit — retorna sem I/O
   if (hasCachedCover(fileName)) {
     return getCachedCover(fileName);
   }
 
   try {
-    const filePath = await getCoverPath(fileName);
+    const filePath = await getPath(fileName);
     const fileExists = await exists(filePath);
 
     if (!fileExists) {
@@ -136,15 +147,7 @@ export async function loadCover(fileName) {
     const content = await readFile(filePath);
 
     const ext = fileName.split('.').pop().toLowerCase();
-    const mimeTypes = {
-      jpg: 'image/jpeg',
-      jpeg: 'image/jpeg',
-      png: 'image/png',
-      gif: 'image/gif',
-      webp: 'image/webp',
-      avif: 'image/avif',
-    };
-    const mimeType = mimeTypes[ext] || 'image/png';
+    const mimeType = IMAGE_MIME_TYPES[ext] || 'image/png';
 
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
@@ -154,26 +157,61 @@ export async function loadCover(fileName) {
 
     return url;
   } catch (error) {
-    console.error(`Erro ao carregar capa "${fileName}":`, error);
+    console.error(`Erro ao carregar imagem "${fileName}":`, error);
     return null;
   }
 }
 
 /**
- * Remove uma imagem de capa do workspace ativo
+ * Remove uma imagem do caminho resolvido por getPath
+ * @param {(fileName: string) => Promise<string>} getPath
  * @param {string} fileName - Nome do arquivo a remover
  */
-export async function deleteCover(fileName) {
+async function deleteImage(getPath, fileName) {
   try {
-    const filePath = await getCoverPath(fileName);
+    const filePath = await getPath(fileName);
     const fileExists = await exists(filePath);
 
     if (fileExists) {
       await remove(filePath);
     }
   } catch (error) {
-    console.error(`Erro ao deletar capa "${fileName}":`, error);
+    console.error(`Erro ao deletar imagem "${fileName}":`, error);
   }
+}
+
+// ─── CAPAS (capas de obras) ──────────────────────────────
+
+/** Salva uma imagem de capa no workspace ativo */
+export async function saveCover(fileData, fileName) {
+  return saveImage(getCoverPath, fileData, fileName);
+}
+
+/** Carrega uma imagem de capa e retorna como Object URL */
+export async function loadCover(fileName) {
+  return loadImage(getCoverPath, fileName);
+}
+
+/** Remove uma imagem de capa do workspace ativo */
+export async function deleteCover(fileName) {
+  return deleteImage(getCoverPath, fileName);
+}
+
+// ─── BANNERS (perfil e coleções) ────────────────────────
+
+/** Salva uma imagem de banner no workspace ativo */
+export async function saveBanner(fileData, fileName) {
+  return saveImage(getBannerPath, fileData, fileName);
+}
+
+/** Carrega uma imagem de banner e retorna como Object URL */
+export async function loadBanner(fileName) {
+  return loadImage(getBannerPath, fileName);
+}
+
+/** Remove uma imagem de banner do workspace ativo */
+export async function deleteBanner(fileName) {
+  return deleteImage(getBannerPath, fileName);
 }
 
 // ─── CONVERTERS ─────────────────────────────────────────

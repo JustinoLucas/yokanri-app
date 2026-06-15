@@ -13,13 +13,15 @@
  *   +-- workspaces\
  *       +-- default\
  *           |-- data.db
- *           +-- covers\
+ *           |-- covers\
+ *           +-- banners\
  *
  *   -- Custom Location -----------------------------------
  *   D:\Backups\Yokanri\
  *   +-- Minha Biblioteca\
  *       |-- data.db
- *       +-- covers\
+ *       |-- covers\
+ *       +-- banners\
  *
  * Plataformas:
  *   Windows:  AppData\Roaming\Yokanri\
@@ -40,6 +42,7 @@ export const APP_FOLDER_NAME = 'Yokanri';
 export const DIRS = {
   WORKSPACES: 'workspaces',
   COVERS: 'covers',
+  BANNERS: 'banners',
 };
 
 /** Nomes de arquivos */
@@ -176,4 +179,22 @@ export async function getCoversDir() {
 export async function getCoverPath(fileName) {
   const coversDir = await getCoversDir();
   return await join(coversDir, fileName);
+}
+
+/**
+ * Retorna o caminho da pasta de banners do workspace ativo
+ * (banners de perfil e de coleções, separados das capas de obras)
+ */
+export async function getBannersDir() {
+  const wsDir = await getActiveWorkspaceDir();
+  return await join(wsDir, DIRS.BANNERS);
+}
+
+/**
+ * Retorna o caminho de um banner especifico no workspace ativo
+ * @param {string} fileName - Nome do arquivo do banner
+ */
+export async function getBannerPath(fileName) {
+  const bannersDir = await getBannersDir();
+  return await join(bannersDir, fileName);
 }
