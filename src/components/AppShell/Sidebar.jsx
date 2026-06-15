@@ -1,9 +1,10 @@
+import { useEffect, useState } from 'react';
+import { getVersion } from '@tauri-apps/api/app';
 import {
   Library,
   Calendar,
   BarChart3,
   Bookmark,
-  Heart,
   Layers,
   Plus,
   RefreshCw,
@@ -19,11 +20,30 @@ import {
  *   workspace        — objeto workspace ativo
  *   obraCount        — total de obras na biblioteca
  *   onNavigate       — (page: string) => void
+ *   colecoes         — lista de coleções do usuário [{ id, nome, obraIds }]
+ *   activeColecaoId  — id da coleção atualmente aberta (ou null)
+ *   onNavigateColecao — (id: string) => void
+ *   onCreateColecao  — () => void
  */
-function Sidebar({ activePage = 'library', workspace, obraCount = 0, onNavigate }) {
+function Sidebar({
+  activePage = 'library',
+  workspace,
+  obraCount = 0,
+  onNavigate,
+  colecoes = [],
+  activeColecaoId = null,
+  onNavigateColecao,
+  onCreateColecao,
+}) {
   const initials = workspace?.name
     ? workspace.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
     : 'YK';
+
+  const [appVersion, setAppVersion] = useState('');
+
+  useEffect(() => {
+    getVersion().then(setAppVersion).catch(() => {});
+  }, []);
 
   return (
     <aside className="sidebar">
@@ -56,9 +76,17 @@ function Sidebar({ activePage = 'library', workspace, obraCount = 0, onNavigate 
 
         {/* Colecoes */}
         <SectionLabel>Colecoes</SectionLabel>
-        <NavItem dot="#fca5a5" label="Favoritos" count="—" />
-        <NavItem icon={Layers} label="Murim / Wuxia" count="—" />
-        <NavItem icon={Plus} label="Nova colecao" muted />
+        {colecoes.map(colecao => (
+          <NavItem
+            key={colecao.id}
+            icon={Layers}
+            label={colecao.nome}
+            count={colecao.obraIds?.length ?? 0}
+            active={activeColecaoId === colecao.id}
+            onClick={() => onNavigateColecao?.(colecao.id)}
+          />
+        ))}
+        <NavItem icon={Plus} label="Nova colecao" muted onClick={onCreateColecao} />
 
         <div className="sidebar-divider" />
 
@@ -81,7 +109,7 @@ function Sidebar({ activePage = 'library', workspace, obraCount = 0, onNavigate 
       <div className="sidebar-footer">
         <span className="sidebar-footer-dot" />
         <span className="sidebar-footer-text">
-          {obraCount} obras · local
+          Yokanri {appVersion && `v${appVersion}`}
         </span>
         <RefreshCw size={11} className="sidebar-footer-icon" />
       </div>

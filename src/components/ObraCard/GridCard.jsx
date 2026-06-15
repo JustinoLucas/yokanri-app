@@ -21,6 +21,7 @@ function GridCard({
 }) {
   const [notesExpanded, setNotesExpanded] = useState(false);
   const [blurRevealed, setBlurRevealed] = useState(false);
+  const [chapterPulse, setChapterPulse] = useState(false);
 
   const hasObraLink = hasLink(obra);
   const hasNotes = obra.notas && obra.notas.trim().length > 0;
@@ -36,6 +37,8 @@ function GridCard({
   const handleIncrement = (e) => {
     e.stopPropagation();
     onIncrementCapitulo();
+    setChapterPulse(true);
+    setTimeout(() => setChapterPulse(false), 400);
   };
 
   const handleLink = (e) => {
@@ -102,7 +105,7 @@ function GridCard({
 
           <div className="card-progress-wrapper">
             <div className="card-progress">
-              <span className="progress-text">
+              <span className={`progress-text${chapterPulse ? ' card-chapter-pulse' : ''}`}>
                 Capítulo: {obra.capituloAtualUsuario}
                 {obra.capituloAtual > 0 && ` / ${obra.capituloAtual}`}
               </span>

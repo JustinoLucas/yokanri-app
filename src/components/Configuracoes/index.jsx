@@ -1,6 +1,8 @@
-import { useState } from 'react';
-import { Pencil, Trash2, Check, X, Plus, Lock, ShieldAlert, Sun, Moon, ArrowLeft } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Pencil, Trash2, Check, X, Plus, Lock, ShieldAlert, Sun, Moon, ArrowLeft, RefreshCw, DownloadCloud, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { getVersion } from '@tauri-apps/api/app';
+import { checkForUpdate, downloadAndInstall, restartApp } from '../../services/updaterService';
 import './Configuracoes.css';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -17,7 +19,6 @@ const TABS = [
   { id: 'geral',          label: 'Geral',               isGeneral: true },
   { id: 'statusObra',     label: 'Status da Obra',       hasColor: true,  hasHideSchedule: true  },
   { id: 'statusLeitura',  label: 'Meu Status',           hasColor: true,  hasHideSchedule: false },
-  { id: 'tipoLancamento', label: 'Tipo de Lançamento',   hasColor: false, hasHideSchedule: false, readonly: true },
   { id: 'generos',        label: 'Gêneros',              hasColor: false, hasHideSchedule: false },
 ];
 
@@ -170,6 +171,122 @@ function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRena
   );
 }
 
+// ─── Seção de Atualizações ───────────────────────────────────────────────────
+
+function UpdateSection() {
+  const [appVersion, setAppVersion] = useState('');
+  const [status, setStatus] = useState('idle'); // idle | checking | up-to-date | available | downloading | finished | error
+  const [update, setUpdate] = useState(null);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    getVersion().then(setAppVersion).catch(() => {});
+  }, []);
+
+  const handleCheck = async () => {
+    setStatus('checking');
+    const result = await checkForUpdate();
+    if (result) {
+      setUpdate(result);
+      setStatus('available');
+    } else {
+      setStatus('up-to-date');
+    }
+  };
+
+  const handleUpdate = async () => {
+    if (!update) return;
+    setStatus('downloading');
+    setProgress(0);
+
+    try {
+      await downloadAndInstall(update, ({ status: progressStatus, contentLength, downloaded }) => {
+        if (progressStatus === 'progress' && contentLength > 0) {
+          setProgress(Math.min(100, Math.round((downloaded / contentLength) * 100)));
+        }
+        if (progressStatus === 'finished') {
+          setProgress(100);
+        }
+      });
+      setStatus('finished');
+    } catch (error) {
+      console.error('Erro ao baixar/instalar atualização:', error);
+      setStatus('error');
+    }
+  };
+
+  return (
+    <div className="config-section">
+      <span className="config-section-label">Atualizações</span>
+
+      <div className="config-row">
+        <div className="config-row-info">
+          <span className="config-row-title">Versão atual</span>
+          <span className="config-row-desc">Yokanri v{appVersion || '—'}</span>
+        </div>
+
+        {(status === 'idle' || status === 'up-to-date' || status === 'error') && (
+          <button className="config-theme-btn" onClick={handleCheck}>
+            <RefreshCw size={13} />
+            Verificar atualizações
+          </button>
+        )}
+
+        {status === 'checking' && (
+          <button className="config-theme-btn" disabled>
+            <RefreshCw size={13} className="config-spin" />
+            Verificando…
+          </button>
+        )}
+
+        {status === 'available' && (
+          <button className="config-theme-btn config-theme-btn--accent" onClick={handleUpdate}>
+            <DownloadCloud size={13} />
+            Atualizar para v{update.version}
+          </button>
+        )}
+
+        {status === 'finished' && (
+          <button className="config-theme-btn config-theme-btn--accent" onClick={restartApp}>
+            <RefreshCw size={13} />
+            Reiniciar agora
+          </button>
+        )}
+      </div>
+
+      {status === 'up-to-date' && (
+        <p className="config-update-status">
+          <CheckCircle2 size={13} />
+          Você já está na versão mais recente.
+        </p>
+      )}
+
+      {status === 'downloading' && (
+        <div className="config-update-progress">
+          <div className="config-update-progress-bar">
+            <div className="config-update-progress-fill" style={{ width: `${progress}%` }} />
+          </div>
+          <span className="config-update-progress-text">Baixando atualização… {progress}%</span>
+        </div>
+      )}
+
+      {status === 'finished' && (
+        <p className="config-update-status">
+          <CheckCircle2 size={13} />
+          Atualização instalada — reinicie para aplicar.
+        </p>
+      )}
+
+      {status === 'error' && (
+        <p className="config-update-status config-update-status--error">
+          <AlertCircle size={13} />
+          Não foi possível verificar/instalar a atualização.
+        </p>
+      )}
+    </div>
+  );
+}
+
 // ─── Aba Geral ───────────────────────────────────────────────────────────────
 
 function TabGeral({ nsfwMode, onSetNsfwMode }) {
@@ -177,6 +294,9 @@ function TabGeral({ nsfwMode, onSetNsfwMode }) {
 
   return (
     <div className="config-geral">
+
+      {/* Atualizações */}
+      <UpdateSection />
 
       {/* Aparência */}
       <div className="config-section">

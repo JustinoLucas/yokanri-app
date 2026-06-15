@@ -22,6 +22,20 @@ export const DEFAULT_CONFIG = {
   //   'hidden' — oculta completamente da lista
   nsfwMode: 'show',
 
+  // Destaques do perfil: até 5 IDs de obra escolhidos pelo usuário
+  // (null = slot vazio)
+  perfilDestaques: [],
+
+  // Log de atividades recentes do perfil (mais recente primeiro)
+  activityLog: [],
+
+  // Banner customizado do perfil: { fileName, positionY } ou null (sem banner)
+  perfilBanner: null,
+
+  // Coleções personalizadas do usuário
+  // cada item: { id, nome, banner: { fileName, positionY } | null, obraIds: [] }
+  colecoes: [],
+
   statusObra: [
     // hidden: não aparece na UI (fallback interno para obras sem status definido)
     // isFixed: pode renomear/recolorir, mas NÃO pode excluir
@@ -129,6 +143,14 @@ export function useConfiguracoes(obras, onSaveObras, ready) {
       ...saved,
       // Garante que nsfwMode existe mesmo em configs salvas antes desta versão
       nsfwMode: saved.nsfwMode ?? DEFAULT_CONFIG.nsfwMode,
+      // Garante que perfilDestaques existe mesmo em configs salvas antes desta versão
+      perfilDestaques: saved.perfilDestaques ?? DEFAULT_CONFIG.perfilDestaques,
+      // Garante que activityLog existe mesmo em configs salvas antes desta versão
+      activityLog: saved.activityLog ?? DEFAULT_CONFIG.activityLog,
+      // Garante que perfilBanner existe mesmo em configs salvas antes desta versão
+      perfilBanner: saved.perfilBanner ?? DEFAULT_CONFIG.perfilBanner,
+      // Garante que colecoes existe mesmo em configs salvas antes desta versão
+      colecoes: saved.colecoes ?? DEFAULT_CONFIG.colecoes,
       statusObra: mergeList(saved.statusObra, DEFAULT_CONFIG.statusObra),
       statusLeitura: mergeList(saved.statusLeitura, DEFAULT_CONFIG.statusLeitura),
       // Garante que gêneros carregados do disco estejam em ordem alfabética
@@ -271,5 +293,68 @@ export function useConfiguracoes(obras, onSaveObras, ready) {
     await persistConfig({ ...config, nsfwMode: mode });
   };
 
-  return { config, addItem, renameItem, deleteItem, updateColor, toggleHideSchedule, toggleGenreNsfw, setNsfwMode };
+  /** Define os destaques do perfil (até 5 IDs de obra, null = slot vazio) */
+  const setPerfilDestaques = async (destaques) => {
+    await persistConfig({ ...config, perfilDestaques: destaques });
+  };
+
+  /** Define o banner customizado do perfil ({ fileName, positionY } ou null) */
+  const setPerfilBanner = async (banner) => {
+    await persistConfig({ ...config, perfilBanner: banner });
+  };
+
+  /** Registra novas entradas no log de atividades (mais recente primeiro, máx. 30) */
+  const ACTIVITY_LOG_LIMIT = 30;
+  const addActivityEntries = async (entries) => {
+    const timestamp = new Date().toISOString();
+    const newEntries = entries.map(e => ({ id: generateId(), timestamp, ...e }));
+    const updated = [...newEntries, ...(config.activityLog ?? [])].slice(0, ACTIVITY_LOG_LIMIT);
+    await persistConfig({ ...config, activityLog: updated });
+  };
+
+  /** Cria uma nova coleção vazia e retorna seu id */
+  const addColecao = async () => {
+    const novaColecao = { id: generateId(), nome: 'Nova coleção', banner: null, obraIds: [] };
+    await persistConfig({
+      ...config,
+      colecoes: [...(config.colecoes ?? []), novaColecao],
+    });
+    return novaColecao.id;
+  };
+
+  /** Renomeia uma coleção existente */
+  const renameColecao = async (id, nome) => {
+    const trimmed = nome.trim();
+    if (!trimmed) return;
+    await persistConfig({
+      ...config,
+      colecoes: config.colecoes.map(c => c.id === id ? { ...c, nome: trimmed } : c),
+    });
+  };
+
+  /** Remove uma coleção */
+  const deleteColecao = async (id) => {
+    await persistConfig({
+      ...config,
+      colecoes: config.colecoes.filter(c => c.id !== id),
+    });
+  };
+
+  /** Define o banner customizado de uma coleção ({ fileName, positionY } ou null) */
+  const setColecaoBanner = async (id, banner) => {
+    await persistConfig({
+      ...config,
+      colecoes: config.colecoes.map(c => c.id === id ? { ...c, banner } : c),
+    });
+  };
+
+  /** Define a lista de IDs de obras pertencentes a uma coleção */
+  const setColecaoObras = async (id, obraIds) => {
+    await persistConfig({
+      ...config,
+      colecoes: config.colecoes.map(c => c.id === id ? { ...c, obraIds } : c),
+    });
+  };
+
+  return { config, addItem, renameItem, deleteItem, updateColor, toggleHideSchedule, toggleGenreNsfw, setNsfwMode, setPerfilDestaques, addActivityEntries, setPerfilBanner, addColecao, renameColecao, deleteColecao, setColecaoBanner, setColecaoObras };
 }

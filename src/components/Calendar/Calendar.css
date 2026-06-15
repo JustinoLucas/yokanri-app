@@ -190,7 +190,6 @@
 .cal-scroll-inner {
   display: flex;
   flex-direction: column;
-  min-width: 700px;
   flex: 1;
 }
 
@@ -198,7 +197,7 @@
 
 .cal-week-headers {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px;
   padding: 14px 20px 4px;
   position: sticky;
@@ -273,7 +272,7 @@
 
 .cal-week-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px;
   padding: 0 20px 24px;
   align-items: start;
@@ -492,7 +491,7 @@
 
 .cal-month-dow-row {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 5px;
   margin-bottom: 6px;
 }
@@ -509,7 +508,7 @@
 
 .cal-month-cells {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 5px;
 }
 
@@ -785,6 +784,18 @@
   .cal-week-headers {
     padding-left: 12px;
     padding-right: 12px;
+    gap: 6px;
+  }
+  .cal-mini-card {
+    padding: 6px;
+    gap: 6px;
+  }
+  .cal-mini-cover {
+    width: 30px;
+    height: 44px;
+  }
+  .cal-mini-title {
+    font-size: 11px;
   }
 }
 

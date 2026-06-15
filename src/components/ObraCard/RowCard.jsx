@@ -24,6 +24,7 @@ function RowCard({
 }) {
   const [notesExpanded, setNotesExpanded] = useState(false);
   const [blurRevealed, setBlurRevealed] = useState(false);
+  const [chapterPulse, setChapterPulse] = useState(false);
 
   const hasObraLink = hasLink(obra);
   const hasNotes = obra.notas && obra.notas.trim().length > 0;
@@ -37,7 +38,12 @@ function RowCard({
   const hasRating = displayRating > 0;
 
   const handleFavorite = (e) => { e.stopPropagation(); onToggleFavorito(); };
-  const handleIncrement = (e) => { e.stopPropagation(); onIncrementCapitulo(); };
+  const handleIncrement = (e) => {
+    e.stopPropagation();
+    onIncrementCapitulo();
+    setChapterPulse(true);
+    setTimeout(() => setChapterPulse(false), 400);
+  };
   const handleLink = (e) => { e.stopPropagation(); onLinkClick(); };
   const handleToggleNotes = (e) => { e.stopPropagation(); setNotesExpanded(!notesExpanded); };
   const handleReveal = (e) => { e.stopPropagation(); setBlurRevealed(true); };
@@ -99,7 +105,7 @@ function RowCard({
           {/* Bottom section: chapter count + progress bar */}
           <div className="row-progress-info">
             <div className="chapter-info">
-              <span className="chapter-count">
+              <span className={`chapter-count${chapterPulse ? ' row-chapter-pulse' : ''}`}>
                 Capítulo: {obra.capituloAtualUsuario}{obra.capituloAtual > 0 && ` / ${obra.capituloAtual}`}
               </span>
               {Array.isArray(obra.diasLancamento) && obra.diasLancamento.length > 0 && (
