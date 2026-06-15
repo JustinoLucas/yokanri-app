@@ -1,5 +1,6 @@
 import { Search, Plus, Settings, BarChart3, X } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
+import useCover from '../ObraCard/hooks/useCover';
 
 const TIPO_COLORS = {
   'Coreano': '#1e40af',
@@ -127,11 +128,7 @@ function Topbar({ onNewObra, onShowStats, onShowConfig, workspaceMenu, obras = [
                 className="topbar-search-result"
                 onMouseDown={(e) => { e.preventDefault(); handleSelect(obra); }}
               >
-                {/* Mini capa — placeholder colorido por tipo */}
-                <div
-                  className="topbar-search-result-cover"
-                  style={{ background: TIPO_COLORS[obra.tipo] ?? '#1e293b' }}
-                />
+                <SearchResultCover obra={obra} />
                 <div className="topbar-search-result-info">
                   <span className="topbar-search-result-name">{obra.nome}</span>
                   {obra.nomeAlternativo && (
@@ -168,6 +165,35 @@ function Topbar({ onNewObra, onShowStats, onShowConfig, workspaceMenu, obras = [
         </button>
       </div>
     </header>
+  );
+}
+
+/**
+ * Mini capa do resultado de busca — exibe a capa real da obra
+ * ou, na ausência dela, um placeholder colorido por tipo.
+ */
+function SearchResultCover({ obra }) {
+  const coverUrl = useCover(obra);
+  const [imgError, setImgError] = useState(false);
+
+  if (coverUrl && !imgError) {
+    return (
+      <img
+        src={coverUrl}
+        alt={obra.nome}
+        className="topbar-search-result-cover"
+        onError={() => setImgError(true)}
+      />
+    );
+  }
+
+  return (
+    <div
+      className="topbar-search-result-cover topbar-search-result-cover--empty"
+      style={{ background: TIPO_COLORS[obra.tipo] ?? '#1e293b' }}
+    >
+      {obra.nome.charAt(0).toUpperCase()}
+    </div>
   );
 }
 

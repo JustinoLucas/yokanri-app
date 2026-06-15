@@ -23,6 +23,10 @@ import './AppShell.css';
  *   onShowStats    — ir para stats
  *   onShowConfig   — ir para config
  *   workspaceMenu  — ReactNode do WorkspaceMenu (com dropdown completo)
+ *   colecoes        — lista de coleções do usuário
+ *   activeColecaoId — id da coleção atualmente aberta (ou null)
+ *   onNavigateColecao — (id) => void
+ *   onCreateColecao — () => void
  *   children       — conteudo principal
  */
 function AppShell({
@@ -36,6 +40,10 @@ function AppShell({
   workspaceMenu,
   obras,
   onNavigateObra,
+  colecoes,
+  activeColecaoId,
+  onNavigateColecao,
+  onCreateColecao,
   children,
 }) {
   return (
@@ -54,6 +62,10 @@ function AppShell({
           workspace={workspace}
           obraCount={obraCount}
           onNavigate={onNavigate}
+          colecoes={colecoes}
+          activeColecaoId={activeColecaoId}
+          onNavigateColecao={onNavigateColecao}
+          onCreateColecao={onCreateColecao}
         />
         <main className="app-shell-main">
           {children}

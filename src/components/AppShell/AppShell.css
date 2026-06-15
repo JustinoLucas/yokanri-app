@@ -258,6 +258,18 @@
   height: 40px;
   border-radius: 4px;
   flex-shrink: 0;
+  object-fit: cover;
+  display: block;
+}
+
+.topbar-search-result-cover--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
   opacity: 0.75;
 }
 
@@ -634,24 +646,3 @@
   box-shadow: var(--shadow-high);
 }
 
-/* ─── Responsive: hide sidebar on small screens ───────────────────────── */
-
-@media (max-width: 900px) {
-  .sidebar {
-    display: none;
-  }
-
-  .topbar-search {
-    min-width: 160px;
-  }
-}
-
-@media (max-width: 640px) {
-  .topbar-search {
-    display: none;
-  }
-
-  .topbar-workspace-name {
-    display: none;
-  }
-}

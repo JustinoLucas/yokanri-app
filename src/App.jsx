@@ -9,6 +9,7 @@ import Statistics from './components/Statistics';
 import Calendar from './components/Calendar';
 import Configuracoes from './components/Configuracoes';
 import WorkspaceProfile from './components/WorkspaceProfile';
+import ColecaoView from './components/ColecaoView';
 import UpdateNotification from './components/UpdateNotification';
 import storage from './services/storage/storageService';
 import * as onboardingService from './onboarding/services/onboardingService';
@@ -33,9 +34,11 @@ function App() {
   const { migrateObraData } = useMigration();
 
   const saveData = async (updatedManwhas) => {
+    // Atualiza a UI imediatamente (otimista) e persiste em segundo plano,
+    // evitando que a interface espere a escrita no SQLite para refletir a mudança.
+    setObras(updatedManwhas);
     try {
       await storage.saveObras(updatedManwhas);
-      setObras(updatedManwhas);
       return true;
     } catch (error) {
       console.error('Erro ao salvar dados:', error);
@@ -44,7 +47,9 @@ function App() {
     }
   };
 
-  const { config, addItem, renameItem, deleteItem, updateColor, toggleHideSchedule, toggleGenreNsfw, setNsfwMode } = useConfiguracoes(obras, saveData, ready);
+  const { config, addItem, renameItem, deleteItem, updateColor, toggleHideSchedule, toggleGenreNsfw, setNsfwMode, setPerfilDestaques, addActivityEntries, setPerfilBanner, addColecao, renameColecao, deleteColecao, setColecaoBanner, setColecaoObras } = useConfiguracoes(obras, saveData, ready);
+
+  const [selectedColecaoId, setSelectedColecaoId] = useState(null);
 
   // Inicialização do app — roda uma vez
   useEffect(() => {
@@ -137,14 +142,46 @@ function App() {
   const handleAddManwha = (newManwha) => {
     const updatedManwhas = [...obras, newManwha];
     saveData(updatedManwhas);
+    addActivityEntries([{
+      obraId: newManwha.id,
+      obraNome: newManwha.nome,
+      type: 'added',
+      detail: '',
+      statusUsuario: newManwha.statusUsuario,
+    }]);
     setCurrentView('list');
   };
 
   const handleUpdateManwha = (updatedManwha) => {
+    const oldManwha = obras.find(m => m.id === updatedManwha.id);
     const updatedManwhas = obras.map(m =>
       m.id === updatedManwha.id ? updatedManwha : m
     );
     saveData(updatedManwhas);
+
+    if (oldManwha) {
+      const entries = [];
+      if (updatedManwha.statusUsuario !== oldManwha.statusUsuario) {
+        entries.push({
+          obraId: updatedManwha.id,
+          obraNome: updatedManwha.nome,
+          type: 'status_changed',
+          detail: '',
+          statusUsuario: updatedManwha.statusUsuario,
+        });
+      }
+      if (updatedManwha.capituloAtualUsuario !== oldManwha.capituloAtualUsuario) {
+        entries.push({
+          obraId: updatedManwha.id,
+          obraNome: updatedManwha.nome,
+          type: 'chapter_changed',
+          detail: `Cap. ${updatedManwha.capituloAtualUsuario}`,
+          statusUsuario: updatedManwha.statusUsuario,
+        });
+      }
+      if (entries.length > 0) addActivityEntries(entries);
+    }
+
     setCurrentView('list');
   };
 
@@ -165,6 +202,13 @@ function App() {
 
     const updatedManwhas = obras.filter(m => m.id !== id);
     saveData(updatedManwhas);
+    addActivityEntries([{
+      obraId: id,
+      obraNome: obra.nome,
+      type: 'removed',
+      detail: '',
+      statusUsuario: null,
+    }]);
     setCurrentView('list');
   };
 
@@ -193,6 +237,17 @@ function App() {
   const handleShowProfile  = () => setCurrentView('profile');
   const handleShowCalendar = () => setCurrentView('calendar');
 
+  const handleNavigateColecao = (id) => {
+    setSelectedColecaoId(id);
+    setCurrentView('colecao');
+  };
+
+  const handleCreateColecao = async () => {
+    const id = await addColecao();
+    setSelectedColecaoId(id);
+    setCurrentView('colecao');
+  };
+
   const handleWorkspaceChange = (newWorkspace) => {
     setActiveWorkspace(newWorkspace);
     setCurrentView('list');
@@ -201,6 +256,8 @@ function App() {
   };
 
   const handleQuickUpdate = async (id, updates) => {
+    const oldManwha = obras.find(m => m.id === id);
+
     const updatedManwhas = obras.map(m => {
       if (m.id !== id) return m;
 
@@ -217,6 +274,17 @@ function App() {
       };
     });
     await saveData(updatedManwhas);
+
+    if (oldManwha && updates.capituloAtualUsuario !== undefined
+      && updates.capituloAtualUsuario > oldManwha.capituloAtualUsuario) {
+      addActivityEntries([{
+        obraId: id,
+        obraNome: oldManwha.nome,
+        type: 'chapter_read',
+        detail: `Cap. ${updates.capituloAtualUsuario}`,
+        statusUsuario: updates.statusUsuario ?? oldManwha.statusUsuario,
+      }]);
+    }
   };
 
   // Verificação inicial do onboarding ainda não concluída.
@@ -238,6 +306,7 @@ function App() {
       case 'stats':    return 'stats';
       case 'profile':  return 'profile';
       case 'config':   return 'config';
+      case 'colecao':  return null;
       default:         return 'library';
     }
   };
@@ -266,6 +335,10 @@ function App() {
         onShowConfig={handleShowConfig}
         obras={obras}
         onNavigateObra={handleViewDetail}
+        colecoes={config?.colecoes ?? []}
+        activeColecaoId={currentView === 'colecao' ? selectedColecaoId : null}
+        onNavigateColecao={handleNavigateColecao}
+        onCreateColecao={handleCreateColecao}
         workspaceMenu={
           <WorkspaceMenu
             workspace={activeWorkspace}
@@ -347,13 +420,31 @@ function App() {
               />
             )}
 
+            {currentView === 'colecao' && (() => {
+              const colecao = config?.colecoes?.find(c => c.id === selectedColecaoId);
+              if (!colecao) return null;
+              return (
+                <ColecaoView
+                  colecao={colecao}
+                  obras={obras}
+                  onClose={handleBackToList}
+                  onRename={renameColecao}
+                  onSetBanner={setColecaoBanner}
+                  onSetObraIds={setColecaoObras}
+                  onDelete={deleteColecao}
+                  onViewDetail={handleViewDetail}
+                  onQuickUpdate={handleQuickUpdate}
+                />
+              );
+            })()}
+
             {currentView === 'profile' && (
               <WorkspaceProfile
                 workspace={activeWorkspace}
                 obras={obras}
-                onShowStats={handleShowStats}
-                onShowConfig={handleShowConfig}
                 onViewDetail={handleViewDetail}
+                onSetDestaques={setPerfilDestaques}
+                onSetBanner={setPerfilBanner}
                 onClose={handleBackToList}
               />
             )}

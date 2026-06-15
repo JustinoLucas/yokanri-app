@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Book,
   BookOpen,
@@ -7,37 +7,100 @@ import {
   TrendingUp,
   Heart,
   Clock,
-  Settings,
-  BarChart3,
-  Sparkles,
+  Plus,
+  PlusCircle,
+  Trash2,
+  Hash,
+  RefreshCw,
+  Pencil,
+  ImagePlus,
   ArrowLeft,
 } from 'lucide-react';
 import { useConfig } from '../../context/ConfigContext';
+import useCover from '../ObraCard/hooks/useCover';
+import storage from '../../services/storage/storageService';
 import './WorkspaceProfile.css';
+
+const BANNER_RECOMMENDED_SIZE = '1500x400px';
+
+const EMPTY_OBRA = { capas: [] };
+const DESTAQUES_SLOTS = 5;
 
 /**
  * WorkspaceProfile — Página dedicada do workspace/perfil
  *
  * Hub central do usuário: mostra identidade da biblioteca,
- * estatísticas visuais, favoritas e leituras recentes.
+ * estatísticas visuais, destaques escolhidos e leituras recentes.
  */
-function WorkspaceProfile({ workspace, obras, onShowStats, onShowConfig, onViewDetail, onClose }) {
+function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSetBanner, onClose }) {
   const config = useConfig();
+  const activityLog = config?.activityLog ?? [];
+
+  const banner = config?.perfilBanner ?? null;
+  const bannerFileName = banner?.fileName ?? null;
+  const [bannerUrl, setBannerUrl] = useState(null);
+  const [previewPositionY, setPreviewPositionY] = useState(null);
+  const bannerInputRef = useRef(null);
+
+  useEffect(() => {
+    if (!bannerFileName) {
+      setBannerUrl(null);
+      return;
+    }
+    let cancelled = false;
+    storage.loadCover(bannerFileName).then(url => {
+      if (!cancelled) setBannerUrl(url);
+    });
+    return () => { cancelled = true; };
+  }, [bannerFileName]);
+
+  const positionY = previewPositionY ?? banner?.positionY ?? 50;
+
+  const handleBannerPick = () => {
+    alert(`Tamanho recomendado para o banner: ${BANNER_RECOMMENDED_SIZE}.`);
+    bannerInputRef.current?.click();
+  };
+
+  const handleBannerFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !file.type.startsWith('image/')) return;
+
+    const extension = file.name.split('.').pop();
+    const fileName = `profile-banner-${Date.now()}.${extension}`;
+    await storage.saveCover(file, fileName);
+
+    if (bannerFileName) {
+      await storage.deleteCover(bannerFileName);
+    }
+
+    setPreviewPositionY(null);
+    onSetBanner({ fileName, positionY: 50 });
+  };
+
+  const handleRemoveBanner = async () => {
+    if (bannerFileName) {
+      await storage.deleteCover(bannerFileName);
+    }
+    setPreviewPositionY(null);
+    onSetBanner(null);
+  };
+
+  const handlePositionInput = (e) => {
+    setPreviewPositionY(Number(e.target.value));
+  };
+
+  const handlePositionCommit = (e) => {
+    const value = Number(e.target.value);
+    setPreviewPositionY(null);
+    onSetBanner({ ...banner, positionY: value });
+  };
 
   const profile = useMemo(() => {
-    const statusLeitura = config?.statusLeitura ?? [];
-    // Labels para exibição (podem ser renomeados pelo usuário)
-    const labelLendo    = statusLeitura.find(s => s.id === 'lendo')?.label      ?? 'Lendo';
-    const labelCompleto = statusLeitura.find(s => s.id === 'completo')?.label   ?? 'Completo';
-    const labelPausado  = statusLeitura.find(s => s.id === 'pausado')?.label    ?? 'Pausado';
-    const labelPlaneja  = statusLeitura.find(s => s.id === 'planeja-ler')?.label ?? 'Planeja ler';
-
     const total = obras.length;
     // Filtro por ID estável — obras armazenam IDs desde a v2
     const lendo     = obras.filter(o => o.statusUsuario === 'lendo').length;
     const completas = obras.filter(o => o.statusUsuario === 'completo').length;
-    const pausadas  = obras.filter(o => o.statusUsuario === 'pausado').length;
-    const planejadas = obras.filter(o => o.statusUsuario === 'planeja-ler').length;
 
     const totalChapters = obras.reduce((acc, o) => acc + (o.capituloAtualUsuario || 0), 0);
 
@@ -46,44 +109,11 @@ function WorkspaceProfile({ workspace, obras, onShowStats, onShowConfig, onViewD
       ? ratedObras.reduce((acc, o) => acc + o.notaUsuario, 0) / ratedObras.length
       : 0;
 
-    // Favoritas (com estrela)
-    const favorites = obras
-      .filter(o => o.favorito)
-      .slice(0, 8);
-
-    // Leituras recentes (por dataAtualizado)
-    const recent = [...obras]
-      .filter(o => o.dataAtualizado)
-      .sort((a, b) => new Date(b.dataAtualizado) - new Date(a.dataAtualizado))
-      .slice(0, 6);
-
-    // Top gêneros
-    const genreCount = {};
-    obras.forEach(o => {
-      if (Array.isArray(o.generos)) {
-        o.generos.forEach(g => { genreCount[g] = (genreCount[g] || 0) + 1; });
-      }
-    });
-    const topGenres = Object.entries(genreCount)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
-
-    // Dia mais forte (com mais lançamentos configurados)
-    const dayCount = {};
-    obras.forEach(o => {
-      if (Array.isArray(o.diasLancamento)) {
-        o.diasLancamento.forEach(d => { dayCount[d] = (dayCount[d] || 0) + 1; });
-      }
-    });
-    const topDay = Object.entries(dayCount).sort((a, b) => b[1] - a[1])[0];
-
     return {
-      total, lendo, completas, pausadas, planejadas,
-      totalChapters, avgRating, favorites, recent,
-      topGenres, topDay,
-      labelLendo, labelCompleto,
+      total, lendo, completas,
+      totalChapters, avgRating,
     };
-  }, [obras, config]);
+  }, [obras]);
 
   const initials = workspace?.name
     ? workspace.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
@@ -110,12 +140,58 @@ function WorkspaceProfile({ workspace, obras, onShowStats, onShowConfig, onViewD
 
       {/* ── Scrollable content ────────────────────────────── */}
       <div className="wsp-scroll">
-      <div className="wsp-page">
 
       {/* ─── BANNER + AVATAR ─────────────────────────── */}
       <div className="wsp-banner">
-        <div className="wsp-banner-gradient" />
-        <div className="wsp-banner-content">
+        {bannerUrl ? (
+          <img
+            src={bannerUrl}
+            alt=""
+            className="wsp-banner-img"
+            style={{ objectPosition: `center ${positionY}%` }}
+          />
+        ) : null}
+        <div className={`wsp-banner-gradient${bannerUrl ? ' wsp-banner-gradient--image' : ''}`} />
+
+        <div className="wsp-banner-actions">
+          <button className="wsp-banner-action-btn" onClick={handleBannerPick}>
+            <ImagePlus size={13} />
+            {bannerUrl ? 'Alterar banner' : 'Adicionar banner'}
+          </button>
+          {bannerUrl && (
+            <button
+              className="wsp-banner-action-btn wsp-banner-action-btn--icon wsp-banner-action-btn--danger"
+              onClick={handleRemoveBanner}
+              title="Remover banner"
+            >
+              <Trash2 size={13} />
+            </button>
+          )}
+        </div>
+        <input
+          ref={bannerInputRef}
+          type="file"
+          accept="image/*"
+          className="wsp-banner-file-input"
+          onChange={handleBannerFileChange}
+        />
+
+        {bannerUrl && (
+          <div className="wsp-banner-position">
+            <span className="wsp-banner-position-label">Posição</span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={positionY}
+              onChange={handlePositionInput}
+              onMouseUp={handlePositionCommit}
+              onTouchEnd={handlePositionCommit}
+            />
+          </div>
+        )}
+
+        <div className="wsp-identity-row">
           <div className="wsp-avatar-large">{initials}</div>
           <div className="wsp-identity">
             <h1 className="wsp-name">{workspace?.name}</h1>
@@ -127,6 +203,8 @@ function WorkspaceProfile({ workspace, obras, onShowStats, onShowConfig, onViewD
           </div>
         </div>
       </div>
+
+      <div className="wsp-page">
 
       {/* ─── QUICK STATS ─────────────────────────────── */}
       <div className="wsp-stats-row">
@@ -167,119 +245,258 @@ function WorkspaceProfile({ workspace, obras, onShowStats, onShowConfig, onViewD
         </div>
       </div>
 
-      {/* ─── CONTENT GRID ────────────────────────────── */}
+      {/* ─── CONTENT ─────────────────────────────────── */}
       <div className="wsp-grid">
 
-        {/* Favoritas */}
-        <div className="wsp-card wsp-card--wide">
-          <div className="wsp-card-header">
-            <Heart size={16} className="wsp-card-icon" />
-            <h3>Favoritas</h3>
-          </div>
-          {profile.favorites.length > 0 ? (
-            <div className="wsp-favorites">
-              {profile.favorites.map(obra => (
-                <button
-                  key={obra.id}
-                  className="wsp-fav-item"
-                  onClick={() => onViewDetail(obra)}
-                  title={obra.nome}
-                >
-                  <div className="wsp-fav-avatar">
-                    {obra.nome.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="wsp-fav-name">{obra.nome}</span>
-                  {obra.notaUsuario > 0 && (
-                    <span className="wsp-fav-rating">
-                      <Star size={10} />
-                      {obra.notaUsuario}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="wsp-empty">Nenhuma obra marcada como favorita</p>
-          )}
-        </div>
+        {/* Destaques */}
+        <DestaquesCard
+          obras={obras}
+          destaques={config?.perfilDestaques ?? []}
+          onSetDestaques={onSetDestaques}
+          onViewDetail={onViewDetail}
+        />
 
-        {/* Leituras recentes */}
+        {/* Atividade recente */}
         <div className="wsp-card wsp-card--wide">
           <div className="wsp-card-header">
             <Clock size={16} className="wsp-card-icon" />
             <h3>Atividade recente</h3>
           </div>
-          {profile.recent.length > 0 ? (
+          {activityLog.length > 0 ? (
             <div className="wsp-recent">
-              {profile.recent.map(obra => (
-                <button
-                  key={obra.id}
-                  className="wsp-recent-item"
-                  onClick={() => onViewDetail(obra)}
-                >
-                  <div className="wsp-recent-avatar">
-                    {obra.nome.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="wsp-recent-info">
-                    <span className="wsp-recent-name">{obra.nome}</span>
-                    <span className="wsp-recent-detail">
-                      Cap. {obra.capituloAtualUsuario || 0} · {obra.statusUsuario}
-                    </span>
-                  </div>
-                  <span className="wsp-recent-time">
-                    {formatTimeAgo(obra.dataAtualizado)}
-                  </span>
-                </button>
+              {activityLog.map(entry => (
+                <ActivityItem
+                  key={entry.id}
+                  entry={entry}
+                  obras={obras}
+                  config={config}
+                  onViewDetail={onViewDetail}
+                />
               ))}
             </div>
           ) : (
             <p className="wsp-empty">Nenhuma atividade recente</p>
           )}
         </div>
-
-        {/* Top gêneros */}
-        <div className="wsp-card">
-          <div className="wsp-card-header">
-            <Sparkles size={16} className="wsp-card-icon" />
-            <h3>Top gêneros</h3>
-          </div>
-          {profile.topGenres.length > 0 ? (
-            <div className="wsp-genres">
-              {profile.topGenres.map(([genre, count], i) => (
-                <div key={genre} className="wsp-genre-item">
-                  <span className="wsp-genre-rank">#{i + 1}</span>
-                  <span className="wsp-genre-name">{genre}</span>
-                  <span className="wsp-genre-count">{count}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="wsp-empty">Sem dados de gêneros</p>
-          )}
-        </div>
-
-        {/* Quick links */}
-        <div className="wsp-card">
-          <div className="wsp-card-header">
-            <Settings size={16} className="wsp-card-icon" />
-            <h3>Atalhos</h3>
-          </div>
-          <div className="wsp-shortcuts">
-            <button className="wsp-shortcut" onClick={onShowStats}>
-              <BarChart3 size={18} />
-              <span>Estatísticas completas</span>
-            </button>
-            <button className="wsp-shortcut" onClick={onShowConfig}>
-              <Settings size={18} />
-              <span>Configurações</span>
-            </button>
-          </div>
-        </div>
       </div>
 
       </div>{/* wsp-page */}
       </div>{/* wsp-scroll */}
     </div>
+  );
+}
+
+// ─── DESTAQUES ──────────────────────────────────────────────
+
+/**
+ * Card de destaques — grade de capas escolhidas manualmente pelo usuário.
+ * Cada slot pode ser editado, abrindo um seletor com busca por nome
+ * e lista ordenada pela nota do usuário (maior para menor).
+ */
+function DestaquesCard({ obras, destaques, onSetDestaques, onViewDetail }) {
+  const [activeSlot, setActiveSlot] = useState(null);
+  const [search, setSearch] = useState('');
+
+  const slots = Array.from({ length: DESTAQUES_SLOTS }, (_, i) => destaques[i] ?? null);
+
+  const options = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return [...obras]
+      .filter(o => !term || o.nome.toLowerCase().includes(term))
+      .sort((a, b) => (b.notaUsuario || 0) - (a.notaUsuario || 0));
+  }, [obras, search]);
+
+  const handleEditSlot = (index) => {
+    setSearch('');
+    setActiveSlot(activeSlot === index ? null : index);
+  };
+
+  const handlePick = (obraId) => {
+    const updated = [...slots];
+    updated[activeSlot] = obraId;
+    onSetDestaques(updated);
+    setActiveSlot(null);
+    setSearch('');
+  };
+
+  const handleClear = () => {
+    const updated = [...slots];
+    updated[activeSlot] = null;
+    onSetDestaques(updated);
+    setActiveSlot(null);
+    setSearch('');
+  };
+
+  return (
+    <div className="wsp-card wsp-card--wide">
+      <div className="wsp-card-header">
+        <Heart size={16} className="wsp-card-icon" />
+        <h3>Destaques</h3>
+      </div>
+
+      <div className="wsp-destaques-grid">
+        {slots.map((obraId, i) => {
+          const obra = obraId ? obras.find(o => o.id === obraId) ?? null : null;
+          return (
+            <DestaqueSlot
+              key={i}
+              obra={obra}
+              active={activeSlot === i}
+              onView={() => onViewDetail(obra)}
+              onEdit={() => handleEditSlot(i)}
+            />
+          );
+        })}
+      </div>
+
+      {activeSlot !== null && (
+        <div className="wsp-destaque-picker">
+          <div className="wsp-destaque-picker-header">
+            <input
+              className="wsp-destaque-search"
+              placeholder="Buscar obra pelo nome…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              autoFocus
+            />
+            {slots[activeSlot] && (
+              <button className="wsp-destaque-clear" onClick={handleClear}>
+                Remover
+              </button>
+            )}
+          </div>
+          <div className="wsp-destaque-picker-list">
+            {options.length > 0 ? (
+              options.slice(0, 30).map(obra => (
+                <button
+                  key={obra.id}
+                  className="wsp-destaque-option"
+                  onClick={() => handlePick(obra.id)}
+                >
+                  <span className="wsp-destaque-option-name">{obra.nome}</span>
+                  {obra.notaUsuario > 0 && (
+                    <span className="wsp-destaque-option-rating">
+                      <Star size={10} />
+                      {obra.notaUsuario}
+                    </span>
+                  )}
+                </button>
+              ))
+            ) : (
+              <p className="wsp-empty">Nenhuma obra encontrada</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DestaqueSlot({ obra, active, onView, onEdit }) {
+  const coverUrl = useCover(obra ?? EMPTY_OBRA);
+  const [imgError, setImgError] = useState(false);
+
+  return (
+    <div className={`wsp-destaque-slot${active ? ' active' : ''}`}>
+      <button
+        className="wsp-destaque-cover-btn"
+        onClick={obra ? onView : onEdit}
+        title={obra ? obra.nome : 'Escolher obra'}
+      >
+        {obra && coverUrl && !imgError ? (
+          <img
+            src={coverUrl}
+            alt={obra.nome}
+            className="wsp-destaque-cover"
+            onError={() => setImgError(true)}
+          />
+        ) : obra ? (
+          <div className="wsp-destaque-cover wsp-destaque-cover--empty">
+            {obra.nome.charAt(0).toUpperCase()}
+          </div>
+        ) : (
+          <div className="wsp-destaque-cover wsp-destaque-cover--placeholder">
+            <Plus size={20} />
+          </div>
+        )}
+        {obra && <span className="wsp-destaque-name">{obra.nome}</span>}
+      </button>
+
+      <button
+        className="wsp-destaque-edit-btn"
+        onClick={(e) => { e.stopPropagation(); onEdit(); }}
+        title={obra ? 'Trocar destaque' : 'Escolher obra'}
+      >
+        <Pencil size={11} />
+      </button>
+    </div>
+  );
+}
+
+// ─── ATIVIDADE RECENTE ──────────────────────────────────────
+
+const ACTIVITY_META = {
+  chapter_read:    { icon: BookOpen,   label: 'Leu um novo capítulo',     cls: 'wsp-recent-icon--blue' },
+  chapter_changed: { icon: Hash,       label: 'Alterou o capítulo atual', cls: 'wsp-recent-icon--purple' },
+  added:           { icon: PlusCircle, label: 'Adicionado à biblioteca',  cls: 'wsp-recent-icon--green' },
+  removed:         { icon: Trash2,     label: 'Removido da biblioteca',   cls: 'wsp-recent-icon--red' },
+  status_changed:  { icon: RefreshCw,  label: 'Status alterado',          cls: 'wsp-recent-icon--yellow' },
+};
+
+/**
+ * Item de atividade — mostra o que aconteceu com a obra, o status
+ * atual dela (quando ainda existe) e há quanto tempo ocorreu.
+ */
+function ActivityItem({ entry, obras, config, onViewDetail }) {
+  const meta = ACTIVITY_META[entry.type] ?? ACTIVITY_META.chapter_read;
+  const Icon = meta.icon;
+  const obra = obras.find(o => o.id === entry.obraId) ?? null;
+  const coverUrl = useCover(obra ?? EMPTY_OBRA);
+  const [imgError, setImgError] = useState(false);
+
+  const statusInfo = entry.statusUsuario
+    ? config?.statusLeitura?.find(s => s.id === entry.statusUsuario)
+    : null;
+
+  const detailText = entry.detail ? `${meta.label} · ${entry.detail}` : meta.label;
+
+  const Tag = obra ? 'button' : 'div';
+
+  return (
+    <Tag
+      className={`wsp-recent-item${!obra ? ' wsp-recent-item--disabled' : ''}`}
+      {...(obra ? { onClick: () => onViewDetail(obra) } : {})}
+    >
+      <div className="wsp-recent-avatar">
+        {obra && coverUrl && !imgError ? (
+          <img
+            src={coverUrl}
+            alt={entry.obraNome}
+            className="wsp-recent-cover"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div className="wsp-recent-cover wsp-recent-cover--empty">
+            {entry.obraNome.charAt(0).toUpperCase()}
+          </div>
+        )}
+        <span className={`wsp-recent-badge ${meta.cls}`}>
+          <Icon size={11} />
+        </span>
+      </div>
+      <div className="wsp-recent-info">
+        <span className="wsp-recent-name">
+          <span className="wsp-recent-name-text">{entry.obraNome}</span>
+          {statusInfo && (
+            <span className="wsp-recent-status" style={{ color: statusInfo.color }}>
+              {statusInfo.label}
+            </span>
+          )}
+        </span>
+        <span className="wsp-recent-detail">{detailText}</span>
+      </div>
+      <span className="wsp-recent-time">{formatTimeAgo(entry.timestamp)}</span>
+    </Tag>
   );
 }
 

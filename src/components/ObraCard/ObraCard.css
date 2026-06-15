@@ -272,6 +272,26 @@
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text-muted);
+  display: inline-block;
+}
+
+.card-chapter-pulse {
+  animation: card-chapter-pulse 0.4s ease-out;
+}
+
+@keyframes card-chapter-pulse {
+  0% {
+    transform: scale(1);
+    color: var(--text-muted);
+  }
+  30% {
+    transform: scale(1.15);
+    color: var(--accent-primary);
+  }
+  100% {
+    transform: scale(1);
+    color: var(--text-muted);
+  }
 }
 
 .progress-bar {
@@ -500,6 +520,26 @@
   font-size: 17px;
   font-weight: 600;
   color: var(--text-primary);
+  display: inline-block;
+}
+
+.row-chapter-pulse {
+  animation: row-chapter-pulse 0.4s ease-out;
+}
+
+@keyframes row-chapter-pulse {
+  0% {
+    transform: scale(1);
+    color: var(--text-primary);
+  }
+  30% {
+    transform: scale(1.15);
+    color: var(--accent-primary);
+  }
+  100% {
+    transform: scale(1);
+    color: var(--text-primary);
+  }
 }
 
 .progress-bar-row {
