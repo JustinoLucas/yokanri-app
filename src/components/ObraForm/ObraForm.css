@@ -359,19 +359,31 @@ input[type="date"] {
   padding-right: 44px;
 }
 
+.form-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.form-section-header h3 {
+  flex: 1;
+}
+
 .search-btn {
-  position: absolute;
-  right: 6px;
-  width: 28px;
-  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
   border-radius: var(--radius-6);
   background: var(--accent-fg);
   border: none;
   color: var(--cta-text);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  white-space: nowrap;
+  flex-shrink: 0;
   transition: opacity var(--duration-instant) var(--ease-out);
 }
 

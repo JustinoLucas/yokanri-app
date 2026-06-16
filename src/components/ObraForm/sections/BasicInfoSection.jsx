@@ -8,29 +8,27 @@ import { TIPO_OBRA } from '../../../types/obra';
 function BasicInfoSection({ formData, onChange, onSearchClick }) {
   return (
     <section className="form-section">
-      <h3>Informações Básicas</h3>
+      <div className="form-section-header">
+        <h3>Informações Básicas</h3>
+        <button
+          type="button"
+          className="search-btn"
+          onClick={onSearchClick}
+        >
+          <Search size={13} />
+          Buscar online
+        </button>
+      </div>
 
       <div className="form-group">
         <label>Nome *</label>
-        <div className="input-with-button">
-          <input
-            type="text"
-            value={formData.nome}
-            onChange={(e) => onChange('nome', e.target.value)}
-            placeholder="Nome da obra"
-            required
-          />
-          {formData.nome.trim() && (
-            <button
-              type="button"
-              className="search-btn"
-              onClick={onSearchClick}
-              title="Buscar dados na AniList"
-            >
-              <Search size={16} />
-            </button>
-          )}
-        </div>
+        <input
+          type="text"
+          value={formData.nome}
+          onChange={(e) => onChange('nome', e.target.value)}
+          placeholder="Nome da obra"
+          required
+        />
       </div>
 
       <div className="form-group">
