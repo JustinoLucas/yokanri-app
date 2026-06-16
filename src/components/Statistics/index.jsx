@@ -215,32 +215,41 @@ function Statistics({ obras, onClose }) {
             Distribuição por Tipo
           </h3>
           <div className="type-chart">
-            {Object.entries(stats.byType).map(([tipo, count]) => {
-              const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
-              const typeColor = {
-                'Coreano': '#003478',
-                'Chinês':  '#DE2910',
-                'Japonês': '#FFFFFF',
-              }[tipo] ?? 'var(--accent-fg)';
+            {Object.entries(stats.byType)
+              .sort((a, b) => b[1] - a[1])
+              .map(([tipo, count]) => {
+                const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
+                const typeColor = {
+                  'Coreano': '#003478',
+                  'Chinês':  '#DE2910',
+                  'Japonês': '#FFFFFF',
+                }[tipo] ?? 'var(--accent-fg)';
+                const formatName = {
+                  'Coreano': 'Manhwa',
+                  'Chinês':  'Manhua',
+                  'Japonês': 'Manga',
+                }[tipo] ?? tipo;
 
-              return (
-                <div key={tipo} className="type-bar-item">
-                  <div className="type-bar-label">
-                    <div className="type-bar-name">
-                      <FlagIcon tipo={tipo} size={20} />
-                      <span>{tipo}</span>
+                return (
+                  <div key={tipo} className="type-bar-item">
+                    <div className="type-bar-label">
+                      <div className="type-bar-name">
+                        <FlagIcon tipo={tipo} size={20} />
+                        <span className="type-bar-format">{formatName}</span>
+                        <span className="type-bar-separator">•</span>
+                        <span className="type-bar-nationality">{tipo}</span>
+                      </div>
+                      <span className="type-bar-count">{count} ({percentage.toFixed(1)}%)</span>
                     </div>
-                    <span className="type-bar-count">{count} ({percentage.toFixed(1)}%)</span>
+                    <div className="type-bar-track">
+                      <div
+                        className="type-bar-fill"
+                        style={{ width: `${percentage}%`, backgroundColor: typeColor }}
+                      />
+                    </div>
                   </div>
-                  <div className="type-bar-track">
-                    <div
-                      className="type-bar-fill"
-                      style={{ width: `${percentage}%`, backgroundColor: typeColor }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
 

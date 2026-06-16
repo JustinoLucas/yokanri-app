@@ -286,8 +286,22 @@
 .type-bar-name {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
+}
+
+.type-bar-format {
+  font-weight: 600;
   color: var(--text-primary);
+}
+
+.type-bar-separator {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.type-bar-nationality {
+  font-size: 11.5px;
+  color: var(--text-muted);
 }
 
 /* ─── Rating label ─────────────────────────────────────── */
