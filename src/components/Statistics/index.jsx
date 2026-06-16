@@ -217,8 +217,13 @@ function Statistics({ obras, onClose }) {
           <div className="type-chart">
             {Object.entries(stats.byType).map(([tipo, count]) => {
               const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
+              const typeColor = {
+                'Coreano': 'var(--status-andamento)',
+                'Chinês':  '#f97316',
+                'Japonês': 'var(--accent-fg)',
+              }[tipo] ?? 'var(--accent-fg)';
 
-              return count > 0 ? (
+              return (
                 <div key={tipo} className="type-bar-item">
                   <div className="type-bar-label">
                     <div className="type-bar-name">
@@ -230,11 +235,11 @@ function Statistics({ obras, onClose }) {
                   <div className="type-bar-track">
                     <div
                       className="type-bar-fill"
-                      style={{ width: `${percentage}%` }}
+                      style={{ width: `${percentage}%`, backgroundColor: typeColor }}
                     />
                   </div>
                 </div>
-              ) : null;
+              );
             })}
           </div>
         </div>
