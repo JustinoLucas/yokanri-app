@@ -186,6 +186,28 @@ function Statistics({ obras, onClose }) {
           </div>
         </div>
 
+        {/* Average Progress */}
+        <div className="stat-card">
+          <div className="stat-icon" style={{ backgroundColor: 'var(--accent-secondary)' }}>
+            <Clock size={24} />
+          </div>
+          <div className="stat-content">
+            <h3>Progresso Médio</h3>
+            <p className="stat-value">{stats.avgProgress.toFixed(1)}%</p>
+            <p className="stat-detail">de obras em andamento</p>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon" style={{ backgroundColor: 'var(--status-andamento)' }}>
+            <Book size={24} />
+          </div>
+          <div className="stat-content">
+            <h3>Capítulos Lidos</h3>
+            <p className="stat-value">{stats.totalChaptersRead}</p>
+          </div>
+        </div>
+
         {/* Distribution by Type */}
         <div className="stat-card stat-card-wide">
           <h3 className="stat-card-title">
@@ -316,28 +338,6 @@ function Statistics({ obras, onClose }) {
                 </div>
               );
             })}
-          </div>
-        </div>
-
-        {/* Average Progress */}
-        <div className="stat-card">
-          <div className="stat-icon" style={{ backgroundColor: 'var(--accent-secondary)' }}>
-            <Clock size={24} />
-          </div>
-          <div className="stat-content">
-            <h3>Progresso Médio</h3>
-            <p className="stat-value">{stats.avgProgress.toFixed(1)}%</p>
-            <p className="stat-detail">de obras em andamento</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon" style={{ backgroundColor: 'var(--status-andamento)' }}>
-            <Book size={24} />
-          </div>
-          <div className="stat-content">
-            <h3>Capítulos Lidos</h3>
-            <p className="stat-value">{stats.totalChaptersRead}</p>
           </div>
         </div>
 
