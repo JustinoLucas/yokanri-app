@@ -17,10 +17,10 @@ function sortGeneros(list) {
 // ─── Configuração das abas ───────────────────────────────────────────────────
 
 const TABS = [
-  { id: 'geral',          label: 'Geral',               isGeneral: true },
-  { id: 'statusObra',     label: 'Status da Obra',       hasColor: true,  hasHideSchedule: true  },
-  { id: 'statusLeitura',  label: 'Meu Status',           hasColor: true,  hasHideSchedule: false },
-  { id: 'generos',        label: 'Gêneros',              hasColor: false, hasHideSchedule: false },
+  { id: 'geral',          labelKey: 'config_tab_general',     isGeneral: true },
+  { id: 'statusObra',     labelKey: 'config_tab_obra_status', hasColor: true,  hasHideSchedule: true  },
+  { id: 'statusLeitura',  labelKey: 'config_tab_user_status', hasColor: true,  hasHideSchedule: false },
+  { id: 'generos',        labelKey: 'config_tab_genres',      hasColor: false, hasHideSchedule: false },
 ];
 
 const CATEGORY_TO_OBRA_FIELD = {
@@ -30,10 +30,10 @@ const CATEGORY_TO_OBRA_FIELD = {
   generos:        'generos',
 };
 
-const NSFW_MODES = [
-  { value: 'show',   label: 'Mostrar normalmente',  desc: 'Conteúdo adulto exibido sem restrição.' },
-  { value: 'blur',   label: 'Exibir com blur',       desc: 'Capas borradas — reveladas só por clique explícito.' },
-  { value: 'hidden', label: 'Ocultar completamente', desc: 'Obras NSFW não aparecem na biblioteca.' },
+const NSFW_MODE_KEYS = [
+  { value: 'show',   labelKey: 'config_nsfw_show_label',   descKey: 'config_nsfw_show_desc' },
+  { value: 'blur',   labelKey: 'config_nsfw_blur_label',   descKey: 'config_nsfw_blur_desc' },
+  { value: 'hidden', labelKey: 'config_nsfw_hidden_label', descKey: 'config_nsfw_hidden_desc' },
 ];
 
 // ─── Contagem de obras afetadas ──────────────────────────────────────────────
@@ -50,6 +50,7 @@ function countAffected(obras, category, itemId, itemLabel) {
 // ─── Config item row ─────────────────────────────────────────────────────────
 
 function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRename, onDelete, onUpdateColor, onToggleHideSchedule, onToggleNsfw }) {
+  const { t } = useLanguage();
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState(item.label);
   const [editError, setEditError] = useState('');
@@ -61,7 +62,7 @@ function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRena
     }
     const result = await onRename(item.id, editValue.trim());
     if (result === 'duplicate') {
-      setEditError(`"${editValue.trim()}" já existe.`);
+      setEditError(t('config_item_duplicate').replace('{name}', editValue.trim()));
       return;
     }
     setEditing(false);
@@ -87,7 +88,7 @@ function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRena
             type="color"
             value={item.color || '#888888'}
             onChange={e => onUpdateColor(item.id, e.target.value)}
-            title="Escolher cor"
+            title={t('config_item_choose_color')}
             disabled={item.protected || item.hidden}
           />
         </div>
@@ -109,14 +110,14 @@ function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRena
       )}
 
       {hasHideSchedule && (
-        <label className="config-item-toggle" title="Ocultar seção de padrão de lançamento">
+        <label className="config-item-toggle" title={t('config_item_hide_sch_title')}>
           <input
             type="checkbox"
             checked={!!item.hideSchedule}
             onChange={() => onToggleHideSchedule(item.id)}
             disabled={item.protected}
           />
-          <span>oculta lançamento</span>
+          <span>{t('config_item_hide_schedule')}</span>
         </label>
       )}
 
@@ -124,7 +125,7 @@ function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRena
         <button
           className={`config-nsfw-btn${item.nsfw ? ' config-nsfw-btn--active' : ''}`}
           onClick={() => onToggleNsfw(item.id)}
-          title={item.nsfw ? 'Marcado como NSFW — clique para desmarcar' : 'Marcar como NSFW (+18)'}
+          title={item.nsfw ? t('config_nsfw_marked') : t('config_nsfw_mark')}
         >
           <ShieldAlert size={13} />
           <span>+18</span>
@@ -134,7 +135,7 @@ function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRena
       {(item.protected || readonly) ? (
         <div className="config-item-protected">
           <Lock size={11} />
-          fixo
+          {t('config_item_fixed')}
         </div>
       ) : item.isFixed ? (
         <div className="config-item-actions">
@@ -175,6 +176,7 @@ function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRena
 // ─── Seção de Atualizações ───────────────────────────────────────────────────
 
 function UpdateSection() {
+  const { t } = useLanguage();
   const [appVersion, setAppVersion] = useState('');
   const [status, setStatus] = useState('idle'); // idle | checking | up-to-date | available | downloading | finished | error
   const [update, setUpdate] = useState(null);
@@ -218,39 +220,39 @@ function UpdateSection() {
 
   return (
     <div className="config-section">
-      <span className="config-section-label">Atualizações</span>
+      <span className="config-section-label">{t('config_section_updates')}</span>
 
       <div className="config-row">
         <div className="config-row-info">
-          <span className="config-row-title">Versão atual</span>
+          <span className="config-row-title">{t('config_current_version')}</span>
           <span className="config-row-desc">Yokanri v{appVersion || '—'}</span>
         </div>
 
         {(status === 'idle' || status === 'up-to-date' || status === 'error') && (
           <button className="config-theme-btn" onClick={handleCheck}>
             <RefreshCw size={13} />
-            Verificar atualizações
+            {t('config_check_updates')}
           </button>
         )}
 
         {status === 'checking' && (
           <button className="config-theme-btn" disabled>
             <RefreshCw size={13} className="config-spin" />
-            Verificando…
+            {t('config_checking')}
           </button>
         )}
 
         {status === 'available' && (
           <button className="config-theme-btn config-theme-btn--accent" onClick={handleUpdate}>
             <DownloadCloud size={13} />
-            Atualizar para v{update.version}
+            {t('config_update_available').replace('{version}', update.version)}
           </button>
         )}
 
         {status === 'finished' && (
           <button className="config-theme-btn config-theme-btn--accent" onClick={restartApp}>
             <RefreshCw size={13} />
-            Reiniciar agora
+            {t('config_restart_now')}
           </button>
         )}
       </div>
@@ -258,7 +260,7 @@ function UpdateSection() {
       {status === 'up-to-date' && (
         <p className="config-update-status">
           <CheckCircle2 size={13} />
-          Você já está na versão mais recente.
+          {t('config_up_to_date')}
         </p>
       )}
 
@@ -267,21 +269,23 @@ function UpdateSection() {
           <div className="config-update-progress-bar">
             <div className="config-update-progress-fill" style={{ width: `${progress}%` }} />
           </div>
-          <span className="config-update-progress-text">Baixando atualização… {progress}%</span>
+          <span className="config-update-progress-text">
+            {t('config_downloading').replace('{progress}', progress)}
+          </span>
         </div>
       )}
 
       {status === 'finished' && (
         <p className="config-update-status">
           <CheckCircle2 size={13} />
-          Atualização instalada — reinicie para aplicar.
+          {t('config_update_installed')}
         </p>
       )}
 
       {status === 'error' && (
         <p className="config-update-status config-update-status--error">
           <AlertCircle size={13} />
-          Não foi possível verificar/instalar a atualização.
+          {t('config_update_error')}
         </p>
       )}
     </div>
@@ -302,18 +306,18 @@ function TabGeral({ nsfwMode, onSetNsfwMode }) {
 
       {/* Aparência */}
       <div className="config-section">
-        <span className="config-section-label">Aparência</span>
+        <span className="config-section-label">{t('config_section_appearance')}</span>
         <div className="config-row">
           <div className="config-row-info">
-            <span className="config-row-title">Tema</span>
+            <span className="config-row-title">{t('config_theme_label')}</span>
             <span className="config-row-desc">
-              {theme === 'dark' ? 'Tema escuro ativo' : 'Tema claro ativo'}
+              {theme === 'dark' ? t('config_theme_dark_active') : t('config_theme_light_active')}
             </span>
           </div>
           <button className="config-theme-btn" onClick={toggleTheme}>
             {theme === 'dark'
-              ? <><Sun size={13} /> Claro</>
-              : <><Moon size={13} /> Escuro</>
+              ? <><Sun size={13} /> {t('config_theme_to_light')}</>
+              : <><Moon size={13} /> {t('config_theme_to_dark')}</>
             }
           </button>
         </div>
@@ -345,10 +349,10 @@ function TabGeral({ nsfwMode, onSetNsfwMode }) {
 
       {/* Conteúdo adulto */}
       <div className="config-section">
-        <span className="config-section-label">Conteúdo adulto (+18)</span>
+        <span className="config-section-label">{t('config_section_nsfw')}</span>
 
         <div className="config-nsfw-modes">
-          {NSFW_MODES.map(mode => (
+          {NSFW_MODE_KEYS.map(mode => (
             <label
               key={mode.value}
               className={`config-nsfw-mode-option${nsfwMode === mode.value ? ' selected' : ''}`}
@@ -361,17 +365,14 @@ function TabGeral({ nsfwMode, onSetNsfwMode }) {
                 onChange={() => onSetNsfwMode(mode.value)}
               />
               <div className="config-nsfw-mode-info">
-                <span className="config-nsfw-mode-label">{mode.label}</span>
-                <span className="config-nsfw-mode-desc">{mode.desc}</span>
+                <span className="config-nsfw-mode-label">{t(mode.labelKey)}</span>
+                <span className="config-nsfw-mode-desc">{t(mode.descKey)}</span>
               </div>
             </label>
           ))}
         </div>
 
-        <p className="config-nsfw-hint">
-          Marque gêneros como +18 na seção "Gêneros".
-          No modo blur, a capa é revelada ao clicar nela.
-        </p>
+        <p className="config-nsfw-hint">{t('config_nsfw_hint')}</p>
       </div>
 
     </div>
@@ -381,14 +382,15 @@ function TabGeral({ nsfwMode, onSetNsfwMode }) {
 // ─── Componente principal ────────────────────────────────────────────────────
 
 function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor, onToggleHideSchedule, onToggleGenreNsfw, onSetNsfwMode, onClose }) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('geral');
   const [newItemValue, setNewItemValue] = useState('');
   const [newItemColor, setNewItemColor] = useState('#888888');
   const [addError, setAddError] = useState('');
 
-  if (!config) return <div className="config-loading">Carregando configurações…</div>;
+  if (!config) return <div className="config-loading">{t('config_loading')}</div>;
 
-  const activeTabDef = TABS.find(t => t.id === activeTab);
+  const activeTabDef = TABS.find(tab => tab.id === activeTab);
   const isGeneral  = !!activeTabDef?.isGeneral;
   const isReadonly = !!activeTabDef?.readonly;
 
@@ -402,7 +404,7 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
     if (!newItemValue.trim()) return;
     const result = await onAdd(activeTab, newItemValue.trim(), newItemColor);
     if (result === 'duplicate') {
-      setAddError(`"${newItemValue.trim()}" já existe nesta lista.`);
+      setAddError(t('config_item_duplicate_list').replace('{name}', newItemValue.trim()));
       return;
     }
     setNewItemValue('');
@@ -416,11 +418,11 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
 
   const handleDelete = (id, label) => {
     const affected = countAffected(obras, activeTab, id, label);
-    let msg = `Excluir "${label}"?`;
+    let msg = t('config_delete_confirm').replace('{name}', label);
     if (activeTab === 'generos' && affected > 0) {
-      msg += `\n\nEste gênero será removido de ${affected} obra(s).`;
+      msg += t('config_delete_genre_affected').replace('{count}', affected);
     } else if (activeTab !== 'generos' && affected > 0) {
-      msg += `\n\n${affected} obra(s) com este valor serão redefinidas como "Não definido".`;
+      msg += t('config_delete_status_affected').replace('{count}', affected);
     }
     if (confirm(msg)) onDelete(activeTab, id);
   };
@@ -440,11 +442,11 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
         {onClose && (
           <button className="config-bar-back" onClick={onClose}>
             <ArrowLeft size={13} />
-            Biblioteca
+            {t('config_back')}
           </button>
         )}
         <div className="config-bar-divider" />
-        <span className="config-bar-title">Configurações</span>
+        <span className="config-bar-title">{t('config_title')}</span>
       </div>
 
       {/* ── Body: nav + content ───────────────────────────── */}
@@ -452,14 +454,14 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
 
         {/* Vertical nav */}
         <nav className="config-nav">
-          <span className="config-nav-section-label">Opções</span>
+          <span className="config-nav-section-label">{t('config_nav_label')}</span>
           {TABS.map(tab => (
             <button
               key={tab.id}
               className={`config-nav-item${activeTab === tab.id ? ' config-nav-item--active' : ''}`}
               onClick={() => handleTabChange(tab.id)}
             >
-              {tab.label}
+              {t(tab.labelKey)}
             </button>
           ))}
         </nav>
@@ -473,7 +475,7 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
             <>
               <div className="config-list">
                 {items.length === 0 ? (
-                  <div className="config-empty">Nenhum item cadastrado.</div>
+                  <div className="config-empty">{t('config_item_none')}</div>
                 ) : (
                   items.map(item => (
                     <ConfigItem
@@ -494,9 +496,7 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
               </div>
 
               {isReadonly && (
-                <p className="config-readonly-note">
-                  Os tipos de lançamento são gerenciados pelo sistema e não podem ser alterados.
-                </p>
+                <p className="config-readonly-note">{t('config_readonly_note')}</p>
               )}
 
               {!isReadonly && (
@@ -508,12 +508,12 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
                         className="config-add-color"
                         value={newItemColor}
                         onChange={e => setNewItemColor(e.target.value)}
-                        title="Cor do novo item"
+                        title={t('config_item_choose_color')}
                       />
                     )}
                     <input
                       className="config-add-input"
-                      placeholder="Novo item…"
+                      placeholder={t('config_item_add_ph')}
                       value={newItemValue}
                       onChange={e => { setNewItemValue(e.target.value); setAddError(''); }}
                       onKeyDown={handleNewKeyDown}
@@ -524,7 +524,7 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
                       disabled={!newItemValue.trim()}
                     >
                       <Plus size={14} />
-                      Adicionar
+                      {t('config_item_add_btn')}
                     </button>
                   </div>
                   {addError && <span className="config-add-error">{addError}</span>}
