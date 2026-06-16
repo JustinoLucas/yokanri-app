@@ -9,6 +9,7 @@ import {
   Plus,
   RefreshCw,
 } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 /**
  * AppSidebar V3F — 216px lateral de navegação semântica
@@ -35,6 +36,7 @@ function Sidebar({
   onNavigateColecao,
   onCreateColecao,
 }) {
+  const { t } = useLanguage();
   const initials = workspace?.name
     ? workspace.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
     : 'YK';
@@ -49,7 +51,7 @@ function Sidebar({
     <aside className="sidebar">
       {/* Workspace header */}
       <div className="sidebar-ws-header">
-        <span className="sidebar-ws-eyebrow">espaco de trabalho</span>
+        <span className="sidebar-ws-eyebrow">{t('sidebar_workspace_eyebrow')}</span>
         <div className="sidebar-ws-name">
           <span className="sidebar-ws-badge">{initials}</span>
           {workspace?.name || 'Workspace'}
@@ -60,25 +62,25 @@ function Sidebar({
       <nav className="sidebar-nav">
         <NavItem
           icon={Library}
-          label="Biblioteca"
+          label={t('sidebar_library')}
           active={activePage === 'library'}
           onClick={() => onNavigate('library')}
         />
         <NavItem
           icon={Bookmark}
-          label="Meu Perfil"
+          label={t('sidebar_profile')}
           active={activePage === 'profile'}
           onClick={() => onNavigate('profile')}
         />
         <NavItem
           icon={Calendar}
-          label="Calendario"
+          label={t('sidebar_calendar')}
           active={activePage === 'calendar'}
           onClick={() => onNavigate('calendar')}
         />
         <NavItem
           icon={BarChart3}
-          label="Estatisticas"
+          label={t('sidebar_stats')}
           active={activePage === 'stats'}
           onClick={() => onNavigate('stats')}
         />
@@ -86,7 +88,7 @@ function Sidebar({
         <div className="sidebar-divider" />
 
         {/* Colecoes */}
-        <SectionLabel>Colecoes</SectionLabel>
+        <SectionLabel>{t('sidebar_collections')}</SectionLabel>
         {colecoes.map(colecao => (
           <NavItem
             key={colecao.id}
@@ -97,7 +99,7 @@ function Sidebar({
             onClick={() => onNavigateColecao?.(colecao.id)}
           />
         ))}
-        <NavItem icon={Plus} label="Nova colecao" muted onClick={onCreateColecao} />
+        <NavItem icon={Plus} label={t('sidebar_new_collection')} muted onClick={onCreateColecao} />
       </nav>
 
       {/* Footer — sync status */}

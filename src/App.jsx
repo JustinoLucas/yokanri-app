@@ -18,6 +18,7 @@ import { useMigration } from './components/ObraForm/hooks/useMigration'; // ⚠�
 import { calculateStatusDateUpdates } from './utils/statusDateHelpers';
 import { useConfiguracoes } from './hooks/useConfiguracoes';
 import { ConfigProvider } from './context/ConfigContext';
+import { LanguageProvider } from './i18n/LanguageContext';
 import { setSplashStatus, hideSplash, SPLASH_STATUS } from './utils/splashUtils';
 import './App.css';
 
@@ -29,6 +30,7 @@ function App() {
   const [currentView, setCurrentView] = useState('list');
   const [selectedObra, setSelectedObra] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [initialLanguage, setInitialLanguage] = useState('pt-BR');
 
   // ⚠️ REMOVER NA v4.0 - Hook de migração centralizada (apenas para dados antigos)
   const { migrateObraData } = useMigration();
@@ -72,6 +74,10 @@ function App() {
     try {
       // ── Fase 1: Verificar onboarding ──────────────────
       setSplashStatus(SPLASH_STATUS.CHECKING);
+      const onboardingState = await onboardingService.getState();
+      if (onboardingState?.language) {
+        setInitialLanguage(onboardingState.language);
+      }
       const needed = await onboardingService.isNeeded();
 
       if (needed) {
@@ -323,6 +329,7 @@ function App() {
   };
 
   return (
+    <LanguageProvider initialLanguage={initialLanguage}>
     <ConfigProvider config={config}>
       <UpdateNotification />
       <AppShell
@@ -452,6 +459,7 @@ function App() {
         )}
       </AppShell>
     </ConfigProvider>
+    </LanguageProvider>
   );
 }
 

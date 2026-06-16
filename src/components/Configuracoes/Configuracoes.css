@@ -650,3 +650,30 @@
   font-family: var(--font-sans);
   font-size: 13px;
 }
+
+/* ─── Language select ──────────────────────────────────── */
+
+.config-language-select-wrapper {
+  flex-shrink: 0;
+}
+
+.config-language-select {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: var(--radius-8);
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--duration-instant) var(--ease-out),
+              color var(--duration-instant) var(--ease-out);
+}
+
+.config-language-select:hover,
+.config-language-select:focus {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}

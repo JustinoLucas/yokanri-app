@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Pencil, Trash2, Check, X, Plus, Lock, ShieldAlert, Sun, Moon, ArrowLeft, RefreshCw, DownloadCloud, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../i18n/LanguageContext';
 import { getVersion } from '@tauri-apps/api/app';
 import { checkForUpdate, downloadAndInstall, restartApp } from '../../services/updaterService';
 import './Configuracoes.css';
@@ -291,6 +292,7 @@ function UpdateSection() {
 
 function TabGeral({ nsfwMode, onSetNsfwMode }) {
   const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage, languages, t } = useLanguage();
 
   return (
     <div className="config-geral">
@@ -314,6 +316,30 @@ function TabGeral({ nsfwMode, onSetNsfwMode }) {
               : <><Moon size={13} /> Escuro</>
             }
           </button>
+        </div>
+      </div>
+
+      {/* Idioma */}
+      <div className="config-section">
+        <span className="config-section-label">{t('config_section_language')}</span>
+        <div className="config-row">
+          <div className="config-row-info">
+            <span className="config-row-title">{t('config_language_label')}</span>
+            <span className="config-row-desc">{t('config_language_desc')}</span>
+          </div>
+          <div className="config-language-select-wrapper">
+            <select
+              className="config-language-select"
+              value={language}
+              onChange={e => setLanguage(e.target.value)}
+            >
+              {languages.map(lang => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.flag} {lang.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
