@@ -322,7 +322,15 @@ function Statistics({ obras, onClose, onViewDetail }) {
                   <div className="top-read-rank">#{index + 1}</div>
                   <div className="top-read-info">
                     <div className="top-read-name">{obra.nome}</div>
-                    <div className="top-read-chapters">{obra.capituloAtualUsuario} capítulos</div>
+                    <div className="top-read-chapters">
+                      {obra.nomeAlternativo && (
+                        <>
+                          <span className="top-read-alt">{obra.nomeAlternativo}</span>
+                          <span className="top-read-dot">·</span>
+                        </>
+                      )}
+                      {obra.capituloAtualUsuario} capítulos
+                    </div>
                   </div>
                 </button>
               ))

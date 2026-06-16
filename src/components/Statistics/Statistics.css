@@ -365,6 +365,19 @@
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.top-read-alt {
+  color: var(--text-muted);
+}
+
+.top-read-dot {
+  color: var(--text-muted);
+  opacity: 0.5;
 }
 
 /* ─── Empty ────────────────────────────────────────────── */
