@@ -339,7 +339,7 @@ function TabGeral({ nsfwMode, onSetNsfwMode }) {
             >
               {languages.map(lang => (
                 <option key={lang.code} value={lang.code}>
-                  {lang.flag} {lang.label}
+                  {lang.flag} {t('lang_name_' + lang.code) || lang.label}
                 </option>
               ))}
             </select>

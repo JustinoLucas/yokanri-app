@@ -9,6 +9,7 @@ import './TranslationEditor.css';
 
 const SECTIONS = [
   { id: 'idiomas',    label: 'Idiomas',        type: 'languages' },
+  { id: 'lang_names', label: 'Nomes de Idiomas', type: 'lang_names' },
   { id: 'geral',      label: 'Geral',           exactKeys: ['loading','back','cancel','save','add','edit','delete','confirm','close','search','yes','no','error','success'] },
   { id: 'sidebar',    label: 'Sidebar',         prefix: 'sidebar_' },
   { id: 'topbar',     label: 'Topbar',          prefix: 'topbar_' },
@@ -48,10 +49,11 @@ export default function TranslationEditor({ onClose }) {
   const allKeys = useMemo(() => Object.keys(strings['pt-BR'] ?? {}), [strings]);
 
   const section = SECTIONS.find(s => s.id === activeSection);
-  const sectionKeys = useMemo(
-    () => section?.type === 'languages' ? [] : getSectionKeys(section ?? {}, allKeys),
-    [section, allKeys]
-  );
+  const sectionKeys = useMemo(() => {
+    if (section?.type === 'languages') return [];
+    if (section?.type === 'lang_names') return langs.map(l => `lang_name_${l.code}`);
+    return getSectionKeys(section ?? {}, allKeys);
+  }, [section, allKeys, langs]);
 
   const visibleKeys = useMemo(() => {
     const q = filter.trim().toLowerCase();
@@ -148,7 +150,7 @@ export default function TranslationEditor({ onClose }) {
           {/* Conteúdo */}
           <div className="te-content">
             {section?.type === 'languages' ? (
-              <LanguagesPage
+            <LanguagesPage
                 langs={langs}
                 strings={strings}
                 setLangs={setLangs}
@@ -375,8 +377,28 @@ function LanguagesPage({ langs, strings, setLangs, setStrings, setDirty }) {
     const code = newLang.code.trim();
     if (!code) return;
     if (langs.some(l => l.code === code)) { alert(`O código "${code}" já existe.`); return; }
-    setLangs(prev => [...prev, { ...newLang, code }]);
-    setStrings(prev => ({ ...prev, [code]: {} }));
+
+    const label = newLang.label.trim() || code;
+
+    setLangs(prev => [...prev, { ...newLang, code, label }]);
+    setStrings(prev => {
+      const next = { ...prev };
+      // Bloco vazio para o novo idioma
+      next[code] = {};
+      // Adiciona lang_name_<newCode> em todos os idiomas existentes (vazio para preencher)
+      Object.keys(next).forEach(langCode => {
+        if (langCode !== code) {
+          next[langCode] = { ...next[langCode], [`lang_name_${code}`]: '' };
+        }
+      });
+      // Adiciona lang_name_<existingCode> no novo idioma (também vazio para preencher)
+      langs.forEach(l => {
+        next[code][`lang_name_${l.code}`] = '';
+      });
+      // E o próprio nome do novo idioma nele mesmo
+      next[code][`lang_name_${code}`] = label;
+      return next;
+    });
     setDirty(true);
     setAdding(false);
     setNewLang({ code: '', flag: '', native: '', label: '' });
