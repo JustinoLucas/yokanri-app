@@ -374,7 +374,7 @@ function Statistics({ obras, onClose, onViewDetail }) {
         <div className="stat-card stat-card-wide">
           <h3 className="stat-card-title">
             <Heart size={18} />
-            Gêneros Favoritos
+            {t('stats_genres')}
           </h3>
           <div className="genre-chart">
             {stats.topGenres.map(([genre, count], index) => {

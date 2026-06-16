@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Sparkles, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useLanguage } from '../../../i18n/LanguageContext';
 import ObraCard from '../../ObraCard';
 import EmptyState from './EmptyState';
 import './ReleasesCarouselV3F.css';
@@ -27,6 +28,7 @@ function ReleasesCarouselV3F({
   onQuickUpdate,
   onShowCalendar,
 }) {
+  const { t, language } = useLanguage();
   const [activeIdx, setActiveIdx] = useState(0); // índice no array `dias`
   const carouselRef = useRef(null);
   const [canLeft, setCanLeft] = useState(false);
@@ -58,10 +60,11 @@ function ReleasesCarouselV3F({
   const scrollLeft = () => carouselRef.current?.scrollBy({ left: -220, behavior: 'smooth' });
   const scrollRight = () => carouselRef.current?.scrollBy({ left: 220, behavior: 'smooth' });
 
-  // Label do dia ativo para o header
+  // Label do dia ativo para o header (locale-aware)
   const getDayLabel = () => {
-    if (!activeDay) return '—';
-    return `${activeDay.nomeCompleto}, ${activeDay.diaDoMes} de ${activeDay.mes}`;
+    if (!activeDay?.date) return '—';
+    const label = activeDay.date.toLocaleDateString(language, { weekday: 'long', day: 'numeric', month: 'long' });
+    return label.charAt(0).toUpperCase() + label.slice(1);
   };
 
   const totalCards = cards.length;
@@ -72,11 +75,11 @@ function ReleasesCarouselV3F({
       <div className="carousel-v3f-header">
         {/* Left: label + date */}
         <Sparkles size={12} className="carousel-v3f-sparkle" />
-        <span className="carousel-v3f-eyebrow">Agenda editorial</span>
+        <span className="carousel-v3f-eyebrow">{t('releases_section')}</span>
         <div className="carousel-v3f-sep" />
         <span className="carousel-v3f-date">{getDayLabel()}</span>
         {totalCards > 0 && (
-          <span className="carousel-v3f-count">· {totalCards} obra{totalCards !== 1 ? 's' : ''}</span>
+          <span className="carousel-v3f-count">· {totalCards} {totalCards !== 1 ? t('releases_obras') : t('releases_obra')}</span>
         )}
 
         <div className="carousel-v3f-spacer" />
@@ -98,21 +101,21 @@ function ReleasesCarouselV3F({
           className="carousel-v3f-week-btn"
           onClick={() => onWeekChange(weekOffset - 1)}
           disabled={weekOffset <= 0}
-          title="Semana anterior"
+          title={t('releases_week_prev')}
         >
           <ChevronLeft size={11} />
         </button>
         <button
           className="carousel-v3f-week-btn"
           onClick={() => onWeekChange(weekOffset + 1)}
-          title="Próxima semana"
+          title={t('releases_week_next')}
         >
           <ChevronRight size={11} />
         </button>
         <div className="carousel-v3f-sep" />
         <button className="carousel-v3f-agenda-btn" onClick={onShowCalendar}>
           <Calendar size={10} />
-          Ver agenda
+          {t('releases_view_agenda')}
         </button>
       </div>
 

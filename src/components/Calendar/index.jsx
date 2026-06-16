@@ -5,19 +5,35 @@ import {
 } from 'lucide-react';
 import { lancaNoDia, isLancamentoIndeterminado } from '../ReleasesToday/utils/releaseCalculations';
 import { useConfig } from '../../context/ConfigContext';
+import { useLanguage } from '../../i18n/LanguageContext';
 import { filterNsfwObras } from '../../utils/nsfwUtils';
 import FlagIcon from '../ObraCard/shared/FlagIcon';
 import useCover from '../ObraCard/hooks/useCover';
 import './Calendar.css';
 
-/* ─── Constantes ─────────────────────────────────────────── */
+/* ─── Helpers de locale ──────────────────────────────────── */
 
-const DIAS_MON = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-const DIAS_PT  = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-const MESES    = [
-  'Janeiro','Fevereiro','Março','Abril','Maio','Junho',
-  'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro',
-];
+// Jan 1, 2024 é uma Segunda-feira — usamos como âncora para nomes Mon-first
+const MONDAY_ANCHOR = new Date(2024, 0, 1);
+
+function getDiasAbrevMon(locale) {
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(MONDAY_ANCHOR);
+    d.setDate(MONDAY_ANCHOR.getDate() + i);
+    const s = d.toLocaleDateString(locale, { weekday: 'short' });
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  });
+}
+
+function getMesLabel(date, locale) {
+  const s = date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function getDiaDow(date, locale) {
+  const s = date.toLocaleDateString(locale, { weekday: 'short' });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
 
 /* ─── Helpers ────────────────────────────────────────────── */
 
@@ -38,6 +54,7 @@ function getMonday(date) {
 
 function Calendar({ obras, onClose, onViewDetail }) {
   const config = useConfig();
+  const { t, language } = useLanguage();
   const hoje   = useMemo(() => startOfDay(new Date()), []);
 
   const [weekOffset,   setWeekOffset]   = useState(0);
@@ -67,6 +84,8 @@ function Calendar({ obras, onClose, onViewDetail }) {
     [ativas]
   );
 
+  const diasAbrevMon = useMemo(() => getDiasAbrevMon(language), [language]);
+
   /* ── Dados da semana ───────────────────────────────────── */
   const weekDays = useMemo(() => {
     const weekStart = getMonday(pivotDate);
@@ -77,14 +96,14 @@ function Calendar({ obras, onClose, onViewDetail }) {
       const off = Math.round((date - hoje) / 864e5);
       return {
         date,
-        abbrev: DIAS_MON[i],
+        abbrev: diasAbrevMon[i],
         off,
         lancamentos: ativas.filter(o => lancaNoDia(o, off)),
         isToday: off === 0,
         isPast:  off < 0,
       };
     });
-  }, [pivotDate, ativas, hoje]);
+  }, [pivotDate, ativas, hoje, diasAbrevMon]);
 
   /* ── Dados do mês ──────────────────────────────────────── */
   const monthData = useMemo(() => {
@@ -112,12 +131,11 @@ function Calendar({ obras, onClose, onViewDetail }) {
   /* ── Label mês/ano ─────────────────────────────────────── */
   const monthLabel = useMemo(() => {
     if (view === 'month') {
-      return `${MESES[monthData.month]} ${monthData.year}`;
+      return getMesLabel(new Date(monthData.year, monthData.month, 1), language);
     }
     // Usa quinta-feira (índice 3) para rótulo estável em semanas que cruzam meses
-    const thu = new Date(weekDays[3].date);
-    return `${MESES[thu.getMonth()]} ${thu.getFullYear()}`;
-  }, [view, weekDays, monthData]);
+    return getMesLabel(new Date(weekDays[3].date), language);
+  }, [view, weekDays, monthData, language]);
 
   /* ── Navegação ─────────────────────────────────────────── */
   function navPrev() {
@@ -153,18 +171,18 @@ function Calendar({ obras, onClose, onViewDetail }) {
 
         {/* Esquerda: eyebrow + título */}
         <div className="cal-bar-left">
-          <div className="cal-bar-eyebrow">Calendário</div>
-          <div className="cal-bar-title">Agenda editorial</div>
+          <div className="cal-bar-eyebrow">{t('calendar_title')}</div>
+          <div className="cal-bar-title">{t('releases_section')}</div>
         </div>
 
         {/* Direita: nav + Hoje + toggle */}
         <div className="cal-bar-right">
           <div className="cal-bar-nav">
-            <button className="cal-nav-btn" onClick={navPrev} aria-label="Anterior">
+            <button className="cal-nav-btn" onClick={navPrev} aria-label={t('calendar_prev')}>
               <ChevronLeft size={11} />
             </button>
             <span className="cal-month-label">{monthLabel}</span>
-            <button className="cal-nav-btn" onClick={navNext} aria-label="Próximo">
+            <button className="cal-nav-btn" onClick={navNext} aria-label={t('calendar_next')}>
               <ChevronRight size={11} />
             </button>
           </div>
@@ -176,18 +194,18 @@ function Calendar({ obras, onClose, onViewDetail }) {
             onClick={() => setWeekOffset(0)}
           >
             <Sparkles size={11} />
-            Hoje
+            {t('calendar_today')}
           </button>
 
           <div className="cal-view-toggle">
             <button
               className={`cal-view-btn${view === 'week' ? ' cal-view-btn--active' : ''}`}
               onClick={() => setView('week')}
-            >Semana</button>
+            >{t('calendar_week_view')}</button>
             <button
               className={`cal-view-btn${view === 'month' ? ' cal-view-btn--active' : ''}`}
               onClick={() => setView('month')}
-            >Mês</button>
+            >{t('calendar_month_view')}</button>
           </div>
         </div>
       </div>
@@ -198,6 +216,8 @@ function Calendar({ obras, onClose, onViewDetail }) {
           days={weekDays}
           indeterminados={indeterminados}
           onViewDetail={onViewDetail}
+          t={t}
+          language={language}
         />
       ) : (
         <CalMonthView
@@ -206,6 +226,9 @@ function Calendar({ obras, onClose, onViewDetail }) {
           selectedDay={selectedDay}
           setSelectedDay={setSelectedDay}
           onViewDetail={onViewDetail}
+          diasAbrevMon={diasAbrevMon}
+          t={t}
+          language={language}
         />
       )}
 
@@ -215,7 +238,7 @@ function Calendar({ obras, onClose, onViewDetail }) {
 
 /* ─── Vista Semanal ──────────────────────────────────────── */
 
-function CalWeekView({ days, indeterminados, onViewDetail }) {
+function CalWeekView({ days, indeterminados, onViewDetail, t, language }) {
   return (
     <div className="cal-scroll">
       <div className="cal-scroll-inner">
@@ -237,7 +260,7 @@ function CalWeekView({ days, indeterminados, onViewDetail }) {
               </div>
               <div className="cal-day-hdr-count">
                 {day.lancamentos.length > 0
-                  ? `${day.lancamentos.length} obra${day.lancamentos.length > 1 ? 's' : ''}`
+                  ? `${day.lancamentos.length} ${day.lancamentos.length > 1 ? t('library_obras') : t('library_obra')}`
                   : '—'
                 }
               </div>
@@ -259,6 +282,7 @@ function CalWeekView({ days, indeterminados, onViewDetail }) {
                       obra={obra}
                       isPast={day.isPast}
                       onViewDetail={onViewDetail}
+                      t={t}
                     />
                   ))
                 : <div className="cal-day-empty" />
@@ -272,7 +296,7 @@ function CalWeekView({ days, indeterminados, onViewDetail }) {
           <div className="cal-irregular-section">
             <div className="cal-irregular-header">
               <Shuffle size={11} />
-              <span>Lançamento irregular</span>
+              <span>{t('calendar_irregular')}</span>
               <span className="cal-irregular-count">{indeterminados.length}</span>
             </div>
             <div className="cal-irregular-list">
@@ -300,7 +324,7 @@ function CalWeekView({ days, indeterminados, onViewDetail }) {
 
 /* ─── WeekMiniCard ───────────────────────────────────────── */
 
-function WeekMiniCard({ obra, isPast, onViewDetail }) {
+function WeekMiniCard({ obra, isPast, onViewDetail, t }) {
   const [imgError, setImgError] = useState(false);
 
   const coverUrl = useCover(obra);
@@ -323,12 +347,12 @@ function WeekMiniCard({ obra, isPast, onViewDetail }) {
       <div className="cal-mini-info">
         <span className="cal-mini-title">{obra.nome}</span>
         <div className="cal-mini-cap">
-          {capNum !== null ? `cap ${capNum}` : '—'}
+          {capNum !== null ? `${t('calendar_cap')} ${capNum}` : '—'}
         </div>
         {!isPast && (
           <div className="cal-mini-novo">
             <span className="cal-mini-novo-dot" />
-            <span className="cal-mini-novo-text">novo</span>
+            <span className="cal-mini-novo-text">{t('calendar_new')}</span>
           </div>
         )}
       </div>
@@ -338,7 +362,7 @@ function WeekMiniCard({ obra, isPast, onViewDetail }) {
 
 /* ─── Vista Mensal ───────────────────────────────────────── */
 
-function CalMonthView({ monthData, hoje, selectedDay, setSelectedDay, onViewDetail }) {
+function CalMonthView({ monthData, hoje, selectedDay, setSelectedDay, onViewDetail, diasAbrevMon, t, language }) {
   const { cells, year, month } = monthData;
 
   // Dia selecionado padrão = hoje (se no mês atual) ou 1
@@ -356,7 +380,7 @@ function CalMonthView({ monthData, hoje, selectedDay, setSelectedDay, onViewDeta
       {/* Grade */}
       <div className="cal-month-grid-area">
         <div className="cal-month-dow-row">
-          {DIAS_MON.map(d => (
+          {diasAbrevMon.map(d => (
             <div key={d} className="cal-month-dow">{d}</div>
           ))}
         </div>
@@ -367,6 +391,7 @@ function CalMonthView({ monthData, hoje, selectedDay, setSelectedDay, onViewDeta
               cell={cell}
               selected={cell?.day === effectiveSelected}
               onSelect={setSelectedDay}
+              t={t}
             />
           ))}
         </div>
@@ -378,6 +403,8 @@ function CalMonthView({ monthData, hoje, selectedDay, setSelectedDay, onViewDeta
         year={year}
         month={month}
         onViewDetail={onViewDetail}
+        t={t}
+        language={language}
       />
 
     </div>
@@ -386,7 +413,7 @@ function CalMonthView({ monthData, hoje, selectedDay, setSelectedDay, onViewDeta
 
 /* ─── MonthCell ──────────────────────────────────────────── */
 
-function MonthCell({ cell, selected, onSelect }) {
+function MonthCell({ cell, selected, onSelect, t }) {
   if (!cell) return <div className="cal-month-cell cal-month-cell--pad" />;
 
   const { day, isToday, lancamentos } = cell;
@@ -413,7 +440,7 @@ function MonthCell({ cell, selected, onSelect }) {
       </div>
       {lancamentos.length > 0 && (
         <div className="cal-month-cell-count">
-          {lancamentos.length} {lancamentos.length === 1 ? 'obra' : 'obras'}
+          {lancamentos.length} {lancamentos.length === 1 ? t('library_obra') : t('library_obras')}
         </div>
       )}
     </div>
@@ -443,13 +470,14 @@ function MonthThumb({ obra }) {
 
 /* ─── CalDayPanel (sidebar do mês) ──────────────────────── */
 
-function CalDayPanel({ cell, year, month, onViewDetail }) {
-  const dow = cell ? DIAS_PT[cell.date.getDay()] : null;
+function CalDayPanel({ cell, year, month, onViewDetail, t, language }) {
+  const dow = cell ? getDiaDow(cell.date, language) : null;
+  const mesLabel = getMesLabel(new Date(year, month, 1), language).split(' ')[0];
 
   return (
     <div className="cal-day-panel">
       <div className="cal-day-panel-hdr">
-        <div className="cal-day-panel-eyebrow">Dia selecionado</div>
+        <div className="cal-day-panel-eyebrow">{t('calendar_selected_day')}</div>
         {cell ? (
           <>
             <div className={`cal-day-panel-date${cell.isToday ? ' cal-day-panel-date--today' : ''}`}>
@@ -457,8 +485,8 @@ function CalDayPanel({ cell, year, month, onViewDetail }) {
             </div>
             <div className="cal-day-panel-sub">
               {cell.lancamentos.length > 0
-                ? `${cell.lancamentos.length} lançamento${cell.lancamentos.length > 1 ? 's' : ''} · ${MESES[month]} ${year}`
-                : 'Sem lançamentos'
+                ? `${cell.lancamentos.length} ${cell.lancamentos.length > 1 ? t('calendar_releases') : t('calendar_release')} · ${mesLabel} ${year}`
+                : t('calendar_no_releases')
               }
             </div>
           </>
@@ -471,10 +499,10 @@ function CalDayPanel({ cell, year, month, onViewDetail }) {
         {!cell || cell.lancamentos.length === 0 ? (
           <div className="cal-day-panel-nil">
             <CalIcon size={26} />
-            <span>Nenhuma obra</span>
+            <span>{t('calendar_no_obras')}</span>
           </div>
         ) : cell.lancamentos.map(obra => (
-          <DayPanelCard key={obra.id} obra={obra} onViewDetail={onViewDetail} />
+          <DayPanelCard key={obra.id} obra={obra} onViewDetail={onViewDetail} t={t} />
         ))}
       </div>
     </div>
@@ -483,7 +511,7 @@ function CalDayPanel({ cell, year, month, onViewDetail }) {
 
 /* ─── DayPanelCard ───────────────────────────────────────── */
 
-function DayPanelCard({ obra, onViewDetail }) {
+function DayPanelCard({ obra, onViewDetail, t }) {
   const [imgError, setImgError] = useState(false);
 
   const coverUrl = useCover(obra);
@@ -506,7 +534,7 @@ function DayPanelCard({ obra, onViewDetail }) {
       <div className="cal-panel-info">
         <div className="cal-panel-title">{obra.nome}</div>
         {capNum !== null && (
-          <div className="cal-panel-cap">cap {capNum}</div>
+          <div className="cal-panel-cap">{t('calendar_cap')} {capNum}</div>
         )}
         <div className="cal-panel-flag">
           <FlagIcon tipo={obra.tipo} size={11} />

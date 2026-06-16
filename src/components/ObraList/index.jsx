@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SlidersHorizontal } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 import ObraCard from '../ObraCard';
 import LibraryToolbar from './LibraryToolbar';
 import LibraryFilterPanel from './LibraryFilterPanel';
@@ -13,11 +14,11 @@ import './ObraList.css';
 
 const LISTING_MODE_KEY = 'yokanri_listing_mode';
 
-const SORT_LABELS = {
-  dataAdicionado: 'Atualizado',
-  nome: 'Nome',
-  nota: 'Nota',
-  capituloAtualUsuario: 'Capítulo',
+const SORT_KEY_MAP = {
+  dataAdicionado:      'library_sort_updated',
+  nome:                'library_sort_name',
+  nota:                'library_sort_rating',
+  capituloAtualUsuario:'library_sort_chapters',
 };
 
 function ObraList({
@@ -30,6 +31,7 @@ function ObraList({
   onSetNsfwMode,
   children,
 }) {
+  const { t } = useLanguage();
   const [viewMode, setViewMode] = useState(VIEW_MODES.TABLE);
   const [listingMode] = useState(
     () => localStorage.getItem(LISTING_MODE_KEY) ?? LISTING_MODES.PAGINATION
@@ -85,15 +87,17 @@ function ObraList({
 
   // Label da toolbar
   const toolbarTitle = (() => {
+    const count = filteredAndSortedObras.length;
+    const obraLabel = count !== 1 ? t('library_obras') : t('library_obra');
     if (filterStatusLeitura !== FILTER_ALL && config?.statusLeitura) {
       const s = config.statusLeitura.find(x => x.id === filterStatusLeitura);
-      if (s) return `${s.label} · ${filteredAndSortedObras.length} obra${filteredAndSortedObras.length !== 1 ? 's' : ''}`;
+      if (s) return `${s.label} · ${count} ${obraLabel}`;
     }
-    return `${filteredAndSortedObras.length} obra${filteredAndSortedObras.length !== 1 ? 's' : ''}`;
+    return `${count} ${obraLabel}`;
   })();
 
   // Label do sort atual
-  const sortLabel = SORT_LABELS[sortBy] || sortBy;
+  const sortLabel = t(SORT_KEY_MAP[sortBy] || 'library_sort_name');
   const sortArrow = sortOrder === 'asc' ? '↑' : '↓';
 
   // Cicla para o próximo sortBy
@@ -108,7 +112,7 @@ function ObraList({
     <div className="obra-list-v3f">
       {/* ── Toolbar 52px ──────────────────────────────────────── */}
       <LibraryToolbar
-        eyebrow="Biblioteca"
+        eyebrow={t('library_toolbar_eyebrow')}
         title={toolbarTitle}
         filterPanelOpen={filterPanelOpen}
       />
@@ -166,21 +170,21 @@ function ObraList({
                 <ViewBtn
                   active={viewMode === VIEW_MODES.TABLE}
                   onClick={() => setViewMode(VIEW_MODES.TABLE)}
-                  title="Linhas"
+                  title={t('library_view_rows')}
                 >
                   <RowsIcon />
                 </ViewBtn>
                 <ViewBtn
                   active={viewMode === VIEW_MODES.GRID}
                   onClick={() => setViewMode(VIEW_MODES.GRID)}
-                  title="Grade"
+                  title={t('library_view_grid')}
                 >
                   <GridIcon />
                 </ViewBtn>
                 <ViewBtn
                   active={viewMode === VIEW_MODES.COMPACT}
                   onClick={() => setViewMode(VIEW_MODES.COMPACT)}
-                  title="Compacto"
+                  title={t('library_view_compact')}
                 >
                   <ListIcon />
                 </ViewBtn>
@@ -191,7 +195,7 @@ function ObraList({
                 onClick={() => setFilterPanelOpen(v => !v)}
               >
                 <SlidersHorizontal size={13} />
-                Filtros
+                {t('library_filters')}
                 {activeFiltersCount > 0 && (
                   <span className="lib-toolbar-filters-badge">{activeFiltersCount}</span>
                 )}
@@ -200,11 +204,11 @@ function ObraList({
 
             {/* Ordenação */}
             <div className="lib-pills-sort">
-              <span className="lib-pills-sort-label">Ordenar</span>
+              <span className="lib-pills-sort-label">{t('library_sort_label')}</span>
               <button className="lib-pills-sort-btn" onClick={handleCycleSortBy}>
                 {sortLabel}
               </button>
-              <button className="lib-pills-sort-order" onClick={toggleSortOrder} title="Inverter ordem">
+              <button className="lib-pills-sort-order" onClick={toggleSortOrder} title={t('library_sort_toggle')}>
                 {sortArrow}
               </button>
             </div>
@@ -219,13 +223,13 @@ function ObraList({
                   <thead>
                     <tr>
                       <th className="compact-th compact-th-cover" />
-                      <th className="compact-th compact-th-title">Nome</th>
-                      <th className="compact-th compact-th-status">Meu Status</th>
-                      <th className="compact-th compact-th-obra-status">Status Obra</th>
-                      <th className="compact-th compact-th-tipo">Tipo</th>
-                      <th className="compact-th compact-th-progress">Capítulo</th>
-                      <th className="compact-th compact-th-rating">Nota</th>
-                      <th className="compact-th compact-th-actions">Ações</th>
+                      <th className="compact-th compact-th-title">{t('library_col_name')}</th>
+                      <th className="compact-th compact-th-status">{t('library_col_my_status')}</th>
+                      <th className="compact-th compact-th-obra-status">{t('library_col_obra_status')}</th>
+                      <th className="compact-th compact-th-tipo">{t('library_col_type')}</th>
+                      <th className="compact-th compact-th-progress">{t('library_col_chapter')}</th>
+                      <th className="compact-th compact-th-rating">{t('library_col_rating')}</th>
+                      <th className="compact-th compact-th-actions">{t('library_col_actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -264,7 +268,7 @@ function ObraList({
                     <div ref={infinite.sentinelRef} className="infinite-scroll-sentinel" aria-hidden="true" />
                   )}
                   {!infinite.hasMore && filteredAndSortedObras.length > BATCH_SIZE && (
-                    <p className="infinite-scroll-end">Todas as obras carregadas</p>
+                    <p className="infinite-scroll-end">{t('library_all_loaded')}</p>
                   )}
                 </>
               ) : (

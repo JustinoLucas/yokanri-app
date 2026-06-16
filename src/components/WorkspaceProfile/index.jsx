@@ -17,6 +17,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { useConfig } from '../../context/ConfigContext';
+import { useLanguage } from '../../i18n/LanguageContext';
 import useCover from '../ObraCard/hooks/useCover';
 import storage from '../../services/storage/storageService';
 import './WorkspaceProfile.css';
@@ -34,6 +35,7 @@ const DESTAQUES_SLOTS = 5;
  */
 function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSetBanner, onClose }) {
   const config = useConfig();
+  const { t, language } = useLanguage();
   const activityLog = config?.activityLog ?? [];
 
   const banner = config?.perfilBanner ?? null;
@@ -120,7 +122,7 @@ function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSe
     : 'YK';
 
   const memberSince = workspace?.createdAt
-    ? new Date(workspace.createdAt).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+    ? new Date(workspace.createdAt).toLocaleDateString(language, { month: 'long', year: 'numeric' })
     : '';
 
   return (
@@ -131,11 +133,11 @@ function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSe
         {onClose && (
           <button className="wsp-bar-back" onClick={onClose}>
             <ArrowLeft size={13} />
-            Biblioteca
+            {t('profile_back')}
           </button>
         )}
         <div className="wsp-bar-divider" />
-        <span className="wsp-bar-title">Perfil</span>
+        <span className="wsp-bar-title">{t('profile_title')}</span>
       </div>
 
       {/* ── Scrollable content ────────────────────────────── */}
@@ -156,13 +158,13 @@ function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSe
         <div className="wsp-banner-actions">
           <button className="wsp-banner-action-btn" onClick={handleBannerPick}>
             <ImagePlus size={13} />
-            {bannerUrl ? 'Alterar banner' : 'Adicionar banner'}
+            {bannerUrl ? t('profile_banner_change') : t('profile_banner_add')}
           </button>
           {bannerUrl && (
             <button
               className="wsp-banner-action-btn wsp-banner-action-btn--icon wsp-banner-action-btn--danger"
               onClick={handleRemoveBanner}
-              title="Remover banner"
+              title={t('profile_banner_delete')}
             >
               <Trash2 size={13} />
             </button>
@@ -178,7 +180,7 @@ function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSe
 
         {bannerUrl && (
           <div className="wsp-banner-position">
-            <span className="wsp-banner-position-label">Posição</span>
+            <span className="wsp-banner-position-label">{t('profile_banner_position')}</span>
             <input
               type="range"
               min="0"
@@ -196,9 +198,9 @@ function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSe
           <div className="wsp-identity">
             <h1 className="wsp-name">{workspace?.name}</h1>
             <p className="wsp-meta">
-              {memberSince && <span>Criado em {memberSince}</span>}
+              {memberSince && <span>{t('profile_created_at')} {memberSince}</span>}
               <span className="wsp-meta-dot" />
-              <span>{profile.total} obras na biblioteca</span>
+              <span>{profile.total} {t('profile_obras_in_lib')}</span>
             </p>
           </div>
         </div>
@@ -212,35 +214,35 @@ function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSe
           <div className="wsp-stat-icon wsp-stat-icon--blue"><Book size={18} /></div>
           <div className="wsp-stat-info">
             <span className="wsp-stat-value">{profile.total}</span>
-            <span className="wsp-stat-label">Total</span>
+            <span className="wsp-stat-label">{t('profile_stat_total')}</span>
           </div>
         </div>
         <div className="wsp-stat">
           <div className="wsp-stat-icon wsp-stat-icon--green"><BookOpen size={18} /></div>
           <div className="wsp-stat-info">
             <span className="wsp-stat-value">{profile.lendo}</span>
-            <span className="wsp-stat-label">Lendo</span>
+            <span className="wsp-stat-label">{t('profile_stat_reading')}</span>
           </div>
         </div>
         <div className="wsp-stat">
           <div className="wsp-stat-icon wsp-stat-icon--cyan"><CheckCircle size={18} /></div>
           <div className="wsp-stat-info">
             <span className="wsp-stat-value">{profile.completas}</span>
-            <span className="wsp-stat-label">Completas</span>
+            <span className="wsp-stat-label">{t('profile_stat_completed')}</span>
           </div>
         </div>
         <div className="wsp-stat">
           <div className="wsp-stat-icon wsp-stat-icon--yellow"><Star size={18} /></div>
           <div className="wsp-stat-info">
             <span className="wsp-stat-value">{profile.avgRating > 0 ? profile.avgRating.toFixed(1) : '-'}</span>
-            <span className="wsp-stat-label">Nota média</span>
+            <span className="wsp-stat-label">{t('profile_stat_avg_rating')}</span>
           </div>
         </div>
         <div className="wsp-stat">
           <div className="wsp-stat-icon wsp-stat-icon--purple"><TrendingUp size={18} /></div>
           <div className="wsp-stat-info">
             <span className="wsp-stat-value">{profile.totalChapters.toLocaleString()}</span>
-            <span className="wsp-stat-label">Capítulos lidos</span>
+            <span className="wsp-stat-label">{t('profile_stat_chapters')}</span>
           </div>
         </div>
       </div>
@@ -260,7 +262,7 @@ function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSe
         <div className="wsp-card wsp-card--wide">
           <div className="wsp-card-header">
             <Clock size={16} className="wsp-card-icon" />
-            <h3>Atividade recente</h3>
+            <h3>{t('profile_activity_title')}</h3>
           </div>
           {activityLog.length > 0 ? (
             <div className="wsp-recent">
@@ -275,7 +277,7 @@ function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSe
               ))}
             </div>
           ) : (
-            <p className="wsp-empty">Nenhuma atividade recente</p>
+            <p className="wsp-empty">{t('profile_no_activity')}</p>
           )}
         </div>
       </div>
@@ -294,6 +296,7 @@ function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSe
  * e lista ordenada pela nota do usuário (maior para menor).
  */
 function DestaquesCard({ obras, destaques, onSetDestaques, onViewDetail }) {
+  const { t } = useLanguage();
   const [activeSlot, setActiveSlot] = useState(null);
   const [search, setSearch] = useState('');
 
@@ -331,7 +334,7 @@ function DestaquesCard({ obras, destaques, onSetDestaques, onViewDetail }) {
     <div className="wsp-card wsp-card--wide">
       <div className="wsp-card-header">
         <Heart size={16} className="wsp-card-icon" />
-        <h3>Destaques</h3>
+        <h3>{t('profile_highlights')}</h3>
       </div>
 
       <div className="wsp-destaques-grid">
@@ -354,14 +357,14 @@ function DestaquesCard({ obras, destaques, onSetDestaques, onViewDetail }) {
           <div className="wsp-destaque-picker-header">
             <input
               className="wsp-destaque-search"
-              placeholder="Buscar obra pelo nome…"
+              placeholder={t('profile_search_ph')}
               value={search}
               onChange={e => setSearch(e.target.value)}
               autoFocus
             />
             {slots[activeSlot] && (
               <button className="wsp-destaque-clear" onClick={handleClear}>
-                Remover
+                {t('profile_remove')}
               </button>
             )}
           </div>
@@ -383,7 +386,7 @@ function DestaquesCard({ obras, destaques, onSetDestaques, onViewDetail }) {
                 </button>
               ))
             ) : (
-              <p className="wsp-empty">Nenhuma obra encontrada</p>
+              <p className="wsp-empty">{t('profile_obra_not_found')}</p>
             )}
           </div>
         </div>
@@ -393,6 +396,7 @@ function DestaquesCard({ obras, destaques, onSetDestaques, onViewDetail }) {
 }
 
 function DestaqueSlot({ obra, active, onView, onEdit }) {
+  const { t } = useLanguage();
   const coverUrl = useCover(obra ?? EMPTY_OBRA);
   const [imgError, setImgError] = useState(false);
 
@@ -401,7 +405,7 @@ function DestaqueSlot({ obra, active, onView, onEdit }) {
       <button
         className="wsp-destaque-cover-btn"
         onClick={obra ? onView : onEdit}
-        title={obra ? obra.nome : 'Escolher obra'}
+        title={obra ? obra.nome : t('profile_choose_obra')}
       >
         {obra && coverUrl && !imgError ? (
           <img
@@ -425,7 +429,7 @@ function DestaqueSlot({ obra, active, onView, onEdit }) {
       <button
         className="wsp-destaque-edit-btn"
         onClick={(e) => { e.stopPropagation(); onEdit(); }}
-        title={obra ? 'Trocar destaque' : 'Escolher obra'}
+        title={obra ? t('profile_change_highlight') : t('profile_choose_obra')}
       >
         <Pencil size={11} />
       </button>
@@ -436,11 +440,11 @@ function DestaqueSlot({ obra, active, onView, onEdit }) {
 // ─── ATIVIDADE RECENTE ──────────────────────────────────────
 
 const ACTIVITY_META = {
-  chapter_read:    { icon: BookOpen,   label: 'Leu um novo capítulo',     cls: 'wsp-recent-icon--blue' },
-  chapter_changed: { icon: Hash,       label: 'Alterou o capítulo atual', cls: 'wsp-recent-icon--purple' },
-  added:           { icon: PlusCircle, label: 'Adicionado à biblioteca',  cls: 'wsp-recent-icon--green' },
-  removed:         { icon: Trash2,     label: 'Removido da biblioteca',   cls: 'wsp-recent-icon--red' },
-  status_changed:  { icon: RefreshCw,  label: 'Status alterado',          cls: 'wsp-recent-icon--yellow' },
+  chapter_read:    { icon: BookOpen,   labelKey: 'profile_activity_chapter_read',    cls: 'wsp-recent-icon--blue' },
+  chapter_changed: { icon: Hash,       labelKey: 'profile_activity_chapter_changed', cls: 'wsp-recent-icon--purple' },
+  added:           { icon: PlusCircle, labelKey: 'profile_activity_added',           cls: 'wsp-recent-icon--green' },
+  removed:         { icon: Trash2,     labelKey: 'profile_activity_removed',         cls: 'wsp-recent-icon--red' },
+  status_changed:  { icon: RefreshCw,  labelKey: 'profile_activity_status',          cls: 'wsp-recent-icon--yellow' },
 };
 
 /**
@@ -448,6 +452,7 @@ const ACTIVITY_META = {
  * atual dela (quando ainda existe) e há quanto tempo ocorreu.
  */
 function ActivityItem({ entry, obras, config, onViewDetail }) {
+  const { t, language } = useLanguage();
   const meta = ACTIVITY_META[entry.type] ?? ACTIVITY_META.chapter_read;
   const Icon = meta.icon;
   const obra = obras.find(o => o.id === entry.obraId) ?? null;
@@ -458,7 +463,8 @@ function ActivityItem({ entry, obras, config, onViewDetail }) {
     ? config?.statusLeitura?.find(s => s.id === entry.statusUsuario)
     : null;
 
-  const detailText = entry.detail ? `${meta.label} · ${entry.detail}` : meta.label;
+  const label = t(meta.labelKey);
+  const detailText = entry.detail ? `${label} · ${entry.detail}` : label;
 
   const Tag = obra ? 'button' : 'div';
 
@@ -495,14 +501,14 @@ function ActivityItem({ entry, obras, config, onViewDetail }) {
         </span>
         <span className="wsp-recent-detail">{detailText}</span>
       </div>
-      <span className="wsp-recent-time">{formatTimeAgo(entry.timestamp)}</span>
+      <span className="wsp-recent-time">{formatTimeAgo(entry.timestamp, language)}</span>
     </Tag>
   );
 }
 
 // ─── HELPERS ──────────────────────────────────────────────
 
-function formatTimeAgo(dateStr) {
+function formatTimeAgo(dateStr, locale = 'pt-BR') {
   if (!dateStr) return '';
   const now = new Date();
   const date = new Date(dateStr);
@@ -511,12 +517,16 @@ function formatTimeAgo(dateStr) {
   const diffHrs = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMin < 1) return 'agora';
-  if (diffMin < 60) return `${diffMin}min`;
-  if (diffHrs < 24) return `${diffHrs}h`;
-  if (diffDays < 7) return `${diffDays}d`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)}sem`;
-  return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+  try {
+    const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto', style: 'short' });
+    if (diffMin < 1) return rtf.format(0, 'minute');
+    if (diffMin < 60) return rtf.format(-diffMin, 'minute');
+    if (diffHrs < 24) return rtf.format(-diffHrs, 'hour');
+    if (diffDays < 30) return rtf.format(-diffDays, 'day');
+    return date.toLocaleDateString(locale, { day: '2-digit', month: 'short' });
+  } catch {
+    return date.toLocaleDateString(locale, { day: '2-digit', month: 'short' });
+  }
 }
 
 export default WorkspaceProfile;

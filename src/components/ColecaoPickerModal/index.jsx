@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { X, Search } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 import './ColecaoPickerModal.css';
 
 /**
@@ -12,6 +13,7 @@ import './ColecaoPickerModal.css';
  *   onConfirm   — (novosIds: string[]) => void
  */
 function ColecaoPickerModal({ obras, selectedIds, onClose, onConfirm }) {
+  const { t } = useLanguage();
   const [search, setSearch] = useState('');
   const [picked, setPicked] = useState(new Set());
 
@@ -42,8 +44,8 @@ function ColecaoPickerModal({ obras, selectedIds, onClose, onConfirm }) {
     <div className="colvpm-overlay" onClick={onClose}>
       <div className="colvpm-modal" onClick={e => e.stopPropagation()}>
         <div className="colvpm-header">
-          <h2>Adicionar obras à coleção</h2>
-          <button className="colvpm-close" onClick={onClose} title="Fechar">
+          <h2>{t('colpicker_title')}</h2>
+          <button className="colvpm-close" onClick={onClose} title={t('close')}>
             <X size={16} />
           </button>
         </div>
@@ -51,7 +53,7 @@ function ColecaoPickerModal({ obras, selectedIds, onClose, onConfirm }) {
         <div className="colvpm-search">
           <Search size={14} className="colvpm-search-icon" />
           <input
-            placeholder="Buscar obra pelo nome…"
+            placeholder={t('colpicker_search_ph')}
             value={search}
             onChange={e => setSearch(e.target.value)}
             autoFocus
@@ -75,25 +77,25 @@ function ColecaoPickerModal({ obras, selectedIds, onClose, onConfirm }) {
                     onChange={() => togglePick(obra.id)}
                   />
                   <span className="colvpm-item-name">{obra.nome}</span>
-                  {alreadyIn && <span className="colvpm-item-tag">Já adicionada</span>}
+                  {alreadyIn && <span className="colvpm-item-tag">{t('colpicker_already_added')}</span>}
                 </label>
               );
             })
           ) : (
-            <p className="colvpm-empty">Nenhuma obra encontrada</p>
+            <p className="colvpm-empty">{t('colpicker_empty')}</p>
           )}
         </div>
 
         <div className="colvpm-footer">
           <button className="colvpm-btn colvpm-btn--ghost" onClick={onClose}>
-            Cancelar
+            {t('cancel')}
           </button>
           <button
             className="colvpm-btn colvpm-btn--primary"
             onClick={handleConfirm}
             disabled={picked.size === 0}
           >
-            Adicionar{picked.size > 0 ? ` (${picked.size})` : ''}
+            {t('collection_add_obras')}{picked.size > 0 ? ` (${picked.size})` : ''}
           </button>
         </div>
       </div>

@@ -1,7 +1,9 @@
 import { useRef, useState, useEffect } from 'react';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 function ReleasesTabs({ activeTab, onTabChange, dias, lancamentosIndeterminados }) {
+  const { t } = useLanguage();
   const scrollRef = useRef(null);
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(false);
@@ -34,8 +36,8 @@ function ReleasesTabs({ activeTab, onTabChange, dias, lancamentosIndeterminados 
       <div className="releases-tabs" ref={scrollRef} onScroll={checkArrows}>
         {dias.map((dia) => {
           const label =
-            dia.offset === 0 ? `Hoje (${dia.nomeCompleto})` :
-            dia.offset === 1 ? `Amanhã (${dia.nomeCompleto})` :
+            dia.offset === 0 ? `${t('releases_today')} (${dia.nomeCompleto})` :
+            dia.offset === 1 ? `${t('releases_tomorrow')} (${dia.nomeCompleto})` :
             dia.nomeCompleto;
 
           return (
@@ -56,7 +58,7 @@ function ReleasesTabs({ activeTab, onTabChange, dias, lancamentosIndeterminados 
           onClick={() => onTabChange('indeterminado')}
         >
           <Calendar size={16} />
-          Não Determinado
+          {t('releases_undetermined')}
           <span className="tab-count">{lancamentosIndeterminados.length}</span>
         </button>
       </div>
