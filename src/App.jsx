@@ -11,6 +11,7 @@ import Configuracoes from './components/Configuracoes';
 import WorkspaceProfile from './components/WorkspaceProfile';
 import ColecaoView from './components/ColecaoView';
 import UpdateNotification from './components/UpdateNotification';
+import TranslationEditor from './components/TranslationEditor/index.jsx';
 import storage from './services/storage/storageService';
 import * as onboardingService from './onboarding/services/onboardingService';
 import OnboardingApp from './onboarding/OnboardingApp';
@@ -31,6 +32,7 @@ function App() {
   const [selectedObra, setSelectedObra] = useState(null);
   const [loading, setLoading] = useState(false);
   const [initialLanguage, setInitialLanguage] = useState('pt-BR');
+  const [i18nEditorOpen, setI18nEditorOpen] = useState(false);
 
   // ⚠️ REMOVER NA v4.0 - Hook de migração centralizada (apenas para dados antigos)
   const { migrateObraData } = useMigration();
@@ -458,6 +460,27 @@ function App() {
           </>
         )}
       </AppShell>
+
+      {/* Botão dev-only para abrir o editor de traduções */}
+      {import.meta.env.DEV && (
+        <button
+          onClick={() => setI18nEditorOpen(true)}
+          style={{
+            position: 'fixed', bottom: 16, right: 16, zIndex: 9998,
+            padding: '7px 13px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+            background: '#7c3aed', color: '#fff', border: 'none', cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.4)', opacity: 0.85,
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}
+          title="Abrir editor de traduções (dev only)"
+        >
+          🌐 i18n
+        </button>
+      )}
+
+      {import.meta.env.DEV && i18nEditorOpen && (
+        <TranslationEditor onClose={() => setI18nEditorOpen(false)} />
+      )}
     </ConfigProvider>
     </LanguageProvider>
   );
