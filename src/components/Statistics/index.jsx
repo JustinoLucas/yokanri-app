@@ -218,9 +218,9 @@ function Statistics({ obras, onClose }) {
             {Object.entries(stats.byType).map(([tipo, count]) => {
               const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
               const typeColor = {
-                'Coreano': 'var(--status-andamento)',
-                'Chinês':  '#f97316',
-                'Japonês': 'var(--accent-fg)',
+                'Coreano': '#003478',
+                'Chinês':  '#DE2910',
+                'Japonês': '#FFFFFF',
               }[tipo] ?? 'var(--accent-fg)';
 
               return (
