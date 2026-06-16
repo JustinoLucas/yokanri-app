@@ -285,6 +285,7 @@ function Statistics({ obras, onClose }) {
           <div className="status-chart">
             {stats.statusLeituraList
               .filter(s => !s.hidden)
+              .sort((a, b) => (stats.byStatus[b.id] ?? 0) - (stats.byStatus[a.id] ?? 0))
               .map(s => {
                 const count = stats.byStatus[s.id] ?? 0;
                 if (count === 0) return null;
@@ -296,7 +297,7 @@ function Statistics({ obras, onClose }) {
                       <span className="status-bar-count">{count} ({percentage.toFixed(1)}%)</span>
                     </div>
                     <div className="status-bar-track">
-                      <div className="status-bar-fill" style={{ width: `${percentage}%`, backgroundColor: s.color || 'var(--text-tertiary)' }} />
+                      <div className="status-bar-fill" style={{ width: `${percentage}%`, backgroundColor: s.color || 'var(--accent-fg)' }} />
                     </div>
                   </div>
                 );
