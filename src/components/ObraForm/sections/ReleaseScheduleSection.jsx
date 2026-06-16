@@ -2,15 +2,17 @@ import { ChevronDown } from 'lucide-react';
 import { TIPO_LANCAMENTO, DIAS_SEMANA } from '../../../types/obra';
 import DaySelector from '../components/DaySelector';
 import { formatDateForInput, dateInputToISO } from '../utils/dataProcessing';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 function ReleaseScheduleSection({ formData, onChange, onNumberChange, onNumberBlur, onDayToggle, statusObraList, tipoLancamentoList }) {
+  const { t } = useLanguage();
   const currentStatusItem = statusObraList?.find(s => s.id === formData.status);
   if (currentStatusItem?.hideSchedule) return null;
 
-  const labelSemanal = tipoLancamentoList?.find(t => t.id === 'semanal')?.label ?? TIPO_LANCAMENTO.SEMANAL;
-  const labelQuinzenal = tipoLancamentoList?.find(t => t.id === 'quinzenal')?.label ?? TIPO_LANCAMENTO.QUINZENAL;
-  const labelMensal = tipoLancamentoList?.find(t => t.id === 'mensal')?.label ?? TIPO_LANCAMENTO.MENSAL;
-  const labelIrregular = tipoLancamentoList?.find(t => t.id === 'irregular')?.label ?? TIPO_LANCAMENTO.IRREGULAR;
+  const labelSemanal   = tipoLancamentoList?.find(t => t.id === 'semanal')?.label    ?? TIPO_LANCAMENTO.SEMANAL;
+  const labelQuinzenal = tipoLancamentoList?.find(t => t.id === 'quinzenal')?.label  ?? TIPO_LANCAMENTO.QUINZENAL;
+  const labelMensal    = tipoLancamentoList?.find(t => t.id === 'mensal')?.label     ?? TIPO_LANCAMENTO.MENSAL;
+  const labelIrregular = tipoLancamentoList?.find(t => t.id === 'irregular')?.label  ?? TIPO_LANCAMENTO.IRREGULAR;
 
   const tipoOptions = tipoLancamentoList?.map(t => t.label) ?? Object.values(TIPO_LANCAMENTO);
 
@@ -20,10 +22,10 @@ function ReleaseScheduleSection({ formData, onChange, onNumberChange, onNumberBl
 
   return (
     <section className="form-section">
-      <h3>Padrão de Lançamento</h3>
+      <h3>{t('form_section_release')}</h3>
 
       <div className="form-group">
-        <label>Tipo de Lançamento</label>
+        <label>{t('form_release_type')}</label>
         <div className="custom-select-wrapper">
           <select
             className="custom-select"
@@ -38,10 +40,9 @@ function ReleaseScheduleSection({ formData, onChange, onNumberChange, onNumberBl
         </div>
       </div>
 
-      {/* Weekly release */}
       {formData.tipoLancamento === labelSemanal && (
         <div className="form-group full-width">
-          <label>Dias da Semana</label>
+          <label>{t('form_days_week')}</label>
           <DaySelector
             selectedDays={formData.diasLancamento || []}
             onToggle={onDayToggle}
@@ -50,12 +51,11 @@ function ReleaseScheduleSection({ formData, onChange, onNumberChange, onNumberBl
         </div>
       )}
 
-      {/* Biweekly release */}
       {formData.tipoLancamento === labelQuinzenal && (
         <>
           <div className="form-row">
             <div className="form-group">
-              <label>A cada quantas semanas?</label>
+              <label>{t('form_biweekly_interval')}</label>
               <input
                 type="number"
                 min="2"
@@ -66,19 +66,19 @@ function ReleaseScheduleSection({ formData, onChange, onNumberChange, onNumberBl
               />
             </div>
             <div className="form-group">
-              <label>Data de referência (último lançamento)</label>
+              <label>{t('form_biweekly_ref')}</label>
               <input
                 type="date"
                 value={formatDateForInput(formData.dataReferenciaQuinzenal)}
                 onChange={(e) => onChange('dataReferenciaQuinzenal', dateInputToISO(e.target.value))}
               />
               <small style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                Informe uma data que teve lançamento para calcular o ciclo
+                {t('form_biweekly_hint')}
               </small>
             </div>
           </div>
           <div className="form-group full-width">
-            <label>Dias da Semana</label>
+            <label>{t('form_days_week')}</label>
             <DaySelector
               selectedDays={formData.diasLancamento || []}
               onToggle={onDayToggle}
@@ -88,10 +88,9 @@ function ReleaseScheduleSection({ formData, onChange, onNumberChange, onNumberBl
         </>
       )}
 
-      {/* Monthly release */}
       {formData.tipoLancamento === labelMensal && (
         <div className="form-group">
-          <label>Dia do mês (1-31)</label>
+          <label>{t('form_monthly_day')}</label>
           <input
             type="number"
             min="1"
@@ -103,15 +102,14 @@ function ReleaseScheduleSection({ formData, onChange, onNumberChange, onNumberBl
         </div>
       )}
 
-      {/* Irregular release */}
       {formData.tipoLancamento === labelIrregular && (
         <div className="form-group">
-          <label>Detalhes do lançamento (opcional)</label>
+          <label>{t('form_irregular_details')}</label>
           <input
             type="text"
             value={formData.detalhesLancamento}
             onChange={(e) => onChange('detalhesLancamento', e.target.value)}
-            placeholder="Ex: Lança quando o autor lembrar que existe"
+            placeholder={t('form_irregular_ph')}
           />
         </div>
       )}

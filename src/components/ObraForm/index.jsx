@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, Save } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 import { useObraForm } from './hooks/useObraForm';
 import BasicInfoSection from './sections/BasicInfoSection';
 import StatusSection from './sections/StatusSection';
@@ -35,6 +36,7 @@ import './ObraForm.css';
  * - File upload with preview
  */
 function ObraForm({ obra, config, onSave, onCancel }) {
+  const { t } = useLanguage();
   const {
     formData,
     errors,
@@ -102,15 +104,15 @@ function ObraForm({ obra, config, onSave, onCancel }) {
       <div className="form-bar">
         <button type="button" className="form-bar-back" onClick={onCancel}>
           <ArrowLeft size={13} />
-          Biblioteca
+          {t('form_back')}
         </button>
         <div className="form-bar-divider" />
         <span className="form-bar-title">
-          {obra ? 'Editar obra' : 'Nova obra'}
+          {obra ? t('form_edit_title') : t('form_new_title')}
         </span>
         <div className="form-bar-spacer" />
         <button type="button" className="form-bar-cancel" onClick={onCancel}>
-          Cancelar
+          {t('cancel')}
         </button>
         <button
           type="button"
@@ -118,7 +120,7 @@ function ObraForm({ obra, config, onSave, onCancel }) {
           onClick={handleSubmit}
         >
           <Save size={12} />
-          {obra ? 'Salvar' : 'Adicionar'}
+          {obra ? t('form_save') : t('form_add')}
         </button>
       </div>
 
@@ -129,7 +131,7 @@ function ObraForm({ obra, config, onSave, onCancel }) {
           {/* Validation errors */}
           {errors.length > 0 && (
             <div className="form-errors">
-              <strong>Corrija os erros antes de salvar:</strong>
+              <strong>{t('form_errors_title')}</strong>
               <ul>
                 {errors.map((error, index) => (
                   <li key={index}>{error}</li>

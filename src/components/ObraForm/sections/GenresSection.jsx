@@ -1,8 +1,9 @@
 import { GENEROS } from '../../../types/obra';
 import GenreCheckbox from '../components/GenreCheckbox';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
 function GenresSection({ formData, onGenreToggle, generosList }) {
-  // Ordena em pt-BR (defensivo — garante ordem mesmo em dados legados)
+  const { t } = useLanguage();
   const generos = (generosList ?? GENEROS.map(label => ({ label })))
     .slice()
     .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR', { sensitivity: 'base' }))
@@ -10,7 +11,7 @@ function GenresSection({ formData, onGenreToggle, generosList }) {
 
   return (
     <section className="form-section">
-      <h3>Gêneros</h3>
+      <h3>{t('form_section_genres')}</h3>
       <div className="generos-grid">
         {generos.map(genero => (
           <GenreCheckbox

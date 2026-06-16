@@ -1,71 +1,70 @@
 import { ChevronDown, Search } from 'lucide-react';
 import { TIPO_OBRA } from '../../../types/obra';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
-/**
- * Basic information section of the form
- * Includes: name, alternative name, author, studio, type, and year
- */
 function BasicInfoSection({ formData, onChange, onSearchClick }) {
+  const { t } = useLanguage();
+
   return (
     <section className="form-section">
       <div className="form-section-header">
-        <h3>Informações Básicas</h3>
+        <h3>{t('form_section_basic')}</h3>
         <button
           type="button"
           className="search-btn"
           onClick={onSearchClick}
         >
           <Search size={13} />
-          Buscar online
+          {t('form_search_online')}
         </button>
       </div>
 
       <div className="form-group">
-        <label>Nome *</label>
+        <label>{t('form_nome_label')}</label>
         <input
           type="text"
           value={formData.nome}
           onChange={(e) => onChange('nome', e.target.value)}
-          placeholder="Nome da obra"
+          placeholder={t('form_nome_placeholder')}
           required
         />
       </div>
 
       <div className="form-group">
-        <label>Nome Alternativo</label>
+        <label>{t('form_nome_alt_label')}</label>
         <input
           type="text"
           value={formData.nomeAlternativo}
           onChange={(e) => onChange('nomeAlternativo', e.target.value)}
-          placeholder="Nome em coreano/chinês/japonês/inglês/outros..."
+          placeholder={t('form_nome_alt_ph')}
         />
       </div>
 
       <div className="form-row">
         <div className="form-group">
-          <label>Autor(a)</label>
+          <label>{t('form_author_label')}</label>
           <input
             type="text"
             value={formData.autor}
             onChange={(e) => onChange('autor', e.target.value)}
-            placeholder="Nome do(a) autor(a)"
+            placeholder={t('form_author_ph')}
           />
         </div>
 
         <div className="form-group">
-          <label>Estúdio/Artista</label>
+          <label>{t('form_studio_label')}</label>
           <input
             type="text"
             value={formData.studio}
             onChange={(e) => onChange('studio', e.target.value)}
-            placeholder="Estúdio ou Artista"
+            placeholder={t('form_studio_ph')}
           />
         </div>
       </div>
 
       <div className="form-row">
         <div className="form-group">
-          <label>Tipo</label>
+          <label>{t('form_type_label')}</label>
           <div className="custom-select-wrapper">
             <select
               className="custom-select"
@@ -83,12 +82,12 @@ function BasicInfoSection({ formData, onChange, onSearchClick }) {
         </div>
 
         <div className="form-group">
-          <label>Ano de Lançamento</label>
+          <label>{t('form_year_label')}</label>
           <input
             type="number"
             value={formData.anoLancamento || ''}
             onChange={(e) => onChange('anoLancamento', e.target.value ? parseInt(e.target.value) : null)}
-            placeholder="Ano do 1º capítulo"
+            placeholder={t('form_year_ph')}
             min="1900"
             max={new Date().getFullYear() + 1}
           />

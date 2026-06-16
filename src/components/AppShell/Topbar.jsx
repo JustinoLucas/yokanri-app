@@ -1,6 +1,7 @@
 import { Search, Plus, Settings, BarChart3, X } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import useCover from '../ObraCard/hooks/useCover';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 const TIPO_COLORS = {
   'Coreano': '#1e40af',
@@ -20,6 +21,7 @@ const TIPO_COLORS = {
  *   onNavigate       — (obra) => void — navega para o detalhe da obra
  */
 function Topbar({ onNewObra, onShowStats, onShowConfig, workspaceMenu, obras = [], onNavigate }) {
+  const { t } = useLanguage();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
@@ -102,7 +104,7 @@ function Topbar({ onNewObra, onShowStats, onShowConfig, workspaceMenu, obras = [
             ref={inputRef}
             type="text"
             className="topbar-search-input"
-            placeholder="Buscar obras..."
+            placeholder={t('topbar_search_placeholder')}
             value={query}
             onChange={handleChange}
             onFocus={() => query && setOpen(true)}
@@ -144,7 +146,7 @@ function Topbar({ onNewObra, onShowStats, onShowConfig, workspaceMenu, obras = [
         {/* Sem resultados */}
         {open && query.trim() && results.length === 0 && (
           <div className="topbar-search-dropdown">
-            <div className="topbar-search-empty">Nenhuma obra encontrada</div>
+            <div className="topbar-search-empty">{t('topbar_search_empty')}</div>
           </div>
         )}
       </div>
@@ -152,15 +154,15 @@ function Topbar({ onNewObra, onShowStats, onShowConfig, workspaceMenu, obras = [
       {/* Add button */}
       <button className="topbar-add-btn" onClick={onNewObra}>
         <Plus size={13} />
-        <span>Adicionar</span>
+        <span>{t('topbar_new_obra')}</span>
       </button>
 
       {/* Icon buttons */}
       <div className="topbar-icons">
-        <button className="topbar-icon-btn" onClick={onShowStats} title="Estatísticas">
+        <button className="topbar-icon-btn" onClick={onShowStats} title={t('topbar_stats')}>
           <BarChart3 size={15} />
         </button>
-        <button className="topbar-icon-btn" onClick={onShowConfig} title="Configurações">
+        <button className="topbar-icon-btn" onClick={onShowConfig} title={t('topbar_settings')}>
           <Settings size={15} />
         </button>
       </div>

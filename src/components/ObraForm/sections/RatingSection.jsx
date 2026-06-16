@@ -1,17 +1,16 @@
 import { Square, CheckSquare } from 'lucide-react';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
-/**
- * Rating section
- * Includes: general rating, user rating, and favorite checkbox
- */
 function RatingSection({ formData, onChange, onNumberChange, onNumberBlur }) {
+  const { t } = useLanguage();
+
   return (
     <section className="form-section">
-      <h3>Avaliação</h3>
+      <h3>{t('form_section_rating')}</h3>
 
       <div className="form-row">
         <div className="form-group">
-          <label>Nota Geral (0-5)</label>
+          <label>{t('form_rating_general')}</label>
           <input
             type="number"
             min="0"
@@ -24,7 +23,7 @@ function RatingSection({ formData, onChange, onNumberChange, onNumberBlur }) {
         </div>
 
         <div className="form-group">
-          <label>Minha Nota (0-5)</label>
+          <label>{t('form_rating_user')}</label>
           <input
             type="number"
             min="0"
@@ -49,7 +48,7 @@ function RatingSection({ formData, onChange, onNumberChange, onNumberBlur }) {
             ) : (
               <Square size={18} className="checkbox-icon-unchecked" />
             )}
-            Marcar como Favorito
+            {t('form_favorite')}
           </label>
         </div>
       </div>

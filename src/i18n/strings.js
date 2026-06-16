@@ -42,9 +42,11 @@ const strings = {
     sidebar_new_collection:    'Nova coleção',
 
     // ── Topbar ─────────────────────────────────────────────
-    topbar_search_placeholder: 'Buscar na biblioteca...',
-    topbar_new_obra:           'Nova obra',
+    topbar_search_placeholder: 'Buscar obras...',
+    topbar_search_empty:       'Nenhuma obra encontrada',
+    topbar_new_obra:           'Adicionar',
     topbar_settings:           'Configurações',
+    topbar_stats:              'Estatísticas',
 
     // ── ObraList / Biblioteca ──────────────────────────────
     library_empty_title:    'Biblioteca vazia',
@@ -110,13 +112,41 @@ const strings = {
     form_cover_set_main:    'Definir como principal',
 
     // Seção 08
-    form_section_notes:     'Anotações',
-    form_notes_ph:          'Suas notas pessoais sobre a obra...',
+    form_section_notes:     'Anotações Pessoais',
+    form_notes_ph:          'Suas anotações, comentários, etc...',
+    form_errors_title:      'Corrija os erros antes de salvar:',
+
+    form_author_label:      'Autor(a)',
+    form_author_ph:         'Nome do(a) autor(a)',
+
+    form_rating_general:    'Nota Geral (0-5)',
+    form_rating_user:       'Minha Nota (0-5)',
+    form_favorite:          'Marcar como Favorito',
+
+    form_days_week:         'Dias da Semana',
+    form_biweekly_interval: 'A cada quantas semanas?',
+    form_biweekly_ref:      'Data de referência (último lançamento)',
+    form_biweekly_hint:     'Informe uma data que teve lançamento para calcular o ciclo',
+    form_monthly_day:       'Dia do mês (1-31)',
+    form_irregular_details: 'Detalhes do lançamento (opcional)',
+    form_irregular_ph:      'Ex: Lança quando o autor lembrar que existe',
+
+    form_date_start:        'Data de Início de Leitura',
+    form_date_end:          'Data de Conclusão',
+    form_date_optional:     '(opcional - edite se necessário)',
+    form_chapter_max:       'Máximo: {max}',
 
     // ── ObraDetail ─────────────────────────────────────────
+    detail_back:            'Biblioteca',
     detail_edit:            'Editar',
     detail_delete:          'Excluir',
     detail_close:           'Fechar',
+    detail_studio:          'Estúdio',
+    detail_covers:          'Capas',
+    detail_notes:           'Anotações',
+    detail_added:           'Adicionado em',
+    detail_updated:         'Atualizado em',
+    detail_rating_general:  'Geral:',
     detail_confirm_delete_title: 'Excluir obra',
     detail_confirm_delete_text:  'Tem certeza que deseja excluir "{name}"? Essa ação não pode ser desfeita.',
     detail_confirm_delete_confirm: 'Excluir',
@@ -171,15 +201,21 @@ const strings = {
     // ── Estatísticas ───────────────────────────────────────
     stats_title:            'Estatísticas',
     stats_back:             'Biblioteca',
-    stats_total:            'Total',
+    stats_total_obras:      'Total de Obras',
     stats_reading:          'Lendo',
     stats_completed:        'Completos',
     stats_avg_progress:     'Progresso Médio',
     stats_chapters_read:    'Capítulos Lidos',
+    stats_completion_rate:  'Taxa de Conclusão',
+    stats_avg_rating:       'Nota Média',
     stats_type_dist:        'Distribuição por Tipo',
     stats_pub_status:       'Status de Publicação',
     stats_user_status:      'Meu Status de Leitura',
     stats_top5:             'Top 5 Mais Capítulos Lidos',
+    stats_top_chapters:     'capítulos',
+    stats_genres:           'Top Gêneros',
+    stats_rating_dist:      'Distribuição de Notas',
+    stats_no_rating:        'Sem nota',
     stats_empty:            'Nenhuma obra na biblioteca ainda.',
 
     // ── Calendário ─────────────────────────────────────────
@@ -241,9 +277,11 @@ const strings = {
     sidebar_new_collection:    'New collection',
 
     // ── Topbar ─────────────────────────────────────────────
-    topbar_search_placeholder: 'Search library...',
-    topbar_new_obra:           'New title',
+    topbar_search_placeholder: 'Search titles...',
+    topbar_search_empty:       'No titles found',
+    topbar_new_obra:           'Add',
     topbar_settings:           'Settings',
+    topbar_stats:              'Statistics',
 
     // ── Library ────────────────────────────────────────────
     library_empty_title:    'Empty library',
@@ -301,13 +339,41 @@ const strings = {
     form_cover_add:         'Add cover',
     form_cover_set_main:    'Set as main',
 
-    form_section_notes:     'Notes',
-    form_notes_ph:          'Your personal notes about this title...',
+    form_section_notes:     'Personal Notes',
+    form_notes_ph:          'Your notes, comments, etc...',
+    form_errors_title:      'Fix the errors before saving:',
+
+    form_author_label:      'Author',
+    form_author_ph:         'Author name',
+
+    form_rating_general:    'Overall Rating (0-5)',
+    form_rating_user:       'My Rating (0-5)',
+    form_favorite:          'Mark as Favorite',
+
+    form_days_week:         'Days of the Week',
+    form_biweekly_interval: 'Every how many weeks?',
+    form_biweekly_ref:      'Reference date (last release)',
+    form_biweekly_hint:     'Provide a date with a release to calculate the cycle',
+    form_monthly_day:       'Day of the month (1-31)',
+    form_irregular_details: 'Release details (optional)',
+    form_irregular_ph:      'e.g. Releases whenever the author remembers',
+
+    form_date_start:        'Reading Start Date',
+    form_date_end:          'Completion Date',
+    form_date_optional:     '(optional - edit if needed)',
+    form_chapter_max:       'Maximum: {max}',
 
     // ── ObraDetail ─────────────────────────────────────────
+    detail_back:            'Library',
     detail_edit:            'Edit',
     detail_delete:          'Delete',
     detail_close:           'Close',
+    detail_studio:          'Studio',
+    detail_covers:          'Covers',
+    detail_notes:           'Notes',
+    detail_added:           'Added on',
+    detail_updated:         'Updated on',
+    detail_rating_general:  'General:',
     detail_confirm_delete_title:   'Delete title',
     detail_confirm_delete_text:    'Are you sure you want to delete "{name}"? This action cannot be undone.',
     detail_confirm_delete_confirm: 'Delete',
@@ -362,15 +428,21 @@ const strings = {
     // ── Statistics ─────────────────────────────────────────
     stats_title:            'Statistics',
     stats_back:             'Library',
-    stats_total:            'Total',
+    stats_total_obras:      'Total Titles',
     stats_reading:          'Reading',
     stats_completed:        'Completed',
     stats_avg_progress:     'Avg. Progress',
     stats_chapters_read:    'Chapters Read',
+    stats_completion_rate:  'Completion Rate',
+    stats_avg_rating:       'Avg. Rating',
     stats_type_dist:        'Distribution by Type',
     stats_pub_status:       'Publication Status',
     stats_user_status:      'My Reading Status',
     stats_top5:             'Top 5 Most Chapters Read',
+    stats_top_chapters:     'chapters',
+    stats_genres:           'Top Genres',
+    stats_rating_dist:      'Rating Distribution',
+    stats_no_rating:        'No rating',
     stats_empty:            'No titles in the library yet.',
 
     // ── Calendar ───────────────────────────────────────────
