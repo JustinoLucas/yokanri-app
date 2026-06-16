@@ -94,14 +94,13 @@ export async function searchManga(searchTerm) {
  */
 function mapStatus(anilistStatus) {
   const statusMap = {
-    'FINISHED': 'Completo',
-    'RELEASING': 'Em andamento',
-    'NOT_YET_RELEASED': 'Em andamento',
-    'CANCELLED': 'Cancelado',
-    'HIATUS': 'Hiato'
+    'FINISHED': 'completo',
+    'RELEASING': 'em-andamento',
+    'NOT_YET_RELEASED': 'em-andamento',
+    'CANCELLED': 'cancelado',
+    'HIATUS': 'hiato',
   };
-
-  return statusMap[anilistStatus] || 'Em andamento';
+  return statusMap[anilistStatus] || 'em-andamento';
 }
 
 /**

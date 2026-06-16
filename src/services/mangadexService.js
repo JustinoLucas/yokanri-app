@@ -264,12 +264,12 @@ function extractAltTitle(titleObj, mainTitle) {
  */
 function mapStatus(mangadexStatus) {
   const statusMap = {
-    'completed': 'Completo',
-    'ongoing': 'Em andamento',
-    'cancelled': 'Cancelado',
-    'hiatus': 'Hiato',
+    'completed': 'completo',
+    'ongoing':   'em-andamento',
+    'cancelled': 'cancelado',
+    'hiatus':    'hiato',
   };
-  return statusMap[mangadexStatus] || 'Desconhecido';
+  return statusMap[mangadexStatus] || 'em-andamento';
 }
 
 /**
