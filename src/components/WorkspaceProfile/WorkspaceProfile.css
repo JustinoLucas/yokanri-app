@@ -118,6 +118,7 @@
   display: flex;
   gap: 6px;
   opacity: 0;
+  z-index: 2;
   transition: opacity var(--duration-instant) var(--ease-out);
 }
 
@@ -176,6 +177,7 @@
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(4px);
   opacity: 0;
+  z-index: 2;
   transition: opacity var(--duration-instant) var(--ease-out);
 }
 

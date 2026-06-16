@@ -37,18 +37,18 @@ function BasicInfoSection({ formData, onChange, onSearchClick }) {
           type="text"
           value={formData.nomeAlternativo}
           onChange={(e) => onChange('nomeAlternativo', e.target.value)}
-          placeholder="Nome em coreano/chinês/japonês"
+          placeholder="Nome em coreano/chinês/japonês/inglês/outros..."
         />
       </div>
 
       <div className="form-row">
         <div className="form-group">
-          <label>Autor</label>
+          <label>Autor(a)</label>
           <input
             type="text"
             value={formData.autor}
             onChange={(e) => onChange('autor', e.target.value)}
-            placeholder="Nome do autor"
+            placeholder="Nome do(a) autor(a)"
           />
         </div>
 
@@ -58,7 +58,7 @@ function BasicInfoSection({ formData, onChange, onSearchClick }) {
             type="text"
             value={formData.studio}
             onChange={(e) => onChange('studio', e.target.value)}
-            placeholder="Estúdio ou grupo"
+            placeholder="Estúdio ou Artista"
           />
         </div>
       </div>
@@ -73,7 +73,9 @@ function BasicInfoSection({ formData, onChange, onSearchClick }) {
               onChange={(e) => onChange('tipo', e.target.value)}
             >
               {Object.values(TIPO_OBRA).map(tipo => (
-                <option key={tipo} value={tipo}>{tipo}</option>
+                <option key={tipo} value={tipo}>
+                  {tipo === 'Coreano' ? 'Manhwa • Coreano' : tipo === 'Chinês' ? 'Manhua • Chinês' : 'Manga • Japonês'}
+                </option>
               ))}
             </select>
             <ChevronDown size={16} className="custom-select-icon" />
