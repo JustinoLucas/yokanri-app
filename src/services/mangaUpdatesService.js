@@ -176,7 +176,7 @@ export function convertMangaUpdatesToObra(series) {
   };
 
   if (series.bayesian_rating) {
-    obraData.nota = Number(series.bayesian_rating.toFixed(1));
+    obraData.nota = Math.round((series.bayesian_rating / 2) * 10) / 10;
   }
 
   return obraData;

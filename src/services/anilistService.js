@@ -207,6 +207,9 @@ export function convertAniListToObra(anilistManga) {
     estudio: artists.length && artists.join(', ') !== authors.join(', ') ? artists.join(', ') : '',
     tipo: mapCountryToType(anilistManga.countryOfOrigin),
     status: mapStatus(anilistManga.status),
+    nota: anilistManga.averageScore
+      ? Math.round((anilistManga.averageScore / 20) * 10) / 10
+      : 0,
     capituloAtual: anilistManga.chapters || 0,
     generos: mapGenres(anilistManga.genres),
     sinopse: anilistManga.description

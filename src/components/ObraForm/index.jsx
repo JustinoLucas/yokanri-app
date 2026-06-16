@@ -11,7 +11,7 @@ import CoversSection from './sections/CoversSection';
 import NotesSection from './sections/NotesSection';
 import SearchModal from './components/SearchModal';
 import { convertAniListToObra } from '../../services/anilistService';
-import { convertMangaDexToObra } from '../../services/mangadexService';
+import { convertMangaDexToObra, getMangaStatistics } from '../../services/mangadexService';
 import { convertMangaUpdatesToObra } from '../../services/mangaUpdatesService';
 import { downloadCoverAsFile } from '../../services/coverDownloader';
 import './ObraForm.css';
@@ -71,6 +71,18 @@ function ObraForm({ obra, config, onSave, onCancel }) {
         handleChange(key, value);
       }
     });
+
+    // Busca rating do MangaDex (requer chamada separada à API de estatísticas)
+    if (manga._source === 'mangadex' && obraData._mangadexId) {
+      try {
+        const bayesian = await getMangaStatistics(obraData._mangadexId);
+        if (bayesian) {
+          handleChange('nota', Math.round((bayesian / 2) * 10) / 10);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar rating do MangaDex:', error);
+      }
+    }
 
     // Download e adiciona a capa escolhida ao gerenciador de capas
     if (obraData._coverUrl) {

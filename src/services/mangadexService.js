@@ -363,6 +363,28 @@ function getCoverFileName(relationships) {
 }
 
 /**
+ * Fetch rating statistics for a MangaDex manga.
+ * Returns bayesian rating (0–10) or null if unavailable.
+ * @param {string} mangaId
+ * @returns {Promise<number|null>}
+ */
+export async function getMangaStatistics(mangaId) {
+  try {
+    const token = await getAccessToken();
+    const response = await mangadexLimiter.schedule(() =>
+      apiFetch(`${MANGADEX_API_URL}/statistics/manga/${mangaId}`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+    );
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.statistics?.[mangaId]?.rating?.bayesian ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Convert MangaDex manga object to our Obra format
  */
 export function convertMangaDexToObra(mangadexManga) {
