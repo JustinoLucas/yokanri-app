@@ -5,7 +5,7 @@ import { useConfig } from '../../context/ConfigContext';
 import './Statistics.css';
 
 
-function Statistics({ obras, onClose }) {
+function Statistics({ obras, onClose, onViewDetail }) {
   const config = useConfig();
 
   const stats = useMemo(() => {
@@ -309,18 +309,22 @@ function Statistics({ obras, onClose }) {
         <div className="stat-card stat-card-wide">
           <h3 className="stat-card-title">
             <Award size={18} />
-            Top 5 Mais Lidas
+            Top 5 Mais Capítulos Lidos
           </h3>
           <div className="top-read-list">
             {stats.topRead.length > 0 ? (
               stats.topRead.map((obra, index) => (
-                <div key={obra.id} className="top-read-item">
+                <button
+                  key={obra.id}
+                  className="top-read-item"
+                  onClick={() => onViewDetail?.(obra)}
+                >
                   <div className="top-read-rank">#{index + 1}</div>
                   <div className="top-read-info">
                     <div className="top-read-name">{obra.nome}</div>
                     <div className="top-read-chapters">{obra.capituloAtualUsuario} capítulos</div>
                   </div>
-                </div>
+                </button>
               ))
             ) : (
               <p className="empty-message">Nenhuma obra com capítulos lidos</p>

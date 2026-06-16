@@ -402,7 +402,7 @@ function App() {
             )}
 
             {currentView === 'stats' && (
-              <Statistics obras={obras} onClose={handleBackToList} />
+              <Statistics obras={obras} onClose={handleBackToList} onViewDetail={handleViewDetail} />
             )}
 
             {currentView === 'config' && (
