@@ -488,3 +488,105 @@
   color: var(--accent-primary);
   background: color-mix(in srgb, var(--accent-primary) 6%, transparent);
 }
+
+/* ── Modal de exclusão ─────────────────────────────────────────────────────── */
+
+.te-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.te-modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  width: 400px;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.te-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.te-modal-header h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.te-modal-icon--danger {
+  color: var(--danger-color);
+  flex-shrink: 0;
+}
+
+.te-modal-body {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.te-modal-body p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.te-modal-body code {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  background: var(--bg-primary);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.te-modal-warning {
+  color: var(--danger-color) !important;
+  background: color-mix(in srgb, var(--danger-color) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger-color) 25%, transparent);
+  border-radius: 7px;
+  padding: 10px 12px !important;
+}
+
+.te-modal-confirm-input {
+  margin-top: 4px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  width: 100%;
+}
+
+.te-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.te-btn-danger {
+  background: var(--danger-color);
+  color: #fff;
+  border-color: transparent;
+}
+
+.te-btn-danger:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.te-btn-danger:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

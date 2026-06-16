@@ -248,13 +248,86 @@ function KeyRow({ keyName, langs, strings, onUpdate }) {
   );
 }
 
+// ─── Modal de confirmação dupla — exclusão de idioma ────────────────────────
+
+function DeleteLangModal({ lang, onConfirm, onCancel }) {
+  const [step, setStep]       = useState(1); // 1 = aviso, 2 = digitar código
+  const [typed, setTyped]     = useState('');
+  const confirmed = typed.trim() === lang.code;
+
+  return (
+    <div className="te-modal-overlay" onClick={onCancel}>
+      <div className="te-modal" onClick={e => e.stopPropagation()}>
+
+        {step === 1 ? (
+          <>
+            <div className="te-modal-header">
+              <Trash2 size={16} className="te-modal-icon--danger" />
+              <h3>Excluir idioma</h3>
+            </div>
+            <div className="te-modal-body">
+              <p>
+                Você está prestes a excluir o idioma{' '}
+                <strong>{lang.flag} {lang.label}</strong> (<code>{lang.code}</code>).
+              </p>
+              <p className="te-modal-warning">
+                Todas as traduções deste idioma serão removidas permanentemente do <code>strings.json</code>.
+              </p>
+            </div>
+            <div className="te-modal-footer">
+              <button className="te-btn" onClick={onCancel}>Cancelar</button>
+              <button className="te-btn te-btn-danger" onClick={() => setStep(2)}>
+                Continuar
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="te-modal-header">
+              <AlertCircle size={16} className="te-modal-icon--danger" />
+              <h3>Confirmação final</h3>
+            </div>
+            <div className="te-modal-body">
+              <p>
+                Digite o código <code>{lang.code}</code> para confirmar a exclusão:
+              </p>
+              <input
+                className="te-input te-modal-confirm-input"
+                placeholder={lang.code}
+                value={typed}
+                onChange={e => setTyped(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && confirmed && onConfirm()}
+                autoFocus
+              />
+            </div>
+            <div className="te-modal-footer">
+              <button className="te-btn" onClick={() => { setStep(1); setTyped(''); }}>
+                Voltar
+              </button>
+              <button
+                className="te-btn te-btn-danger"
+                disabled={!confirmed}
+                onClick={onConfirm}
+              >
+                Excluir permanentemente
+              </button>
+            </div>
+          </>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
 // ─── Página de Idiomas ───────────────────────────────────────────────────────
 
 function LanguagesPage({ langs, strings, setLangs, setStrings, setDirty }) {
-  const [editIdx, setEditIdx]   = useState(null);
-  const [editBuf, setEditBuf]   = useState({});
-  const [adding, setAdding]     = useState(false);
-  const [newLang, setNewLang]   = useState({ code: '', flag: '', native: '', label: '' });
+  const [editIdx, setEditIdx]       = useState(null);
+  const [editBuf, setEditBuf]       = useState({});
+  const [adding, setAdding]         = useState(false);
+  const [newLang, setNewLang]       = useState({ code: '', flag: '', native: '', label: '' });
+  const [deleteTarget, setDeleteTarget] = useState(null); // { idx, lang }
 
   function startEdit(idx) {
     setEditIdx(idx);
@@ -280,10 +353,14 @@ function LanguagesPage({ langs, strings, setLangs, setStrings, setDirty }) {
     setEditIdx(null);
   }
 
-  function deleteLang(idx) {
+  function requestDelete(idx) {
     const lang = langs[idx];
     if (lang.code === 'pt-BR') { alert('O idioma base (pt-BR) não pode ser removido.'); return; }
-    if (!confirm(`Remover o idioma "${lang.label}" e todas as suas traduções?`)) return;
+    setDeleteTarget({ idx, lang });
+  }
+
+  function confirmDelete() {
+    const { idx, lang } = deleteTarget;
     setLangs(prev => prev.filter((_, i) => i !== idx));
     setStrings(prev => {
       const next = { ...prev };
@@ -291,6 +368,7 @@ function LanguagesPage({ langs, strings, setLangs, setStrings, setDirty }) {
       return next;
     });
     setDirty(true);
+    setDeleteTarget(null);
   }
 
   function confirmAdd() {
@@ -344,7 +422,7 @@ function LanguagesPage({ langs, strings, setLangs, setStrings, setDirty }) {
                   <td className="te-langs-actions">
                     <button className="te-btn-sm" onClick={() => startEdit(idx)}>Editar</button>
                     {lang.code !== 'pt-BR' && (
-                      <button className="te-btn-sm te-btn-sm--danger" onClick={() => deleteLang(idx)}>
+                      <button className="te-btn-sm te-btn-sm--danger" onClick={() => requestDelete(idx)}>
                         <Trash2 size={12} />
                       </button>
                     )}
@@ -373,6 +451,14 @@ function LanguagesPage({ langs, strings, setLangs, setStrings, setDirty }) {
         <button className="te-add-lang-btn" onClick={() => setAdding(true)}>
           <Plus size={14} /> Adicionar novo idioma
         </button>
+      )}
+
+      {deleteTarget && (
+        <DeleteLangModal
+          lang={deleteTarget.lang}
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteTarget(null)}
+        />
       )}
     </div>
   );
