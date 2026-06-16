@@ -58,7 +58,6 @@ function Sidebar({
 
       {/* Navigation */}
       <nav className="sidebar-nav">
-        {/* Principal */}
         <NavItem
           icon={Library}
           label="Biblioteca"
@@ -66,10 +65,22 @@ function Sidebar({
           onClick={() => onNavigate('library')}
         />
         <NavItem
+          icon={Bookmark}
+          label="Meu Perfil"
+          active={activePage === 'profile'}
+          onClick={() => onNavigate('profile')}
+        />
+        <NavItem
           icon={Calendar}
           label="Calendario"
           active={activePage === 'calendar'}
           onClick={() => onNavigate('calendar')}
+        />
+        <NavItem
+          icon={BarChart3}
+          label="Estatisticas"
+          active={activePage === 'stats'}
+          onClick={() => onNavigate('stats')}
         />
 
         <div className="sidebar-divider" />
@@ -87,22 +98,6 @@ function Sidebar({
           />
         ))}
         <NavItem icon={Plus} label="Nova colecao" muted onClick={onCreateColecao} />
-
-        <div className="sidebar-divider" />
-
-        {/* Conta */}
-        <NavItem
-          icon={BarChart3}
-          label="Estatisticas"
-          active={activePage === 'stats'}
-          onClick={() => onNavigate('stats')}
-        />
-        <NavItem
-          icon={Bookmark}
-          label="Meu Perfil"
-          active={activePage === 'profile'}
-          onClick={() => onNavigate('profile')}
-        />
       </nav>
 
       {/* Footer — sync status */}
