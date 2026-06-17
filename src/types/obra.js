@@ -263,34 +263,53 @@ function verificaCicloQuinzenal(hoje, dataReferencia, intervaloSemanas, diasSema
 }
 
 
-/**
- * Retorna uma string descritiva do padrão de lançamento
- */
-export function getDescricaoLancamento(obra) {
+const DIA_KEY = {
+  'Domingo':      'dia_domingo',
+  'Segunda-feira':'dia_segunda',
+  'Terça-feira':  'dia_terca',
+  'Quarta-feira': 'dia_quarta',
+  'Quinta-feira': 'dia_quinta',
+  'Sexta-feira':  'dia_sexta',
+  'Sábado':       'dia_sabado',
+  'Variável':     'dia_variavel',
+  'Não definido': 'dia_nao_definido',
+};
+
+function traduzDias(dias, t) {
+  if (!t) return dias.join(', ');
+  return dias.map(d => t(DIA_KEY[d]) || d).join(', ');
+}
+
+export function getDescricaoLancamento(obra, t) {
+  const _ = (key, fallback) => (t ? t(key) || fallback : fallback);
+
   if (!obra.tipoLancamento) {
-    return 'Não definido';
+    return _('lancamento_nao_definido', 'Não definido');
   }
+
+  const n = obra.intervaloSemanas || 2;
+  const dias = traduzDias(obra.diasLancamento || [], t);
 
   switch (obra.tipoLancamento) {
     case TIPO_LANCAMENTO.SEMANAL:
       if (!obra.diasLancamento || obra.diasLancamento.length === 0) {
-        return 'Semanal (dias não definidos)';
+        return _('lancamento_semanal_sem_dias', 'Semanal (dias não definidos)');
       }
-      return `Toda ${obra.diasLancamento.join(', ')}`;
+      return (_('lancamento_semanal', 'Toda {dias}')).replace('{dias}', dias);
 
     case TIPO_LANCAMENTO.QUINZENAL:
       if (!obra.diasLancamento || obra.diasLancamento.length === 0) {
-        return `A cada ${obra.intervaloSemanas || 2} semanas`;
+        return (_('lancamento_quinzenal', 'A cada {n} semanas')).replace('{n}', n);
       }
-      return `A cada ${obra.intervaloSemanas || 2} semanas (${obra.diasLancamento.join(', ')})`;
+      return (_('lancamento_quinzenal_com_dias', 'A cada {n} semanas ({dias})')).replace('{n}', n).replace('{dias}', dias);
 
     case TIPO_LANCAMENTO.MENSAL:
-      return `Todo dia ${obra.diaDoMes}`;
+      return (_('lancamento_mensal', 'Todo dia {n}')).replace('{n}', obra.diaDoMes);
 
     case TIPO_LANCAMENTO.IRREGULAR:
-      return obra.detalhesLancamento || 'Lançamento irregular';
+      return obra.detalhesLancamento || _('lancamento_irregular', 'Lançamento irregular');
 
     default:
-      return 'Não definido';
+      return _('lancamento_nao_definido', 'Não definido');
   }
 }

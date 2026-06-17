@@ -11,6 +11,7 @@ import Configuracoes from './components/Configuracoes';
 import WorkspaceProfile from './components/WorkspaceProfile';
 import ColecaoView from './components/ColecaoView';
 import UpdateNotification from './components/UpdateNotification';
+import TranslationEditor from './components/TranslationEditor/index.jsx';
 import storage from './services/storage/storageService';
 import * as onboardingService from './onboarding/services/onboardingService';
 import OnboardingApp from './onboarding/OnboardingApp';
@@ -18,6 +19,7 @@ import { useMigration } from './components/ObraForm/hooks/useMigration'; // ⚠�
 import { calculateStatusDateUpdates } from './utils/statusDateHelpers';
 import { useConfiguracoes } from './hooks/useConfiguracoes';
 import { ConfigProvider } from './context/ConfigContext';
+import { LanguageProvider } from './i18n/LanguageContext';
 import { setSplashStatus, hideSplash, SPLASH_STATUS } from './utils/splashUtils';
 import './App.css';
 
@@ -29,6 +31,8 @@ function App() {
   const [currentView, setCurrentView] = useState('list');
   const [selectedObra, setSelectedObra] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [initialLanguage, setInitialLanguage] = useState('pt-BR');
+  const [i18nEditorOpen, setI18nEditorOpen] = useState(false);
 
   // ⚠️ REMOVER NA v4.0 - Hook de migração centralizada (apenas para dados antigos)
   const { migrateObraData } = useMigration();
@@ -47,7 +51,7 @@ function App() {
     }
   };
 
-  const { config, addItem, renameItem, deleteItem, updateColor, toggleHideSchedule, toggleGenreNsfw, setNsfwMode, setPerfilDestaques, addActivityEntries, setPerfilBanner, addColecao, renameColecao, deleteColecao, setColecaoBanner, setColecaoObras } = useConfiguracoes(obras, saveData, ready);
+  const { config, addItem, renameItem, deleteItem, updateColor, toggleHideSchedule, toggleGenreNsfw, setNsfwMode, setPerfilDestaques, addActivityEntries, setPerfilBanner, addColecao, renameColecao, deleteColecao, setColecaoBanner, setColecaoObras, resetCategory } = useConfiguracoes(obras, saveData, ready);
 
   const [selectedColecaoId, setSelectedColecaoId] = useState(null);
 
@@ -72,6 +76,12 @@ function App() {
     try {
       // ── Fase 1: Verificar onboarding ──────────────────
       setSplashStatus(SPLASH_STATUS.CHECKING);
+      const onboardingState = await onboardingService.getState();
+      if (onboardingState?.language) {
+        const lang = onboardingState.language;
+        setInitialLanguage(lang);
+        try { localStorage.setItem('yokanri-language', lang); } catch {}
+      }
       const needed = await onboardingService.isNeeded();
 
       if (needed) {
@@ -242,8 +252,8 @@ function App() {
     setCurrentView('colecao');
   };
 
-  const handleCreateColecao = async () => {
-    const id = await addColecao();
+  const handleCreateColecao = async (nome) => {
+    const id = await addColecao(nome);
     setSelectedColecaoId(id);
     setCurrentView('colecao');
   };
@@ -323,6 +333,7 @@ function App() {
   };
 
   return (
+    <LanguageProvider initialLanguage={initialLanguage}>
     <ConfigProvider config={config}>
       <UpdateNotification />
       <AppShell
@@ -416,6 +427,7 @@ function App() {
                 onToggleHideSchedule={toggleHideSchedule}
                 onToggleGenreNsfw={toggleGenreNsfw}
                 onSetNsfwMode={setNsfwMode}
+                onReset={resetCategory}
                 onClose={handleBackToList}
               />
             )}
@@ -451,7 +463,29 @@ function App() {
           </>
         )}
       </AppShell>
+
+      {/* Botão dev-only para abrir o editor de traduções */}
+      {import.meta.env.DEV && (
+        <button
+          onClick={() => setI18nEditorOpen(true)}
+          style={{
+            position: 'fixed', bottom: 16, right: 16, zIndex: 9998,
+            padding: '7px 13px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+            background: '#7c3aed', color: '#fff', border: 'none', cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.4)', opacity: 0.85,
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}
+          title="Abrir editor de traduções (dev only)"
+        >
+          🌐 i18n
+        </button>
+      )}
+
+      {import.meta.env.DEV && i18nEditorOpen && (
+        <TranslationEditor onClose={() => setI18nEditorOpen(false)} />
+      )}
     </ConfigProvider>
+    </LanguageProvider>
   );
 }
 

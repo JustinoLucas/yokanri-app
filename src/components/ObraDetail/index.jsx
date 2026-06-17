@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Edit2, Trash2, Star, ExternalLink, AlertTriangle } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { useConfig } from '../../context/ConfigContext';
 import { useCoverLoader } from './hooks/useCoverLoader';
 import CoversGallery from './components/CoversGallery';
 import ObraStatusBadge from '../ObraCard/shared/ObraStatusBadge';
 import StatusBadge from '../ObraCard/shared/StatusBadge';
 import TipoBadge from '../ObraCard/shared/TipoBadge';
 import { getDescricaoLancamento } from '../../types/obra';
+import { getItemLabel } from '../../i18n/itemLabel';
 import { formatDate } from './utils/formatters';
 import './ObraDetail.css';
 
@@ -18,6 +21,8 @@ import './ObraDetail.css';
  *   [Body: galeria · anotações · metadados]
  */
 function ObraDetail({ obra, onEdit, onDelete, onClose }) {
+  const { t } = useLanguage();
+  const config = useConfig();
   const { coverUrl, allCovers, selectedCoverIndex, selectCover } = useCoverLoader(obra);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
@@ -39,12 +44,12 @@ function ObraDetail({ obra, onEdit, onDelete, onClose }) {
       <div className="detail-bar">
         <button className="detail-back-btn" onClick={onClose}>
           <ArrowLeft size={13} />
-          Biblioteca
+          {t('detail_back')}
         </button>
         <div className="detail-bar-spacer" />
         <button className="detail-edit-btn" onClick={onEdit}>
           <Edit2 size={12} />
-          Editar
+          {t('detail_edit')}
         </button>
         <div className="detail-bar-divider" />
         <button className="detail-delete-btn" onClick={() => setConfirmDeleteOpen(true)} title="Excluir">
@@ -100,7 +105,7 @@ function ObraDetail({ obra, onEdit, onDelete, onClose }) {
               {obra.anoLancamento && <span className="detail-meta-item">{obra.anoLancamento}</span>}
               <span className="detail-meta-dot" />
               <span className="detail-meta-item detail-meta-launch">
-                {getDescricaoLancamento(obra)}
+                {getDescricaoLancamento(obra, t)}
               </span>
             </div>
           )}
@@ -110,7 +115,7 @@ function ObraDetail({ obra, onEdit, onDelete, onClose }) {
             {obra.capituloAtual > 0 && (
               <div className="detail-progress-row">
                 <span className="detail-progress-label">
-                  Cap.&nbsp;{obra.capituloAtualUsuario}/{obra.capituloAtual}
+                  {t('detail_cap')}&nbsp;{obra.capituloAtualUsuario}/{obra.capituloAtual}
                 </span>
                 <div className="detail-progress-track">
                   <div className="detail-progress-fill" style={{ width: `${pct}%` }} />
@@ -126,7 +131,7 @@ function ObraDetail({ obra, onEdit, onDelete, onClose }) {
                   <span className="detail-rating-max">/5</span>
                 </span>
                 {obra.nota > 0 && obra.notaUsuario > 0 && obra.nota !== obra.notaUsuario && (
-                  <span className="detail-rating-general">Geral: {obra.nota}/5</span>
+                  <span className="detail-rating-general">{t('detail_rating_general')} {obra.nota}/5</span>
                 )}
               </div>
             )}
@@ -135,16 +140,21 @@ function ObraDetail({ obra, onEdit, onDelete, onClose }) {
           {/* Genres */}
           {obra.generos?.length > 0 && (
             <div className="detail-hero-genres">
-              {obra.generos.map(g => (
-                <span key={g} className="detail-genre-chip">{g}</span>
-              ))}
+              {obra.generos.map(g => {
+                const item = config?.generos?.find(c => c.label === g);
+                return (
+                  <span key={g} className="detail-genre-chip">
+                    {getItemLabel(item, t) || g}
+                  </span>
+                );
+              })}
             </div>
           )}
 
           {/* Studio */}
           {obra.studio && (
             <div className="detail-hero-studio">
-              <span className="detail-meta-label">Estúdio</span>
+              <span className="detail-meta-label">{t('detail_studio')}</span>
               <span className="detail-meta-val">{obra.studio}</span>
             </div>
           )}
@@ -175,7 +185,7 @@ function ObraDetail({ obra, onEdit, onDelete, onClose }) {
         {/* Covers gallery (só aparece se houver múltiplas capas) */}
         {allCovers.length > 1 && (
           <section className="detail-section-v3f">
-            <span className="detail-section-label">Capas</span>
+            <span className="detail-section-label">{t('detail_covers')}</span>
             <CoversGallery
               covers={allCovers}
               selectedIndex={selectedCoverIndex}
@@ -187,16 +197,16 @@ function ObraDetail({ obra, onEdit, onDelete, onClose }) {
         {/* Notes */}
         {obra.notas && (
           <section className="detail-section-v3f">
-            <span className="detail-section-label">Anotações</span>
+            <span className="detail-section-label">{t('detail_notes')}</span>
             <p className="detail-notes">{obra.notas}</p>
           </section>
         )}
 
         {/* Metadata footer */}
         <div className="detail-meta-footer">
-          <span>Adicionado em {formatDate(obra.dataAdicionado)}</span>
+          <span>{t('detail_added')} {formatDate(obra.dataAdicionado)}</span>
           <span className="detail-meta-dot" />
-          <span>Atualizado em {formatDate(obra.dataAtualizado)}</span>
+          <span>{t('detail_updated')} {formatDate(obra.dataAtualizado)}</span>
         </div>
 
       </div>
@@ -207,17 +217,16 @@ function ObraDetail({ obra, onEdit, onDelete, onClose }) {
             <div className="detail-confirm-icon">
               <AlertTriangle size={22} />
             </div>
-            <h2 className="detail-confirm-title">Excluir obra</h2>
+            <h2 className="detail-confirm-title">{t('detail_confirm_delete_title')}</h2>
             <p className="detail-confirm-text">
-              Tem certeza que deseja excluir <strong>{obra.nome}</strong>?
-              Essa ação não pode ser desfeita.
+              {t('detail_confirm_delete_text').replace('{name}', obra.nome)}
             </p>
             <div className="detail-confirm-actions">
               <button className="detail-confirm-btn detail-confirm-btn--ghost" onClick={() => setConfirmDeleteOpen(false)}>
-                Cancelar
+                {t('detail_confirm_delete_cancel')}
               </button>
               <button className="detail-confirm-btn detail-confirm-btn--danger" onClick={() => { setConfirmDeleteOpen(false); onDelete(); }}>
-                Excluir
+                {t('detail_confirm_delete_confirm')}
               </button>
             </div>
           </div>

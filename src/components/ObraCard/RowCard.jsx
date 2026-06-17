@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Star, ExternalLink, Plus, StickyNote, X, EyeOff, Calendar } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { formatDiaParaLocale } from '../ReleasesToday/utils/releaseCalculations';
 import FavoriteStar from './shared/FavoriteStar';
 import StatusBadge from './shared/StatusBadge';
 import ObraStatusBadge from './shared/ObraStatusBadge';
@@ -22,6 +24,7 @@ function RowCard({
   isNsfw,
   nsfwMode,
 }) {
+  const { t, language } = useLanguage();
   const [notesExpanded, setNotesExpanded] = useState(false);
   const [blurRevealed, setBlurRevealed] = useState(false);
   const [chapterPulse, setChapterPulse] = useState(false);
@@ -96,8 +99,8 @@ function RowCard({
             {/* Author · Studio */}
             {(obra.autor || obra.studio) && (
               <div className="row-details">
-                {obra.autor && <span className="detail-item">Autor(a): {obra.autor}</span>}
-                {obra.studio && <span className="detail-item">Studio/Artista: {obra.studio}</span>}
+                {obra.autor && <span className="detail-item">{t('card_author')} {obra.autor}</span>}
+                {obra.studio && <span className="detail-item">{t('card_studio_artist')} {obra.studio}</span>}
               </div>
             )}
           </div>
@@ -106,12 +109,12 @@ function RowCard({
           <div className="row-progress-info">
             <div className="chapter-info">
               <span className={`chapter-count${chapterPulse ? ' row-chapter-pulse' : ''}`}>
-                Capítulo: {obra.capituloAtualUsuario}{obra.capituloAtual > 0 && ` / ${obra.capituloAtual}`}
+                {t('card_chapter')} {obra.capituloAtualUsuario}{obra.capituloAtual > 0 && ` / ${obra.capituloAtual}`}
               </span>
               {Array.isArray(obra.diasLancamento) && obra.diasLancamento.length > 0 && (
                 <span className="dias-badge">
                   <Calendar size={12} />
-                  {obra.diasLancamento.join(', ')}
+                  {obra.diasLancamento.map(d => formatDiaParaLocale(d, language)).join(', ')}
                 </span>
               )}
             </div>
@@ -158,20 +161,20 @@ function RowCard({
               <button
                 className={`btn-row-action ${notesExpanded ? 'notes-active' : ''}`}
                 onClick={handleToggleNotes}
-                title={notesExpanded ? 'Ocultar notas' : 'Ver notas'}
+                title={notesExpanded ? t('card_hide_notes') : t('card_show_notes')}
               >
                 <StickyNote size={14} />
               </button>
             )}
             {hasObraLink && (
-              <button className="btn-row-action" onClick={handleLink} title="Abrir link">
+              <button className="btn-row-action" onClick={handleLink} title={t('card_open_link')}>
                 <ExternalLink size={14} />
               </button>
             )}
-            <button className="btn-row-action" onClick={handleIncrement} title="Ler próximo capítulo">
+            <button className="btn-row-action" onClick={handleIncrement} title={t('card_next_chapter')}>
               <Plus size={14} />
             </button>
-            <button className="btn-row-action" onClick={handleFavorite} title="Favoritar">
+            <button className="btn-row-action" onClick={handleFavorite} title={t('card_favorite')}>
               <Star size={14} fill={obra.favorito ? 'currentColor' : 'none'} />
             </button>
           </div>
@@ -184,8 +187,8 @@ function RowCard({
         <div className="row-notes-expanded">
           <div className="notes-header">
             <StickyNote size={16} />
-            <span>Notas</span>
-            <button className="btn-close-notes" onClick={handleToggleNotes} title="Fechar">
+            <span>{t('card_notes')}</span>
+            <button className="btn-close-notes" onClick={handleToggleNotes} title={t('close')}>
               <X size={16} />
             </button>
           </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus, ExternalLink, EyeOff, Star } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 import StatusBadge from './shared/StatusBadge';
 import ObraStatusBadge from './shared/ObraStatusBadge';
 import { hasLink, calculateProgress } from './utils';
@@ -27,6 +28,7 @@ function CarouselCard({
   isNsfw,
   nsfwMode,
 }) {
+  const { t } = useLanguage();
   const [blurRevealed, setBlurRevealed] = useState(false);
   const [chapterPulse, setChapterPulse] = useState(false);
   const isBlurred = isNsfw && nsfwMode === 'blur' && !blurRevealed;
@@ -83,7 +85,7 @@ function CarouselCard({
         {/* Progresso de capítulos */}
         <div className="ccard-chapter-row">
           <span className={`ccard-chapter-text${chapterPulse ? ' ccard-chapter-pulse' : ''}`}>
-            Capítulo: {obra.capituloAtualUsuario}
+            {t('card_chapter')} {obra.capituloAtualUsuario}
             {obra.capituloAtual > 0 ? ` / ${obra.capituloAtual}` : ''}
           </span>
           {rating && (
@@ -104,11 +106,11 @@ function CarouselCard({
         {/* Ações */}
         <div className="ccard-actions">
           {obraHasLink && (
-            <button className="ccard-action-btn ccard-action-btn--link" onClick={handleLink} title="Abrir link de leitura">
+            <button className="ccard-action-btn ccard-action-btn--link" onClick={handleLink} title={t('card_open_link')}>
               <ExternalLink size={12} />
             </button>
           )}
-          <button className="ccard-action-btn ccard-action-btn--inc" onClick={handleInc} title="Próximo capítulo">
+          <button className="ccard-action-btn ccard-action-btn--inc" onClick={handleInc} title={t('card_next_chapter')}>
             <Plus size={12} />
           </button>
         </div>

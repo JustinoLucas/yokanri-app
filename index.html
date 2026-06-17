@@ -131,6 +131,23 @@
       <div class="splash-spinner"></div>
       <div id="splash-status">Iniciando...</div>
     </div>
+    <script>
+      (function() {
+        try {
+          var lang = localStorage.getItem('yokanri-language') || 'pt-BR';
+          var init = {
+            'pt-BR': 'Iniciando...',
+            'en':    'Starting...',
+            'es':    'Iniciando...',
+            'ja':    '起動中...',
+            'kr':    '시작 중...',
+            'ch':    '启动中...'
+          };
+          var el = document.getElementById('splash-status');
+          if (el && init[lang]) el.textContent = init[lang];
+        } catch(e) {}
+      })();
+    </script>
 
     <!-- React monta aqui — abaixo do splash durante o init -->
     <div id="root"></div>

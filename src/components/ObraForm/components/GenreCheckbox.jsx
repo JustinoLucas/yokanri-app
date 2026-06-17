@@ -4,7 +4,7 @@ import { Square, CheckSquare } from 'lucide-react';
  * Reusable component for genre selection
  * Single checkbox with custom styling
  */
-function GenreCheckbox({ genre, isSelected, onToggle }) {
+function GenreCheckbox({ genre, isSelected, onToggle, displayLabel }) {
   return (
     <label className="genero-checkbox">
       <input
@@ -18,7 +18,7 @@ function GenreCheckbox({ genre, isSelected, onToggle }) {
       ) : (
         <Square size={18} className="checkbox-icon-unchecked" />
       )}
-      {genre}
+      {displayLabel ?? genre}
     </label>
   );
 }

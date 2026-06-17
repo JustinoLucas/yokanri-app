@@ -1,35 +1,31 @@
 import { TIPO_LANCAMENTO } from '../../../types/obra';
 
+// Usado internamente pelo lancaNoDia() para comparar com obra.diasLancamento (PT sempre)
 const DIAS_SEMANA_COMPLETOS = [
   'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira',
   'Quinta-feira', 'Sexta-feira', 'Sábado'
 ];
 
-const DIAS_SEMANA_ABREV = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-
-const MESES = [
-  'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
-  'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
-];
-
 /**
  * Retorna array de 7 objetos representando uma semana de dias.
  * weekOffset desloca a janela em semanas inteiras (0 = semana atual, começando hoje).
+ * locale é usado apenas para exibição dos nomes — o matching interno usa PT.
  */
-export const getDiasOrdenados = (weekOffset = 0) => {
+export const getDiasOrdenados = (weekOffset = 0, locale = 'pt-BR') => {
   const hoje = new Date().getDay();
   const baseOffset = weekOffset * 7;
   return Array.from({ length: 7 }, (_, i) => {
     const offset = baseOffset + i;
-    const idx = ((hoje + offset) % 7 + 7) % 7;
     const data = new Date();
     data.setDate(data.getDate() + offset);
+    const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
     return {
       offset,
-      nomeCompleto: DIAS_SEMANA_COMPLETOS[idx],
-      nomeAbrev: DIAS_SEMANA_ABREV[idx],
-      diaDoMes: data.getDate(),
-      mes: MESES[data.getMonth()],
+      nomeCompleto: cap(data.toLocaleDateString(locale, { weekday: 'long' })),
+      nomeAbrev:    cap(data.toLocaleDateString(locale, { weekday: 'short' })),
+      diaDoMes:     data.getDate(),
+      mes:          data.toLocaleDateString(locale, { month: 'long' }),
+      date:         data,
     };
   });
 };
@@ -79,3 +75,17 @@ const verificaCicloQuinzenal = (obra, targetDate) => {
  */
 export const isLancamentoIndeterminado = (obra) =>
   obra.tipoLancamento === TIPO_LANCAMENTO.IRREGULAR;
+
+/**
+ * Converte um nome de dia em PT (ex: 'Segunda-feira') para o locale informado.
+ * Retorna o nome original se não encontrado.
+ */
+export const formatDiaParaLocale = (diaPT, locale = 'pt-BR') => {
+  const idx = DIAS_SEMANA_COMPLETOS.indexOf(diaPT);
+  if (idx === -1) return diaPT;
+  const date = new Date();
+  const diff = (idx - date.getDay() + 7) % 7;
+  date.setDate(date.getDate() + diff);
+  const name = date.toLocaleDateString(locale, { weekday: 'long' });
+  return name.charAt(0).toUpperCase() + name.slice(1);
+};

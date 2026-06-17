@@ -1,17 +1,19 @@
 import { ChevronDown } from 'lucide-react';
+import { useLanguage } from '../../../i18n/LanguageContext';
+import { getItemLabel } from '../../../i18n/itemLabel';
 
 function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statusObraList, statusLeituraList }) {
-  // Filtra itens ocultos (ex: 'nao-definido') — value = ID, texto = label configurado
-  const statusObraOptions  = statusObraList?.filter(s => !s.hidden)  ?? [];
+  const { t } = useLanguage();
+  const statusObraOptions   = statusObraList?.filter(s => !s.hidden)  ?? [];
   const statusLeituraOptions = statusLeituraList?.filter(s => !s.hidden) ?? [];
 
   return (
     <section className="form-section">
-      <h3>Status e Progresso</h3>
+      <h3>{t('form_section_status')}</h3>
 
       <div className="form-row">
         <div className="form-group">
-          <label>Status da Obra</label>
+          <label>{t('form_obra_status_label')}</label>
           <div className="custom-select-wrapper">
             <select
               className="custom-select"
@@ -19,7 +21,7 @@ function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statu
               onChange={(e) => onChange('status', e.target.value)}
             >
               {statusObraOptions.map(s => (
-                <option key={s.id} value={s.id}>{s.label}</option>
+                <option key={s.id} value={s.id}>{getItemLabel(s, t)}</option>
               ))}
             </select>
             <ChevronDown size={16} className="custom-select-icon" />
@@ -27,7 +29,7 @@ function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statu
         </div>
 
         <div className="form-group">
-          <label>Meu Status</label>
+          <label>{t('form_user_status_label')}</label>
           <div className="custom-select-wrapper">
             <select
               className="custom-select"
@@ -35,7 +37,7 @@ function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statu
               onChange={(e) => onChange('statusUsuario', e.target.value)}
             >
               {statusLeituraOptions.map(s => (
-                <option key={s.id} value={s.id}>{s.label}</option>
+                <option key={s.id} value={s.id}>{getItemLabel(s, t)}</option>
               ))}
             </select>
             <ChevronDown size={16} className="custom-select-icon" />
@@ -45,7 +47,7 @@ function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statu
 
       <div className="form-row">
         <div className="form-group">
-          <label>Capítulo Atual (Lançado)</label>
+          <label>{t('form_chapter_label')}</label>
           <input
             type="number"
             min="0"
@@ -56,7 +58,7 @@ function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statu
         </div>
 
         <div className="form-group">
-          <label>Meu Capítulo Atual</label>
+          <label>{t('form_user_chapter_label')}</label>
           <input
             type="number"
             min="0"
@@ -67,22 +69,21 @@ function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statu
           />
           {formData.capituloAtual > 0 && (
             <small style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-              Máximo: {formData.capituloAtual}
+              {t('form_chapter_max').replace('{max}', formData.capituloAtual)}
             </small>
           )}
         </div>
       </div>
 
-      {/* Datas de Leitura - Aparecem baseado no status (comparação por ID estável) */}
       {(formData.statusUsuario === 'lendo' ||
         formData.statusUsuario === 'pausado' ||
         formData.statusUsuario === 'completo') && (
         <div className="form-row">
           <div className="form-group">
             <label>
-              Data de Início de Leitura
+              {t('form_date_start')}
               <small style={{ fontSize: '11px', color: 'var(--text-secondary)', marginLeft: '8px' }}>
-                (opcional - edite se necessário)
+                {t('form_date_optional')}
               </small>
             </label>
             <input
@@ -98,9 +99,9 @@ function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statu
           {formData.statusUsuario === 'completo' && (
             <div className="form-group">
               <label>
-                Data de Conclusão
+                {t('form_date_end')}
                 <small style={{ fontSize: '11px', color: 'var(--text-secondary)', marginLeft: '8px' }}>
-                  (opcional - edite se necessário)
+                  {t('form_date_optional')}
                 </small>
               </label>
               <input

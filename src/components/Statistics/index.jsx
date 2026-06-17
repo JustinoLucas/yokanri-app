@@ -2,11 +2,14 @@ import { useMemo } from 'react';
 import { Book, TrendingUp, Clock, Heart, Flag, CheckCircle, Star, Award, ArrowLeft } from 'lucide-react';
 import FlagIcon from '../ObraCard/shared/FlagIcon';
 import { useConfig } from '../../context/ConfigContext';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { getItemLabel } from '../../i18n/itemLabel';
 import './Statistics.css';
 
 
 function Statistics({ obras, onClose, onViewDetail }) {
   const config = useConfig();
+  const { t } = useLanguage();
 
   const stats = useMemo(() => {
     const statusLeituraList = config?.statusLeitura ?? [];
@@ -31,8 +34,8 @@ function Statistics({ obras, onClose, onViewDetail }) {
       byObraStatus[s.id] = obras.filter(o => o.status === s.id).length;
     });
 
-    const labelCompleto = statusLeituraList.find(s => s.id === 'completo')?.label ?? 'Completo';
-    const labelLendo    = statusLeituraList.find(s => s.id === 'lendo')?.label    ?? 'Lendo';
+    const labelCompleto = getItemLabel(statusLeituraList.find(s => s.id === 'completo'), t) || 'Completo';
+    const labelLendo    = getItemLabel(statusLeituraList.find(s => s.id === 'lendo'), t)    || 'Lendo';
 
     const topRead = [...obras]
       .sort((a, b) => (b.capituloAtualUsuario || 0) - (a.capituloAtualUsuario || 0))
@@ -95,11 +98,11 @@ function Statistics({ obras, onClose, onViewDetail }) {
       total: obras.length,
       labelLendo,
       labelCompleto,
-      labelDropado:   statusLeituraList.find(s => s.id === 'dropado')?.label  ?? 'Dropado',
+      labelDropado:   getItemLabel(statusLeituraList.find(s => s.id === 'dropado'), t)  || 'Dropado',
       statusLeituraList,
       statusObraList: config?.statusObra ?? [],
     };
-  }, [obras]);
+  }, [obras, config, t]);
 
   return (
     <div className="statistics-v3f">
@@ -109,11 +112,11 @@ function Statistics({ obras, onClose, onViewDetail }) {
         {onClose && (
           <button className="stats-bar-back" onClick={onClose}>
             <ArrowLeft size={13} />
-            Biblioteca
+            {t('stats_back')}
           </button>
         )}
         <div className="stats-bar-divider" />
-        <span className="stats-bar-title">Estatísticas</span>
+        <span className="stats-bar-title">{t('stats_title')}</span>
       </div>
 
       {/* ── Scrollable content ────────────────────────────── */}
@@ -127,7 +130,7 @@ function Statistics({ obras, onClose, onViewDetail }) {
             <Book size={24} />
           </div>
           <div className="stat-content">
-            <h3>Total de Obras</h3>
+            <h3>{t('stats_total_obras')}</h3>
             <p className="stat-value">{stats.total}</p>
           </div>
         </div>
@@ -168,9 +171,9 @@ function Statistics({ obras, onClose, onViewDetail }) {
             <Award size={24} />
           </div>
           <div className="stat-content">
-            <h3>Taxa de Conclusão</h3>
+            <h3>{t('stats_completion_rate')}</h3>
             <p className="stat-value">{stats.completionRate.toFixed(1)}%</p>
-            <p className="stat-detail">{stats.byStatus['completo'] ?? 0} de {stats.total} obras</p>
+            <p className="stat-detail">{stats.byStatus['completo'] ?? 0} / {stats.total}</p>
           </div>
         </div>
 
@@ -180,9 +183,9 @@ function Statistics({ obras, onClose, onViewDetail }) {
             <Star size={24} />
           </div>
           <div className="stat-content">
-            <h3>Nota Média</h3>
+            <h3>{t('stats_avg_rating')}</h3>
             <p className="stat-value">{stats.avgRating > 0 ? stats.avgRating.toFixed(1) : '-'}</p>
-            <p className="stat-detail">de 5 estrelas</p>
+            <p className="stat-detail">/ 5</p>
           </div>
         </div>
 
@@ -192,9 +195,8 @@ function Statistics({ obras, onClose, onViewDetail }) {
             <Clock size={24} />
           </div>
           <div className="stat-content">
-            <h3>Progresso Médio</h3>
+            <h3>{t('stats_avg_progress')}</h3>
             <p className="stat-value">{stats.avgProgress.toFixed(1)}%</p>
-            <p className="stat-detail">de obras em andamento</p>
           </div>
         </div>
 
@@ -203,7 +205,7 @@ function Statistics({ obras, onClose, onViewDetail }) {
             <Book size={24} />
           </div>
           <div className="stat-content">
-            <h3>Capítulos Lidos</h3>
+            <h3>{t('stats_chapters_read')}</h3>
             <p className="stat-value">{stats.totalChaptersRead}</p>
           </div>
         </div>
@@ -212,7 +214,7 @@ function Statistics({ obras, onClose, onViewDetail }) {
         <div className="stat-card stat-card-wide">
           <h3 className="stat-card-title">
             <Flag size={18} />
-            Distribuição por Tipo
+            {t('stats_type_dist')}
           </h3>
           <div className="type-chart">
             {Object.entries(stats.byType)
@@ -229,6 +231,12 @@ function Statistics({ obras, onClose, onViewDetail }) {
                   'Chinês':  'Manhua',
                   'Japonês': 'Manga',
                 }[tipo] ?? tipo;
+                const tipoKey = {
+                  'Coreano': 'tipo_coreano',
+                  'Chinês':  'tipo_chines',
+                  'Japonês': 'tipo_japones',
+                }[tipo];
+                const nationalityLabel = tipoKey ? t(tipoKey) : tipo;
 
                 return (
                   <div key={tipo} className="type-bar-item">
@@ -237,7 +245,7 @@ function Statistics({ obras, onClose, onViewDetail }) {
                         <FlagIcon tipo={tipo} size={20} />
                         <span className="type-bar-format">{formatName}</span>
                         <span className="type-bar-separator">•</span>
-                        <span className="type-bar-nationality">{tipo}</span>
+                        <span className="type-bar-nationality">{nationalityLabel}</span>
                       </div>
                       <span className="type-bar-count">{count} ({percentage.toFixed(1)}%)</span>
                     </div>
@@ -255,7 +263,7 @@ function Statistics({ obras, onClose, onViewDetail }) {
 
         {/* Distribution by Obra Status */}
         <div className="stat-card stat-card-wide">
-          <h3 className="stat-card-title">Status de Publicação</h3>
+          <h3 className="stat-card-title">{t('stats_pub_status')}</h3>
           <div className="status-chart">
             {stats.statusObraList
               .filter(s => !s.hidden)
@@ -267,7 +275,7 @@ function Statistics({ obras, onClose, onViewDetail }) {
                 return (
                   <div key={s.id} className="status-bar-item">
                     <div className="status-bar-label">
-                      <span>{s.label}</span>
+                      <span>{getItemLabel(s, t)}</span>
                       <span className="status-bar-count">{count} ({percentage.toFixed(1)}%)</span>
                     </div>
                     <div className="status-bar-track">
@@ -281,7 +289,7 @@ function Statistics({ obras, onClose, onViewDetail }) {
 
         {/* Progress Chart - User Reading Status */}
         <div className="stat-card stat-card-wide">
-          <h3 className="stat-card-title">Meu Status de Leitura</h3>
+          <h3 className="stat-card-title">{t('stats_user_status')}</h3>
           <div className="status-chart">
             {stats.statusLeituraList
               .filter(s => !s.hidden)
@@ -293,7 +301,7 @@ function Statistics({ obras, onClose, onViewDetail }) {
                 return (
                   <div key={s.id} className="status-bar-item">
                     <div className="status-bar-label">
-                      <span>{s.label}</span>
+                      <span>{getItemLabel(s, t)}</span>
                       <span className="status-bar-count">{count} ({percentage.toFixed(1)}%)</span>
                     </div>
                     <div className="status-bar-track">
@@ -309,7 +317,7 @@ function Statistics({ obras, onClose, onViewDetail }) {
         <div className="stat-card stat-card-wide">
           <h3 className="stat-card-title">
             <Award size={18} />
-            Top 5 Mais Capítulos Lidos
+            {t('stats_top5')}
           </h3>
           <div className="top-read-list">
             {stats.topRead.length > 0 ? (
@@ -329,13 +337,13 @@ function Statistics({ obras, onClose, onViewDetail }) {
                           <span className="top-read-dot">·</span>
                         </>
                       )}
-                      {obra.capituloAtualUsuario} capítulos
+                      {obra.capituloAtualUsuario} {t('stats_top_chapters')}
                     </div>
                   </div>
                 </button>
               ))
             ) : (
-              <p className="empty-message">Nenhuma obra com capítulos lidos</p>
+              <p className="empty-message">{t('stats_empty')}</p>
             )}
           </div>
         </div>
@@ -344,7 +352,7 @@ function Statistics({ obras, onClose, onViewDetail }) {
         <div className="stat-card stat-card-wide">
           <h3 className="stat-card-title">
             <Star size={18} />
-            Distribuição de Notas
+            {t('stats_rating_dist')}
           </h3>
           <div className="rating-chart">
             {Object.entries(stats.ratingDistribution).map(([rating, count]) => {
@@ -354,7 +362,7 @@ function Statistics({ obras, onClose, onViewDetail }) {
               return (
                 <div key={rating} className="rating-bar-item">
                   <div className="rating-bar-label">
-                    <span className="rating-stars">{rating === 'Sem nota' ? rating : `${rating} ⭐`}</span>
+                    <span className="rating-stars">{rating === 'Sem nota' ? t('stats_no_rating') : `${rating} ⭐`}</span>
                     <span className="rating-count">{count}</span>
                   </div>
                   <div className="rating-bar-track">
@@ -373,18 +381,20 @@ function Statistics({ obras, onClose, onViewDetail }) {
         <div className="stat-card stat-card-wide">
           <h3 className="stat-card-title">
             <Heart size={18} />
-            Gêneros Favoritos
+            {t('stats_genres')}
           </h3>
           <div className="genre-chart">
             {stats.topGenres.map(([genre, count], index) => {
               const maxCount = stats.topGenres[0][1];
               const percentage = (count / maxCount) * 100;
+              const genreItem = config?.generos?.find(g => g.label === genre);
+              const genreDisplay = getItemLabel(genreItem, t) || genre;
 
               return (
                 <div key={genre} className="genre-bar-item">
                   <div className="genre-bar-label">
                     <span className="genre-rank">#{index + 1}</span>
-                    <span className="genre-name">{genre}</span>
+                    <span className="genre-name">{genreDisplay}</span>
                     <span className="genre-count">{count}</span>
                   </div>
                   <div className="genre-bar-track">

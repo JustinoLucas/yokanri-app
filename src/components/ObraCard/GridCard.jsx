@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Star, ExternalLink, Plus, StickyNote, X, EyeOff } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 import FavoriteStar from './shared/FavoriteStar';
 import StatusBadge from './shared/StatusBadge';
 import ObraStatusBadge from './shared/ObraStatusBadge';
@@ -23,6 +24,7 @@ function GridCard({
   const [blurRevealed, setBlurRevealed] = useState(false);
   const [chapterPulse, setChapterPulse] = useState(false);
 
+  const { t } = useLanguage();
   const hasObraLink = hasLink(obra);
   const hasNotes = obra.notas && obra.notas.trim().length > 0;
   const progressPercentage = calculateProgress(obra.capituloAtualUsuario, obra.capituloAtual);
@@ -81,7 +83,7 @@ function GridCard({
           <button
             className="favorite-btn"
             onClick={handleFavorite}
-            title="Favoritar"
+            title={t('card_favorite')}
           >
             {obra.favorito ? (
               <FavoriteStar obraId={obra.id} size={18} />
@@ -106,7 +108,7 @@ function GridCard({
           <div className="card-progress-wrapper">
             <div className="card-progress">
               <span className={`progress-text${chapterPulse ? ' card-chapter-pulse' : ''}`}>
-                Capítulo: {obra.capituloAtualUsuario}
+                {t('card_chapter')} {obra.capituloAtualUsuario}
                 {obra.capituloAtual > 0 && ` / ${obra.capituloAtual}`}
               </span>
               {obra.notaUsuario > 0 && (
@@ -131,17 +133,17 @@ function GridCard({
               <button
                 className={`btn-card-action ${notesExpanded ? 'notes-active' : ''}`}
                 onClick={handleToggleNotes}
-                title={notesExpanded ? "Ocultar notas" : "Ver notas"}
+                title={notesExpanded ? t('card_hide_notes') : t('card_show_notes')}
               >
                 <StickyNote size={16} />
               </button>
             )}
             {hasObraLink && (
-              <button className="btn-card-action" onClick={handleLink} title="Abrir link">
+              <button className="btn-card-action" onClick={handleLink} title={t('card_open_link')}>
                 <ExternalLink size={16} />
               </button>
             )}
-            <button className="btn-card-action" onClick={handleIncrement} title="Ler próximo capítulo">
+            <button className="btn-card-action" onClick={handleIncrement} title={t('card_next_chapter')}>
               <Plus size={16} />
             </button>
           </div>

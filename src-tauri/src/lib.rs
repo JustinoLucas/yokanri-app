@@ -1,6 +1,25 @@
+#[tauri::command]
+fn save_translations(strings_json: String, languages_json: String) -> Result<(), String> {
+  #[cfg(not(debug_assertions))]
+  return Err("Disponível apenas em modo dev".to_string());
+
+  #[cfg(debug_assertions)]
+  {
+    let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+      .parent()
+      .ok_or("Não foi possível encontrar o diretório do projeto")?;
+    std::fs::write(base.join("src/i18n/strings.json"), &strings_json)
+      .map_err(|e| e.to_string())?;
+    std::fs::write(base.join("src/i18n/languages.json"), &languages_json)
+      .map_err(|e| e.to_string())?;
+    Ok(())
+  }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   tauri::Builder::default()
+    .invoke_handler(tauri::generate_handler![save_translations])
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_sql::Builder::default().build())
     .plugin(tauri_plugin_dialog::init())

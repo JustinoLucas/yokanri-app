@@ -1,20 +1,14 @@
-/**
- * FlagIcon component - Displays country flags for obra types
- * Uses SVG flags from Wikipedia for accuracy
- */
+import { useLanguage } from '../../../i18n/LanguageContext';
+
+const TIPO_TITLE_KEY = {
+  'Coreano': 'tipo_title_coreano',
+  'Chinês':  'tipo_title_chines',
+  'Japonês': 'tipo_title_japones',
+};
+
 function FlagIcon({ tipo, size = 20 }) {
-  const getTitle = () => {
-    switch (tipo) {
-      case 'Coreano':
-        return 'Manhwa (Coreano)';
-      case 'Chinês':
-        return 'Manhua (Chinês)';
-      case 'Japonês':
-        return 'Mangá (Japonês)';
-      default:
-        return tipo;
-    }
-  };
+  const { t } = useLanguage();
+  const getTitle = () => t(TIPO_TITLE_KEY[tipo]) || tipo;
 
   switch (tipo) {
     case 'Coreano':

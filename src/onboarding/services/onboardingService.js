@@ -140,6 +140,7 @@ export async function getState() {
  * @param {string} language - Código do idioma ('pt-BR', 'en', 'es', 'ja')
  */
 export async function saveLanguage(language) {
+  try { localStorage.setItem('yokanri-language', language); } catch {}
   const current = (await readState()) || {};
   await writeState({ ...current, language });
 }

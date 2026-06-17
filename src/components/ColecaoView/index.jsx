@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ImagePlus, Trash2, Plus, Pencil, X, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, ImagePlus, Trash2, Plus, Pencil, X, AlertTriangle, Image, Info } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 import ObraCard from '../ObraCard';
 import storage from '../../services/storage/storageService';
 import ColecaoPickerModal from '../ColecaoPickerModal';
@@ -14,6 +15,7 @@ const BANNER_RECOMMENDED_SIZE = '1500x400px';
  * adicionadas pelo usuário (via modal de seleção).
  */
 function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObraIds, onDelete, onViewDetail, onQuickUpdate }) {
+  const { t } = useLanguage();
   const banner = colecao.banner ?? null;
   const bannerFileName = banner?.fileName ?? null;
   const [bannerUrl, setBannerUrl] = useState(null);
@@ -24,6 +26,7 @@ function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObra
   const [titleDraft, setTitleDraft] = useState(colecao.nome);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [bannerModalOpen, setBannerModalOpen] = useState(false);
 
   useEffect(() => {
     setTitleDraft(colecao.nome);
@@ -44,7 +47,11 @@ function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObra
   const positionY = previewPositionY ?? banner?.positionY ?? 50;
 
   const handleBannerPick = () => {
-    alert(`Tamanho recomendado para o banner: ${BANNER_RECOMMENDED_SIZE}.`);
+    setBannerModalOpen(true);
+  };
+
+  const handleBannerModalConfirm = () => {
+    setBannerModalOpen(false);
     bannerInputRef.current?.click();
   };
 
@@ -133,12 +140,12 @@ function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObra
         {onClose && (
           <button className="colv-bar-back" onClick={onClose}>
             <ArrowLeft size={13} />
-            Biblioteca
+            {t('collection_back')}
           </button>
         )}
         <div className="colv-bar-divider" />
-        <span className="colv-bar-title">Coleção</span>
-        <button className="colv-bar-delete" onClick={handleDeleteColecao} title="Excluir coleção">
+        <span className="colv-bar-title">{t('collection_view_title')}</span>
+        <button className="colv-bar-delete" onClick={handleDeleteColecao} title={t('collection_delete')}>
           <Trash2 size={13} />
         </button>
       </div>
@@ -161,13 +168,13 @@ function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObra
           <div className="colv-banner-actions">
             <button className="colv-banner-action-btn" onClick={handleBannerPick}>
               <ImagePlus size={13} />
-              {bannerUrl ? 'Alterar banner' : 'Adicionar banner'}
+              {bannerUrl ? t('profile_banner_change') : t('profile_banner_add')}
             </button>
             {bannerUrl && (
               <button
                 className="colv-banner-action-btn colv-banner-action-btn--icon colv-banner-action-btn--danger"
                 onClick={handleRemoveBanner}
-                title="Remover banner"
+                title={t('profile_banner_delete')}
               >
                 <Trash2 size={13} />
               </button>
@@ -183,7 +190,7 @@ function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObra
 
           {bannerUrl && (
             <div className="colv-banner-position">
-              <span className="colv-banner-position-label">Posição</span>
+              <span className="colv-banner-position-label">{t('profile_banner_position')}</span>
               <input
                 type="range"
                 min="0"
@@ -207,12 +214,12 @@ function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObra
                 autoFocus
               />
             ) : (
-              <h1 className="colv-title" onClick={() => setEditingTitle(true)} title="Clique para renomear">
+              <h1 className="colv-title" onClick={() => setEditingTitle(true)} title={t('collection_rename_hint')}>
                 {colecao.nome}
                 <Pencil size={14} className="colv-title-edit-icon" />
               </h1>
             )}
-            <p className="colv-meta">{colecaoObras.length} obra{colecaoObras.length !== 1 ? 's' : ''}</p>
+            <p className="colv-meta">{colecaoObras.length} {colecaoObras.length !== 1 ? t('library_obras') : t('library_obra')}</p>
           </div>
         </div>
 
@@ -222,7 +229,7 @@ function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObra
           <div className="colv-toolbar">
             <button className="colv-add-btn" onClick={() => setPickerOpen(true)}>
               <Plus size={14} />
-              Adicionar obras
+              {t('collection_add_obras')}
             </button>
           </div>
 
@@ -234,7 +241,7 @@ function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObra
                   <button
                     className="colv-remove-btn"
                     onClick={() => handleRemoveObra(obra.id)}
-                    title="Remover da coleção"
+                    title={t('collection_remove_from')}
                   >
                     <X size={13} />
                   </button>
@@ -249,10 +256,10 @@ function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObra
             </div>
           ) : (
             <div className="colv-empty">
-              <p>Nenhuma obra nesta coleção ainda.</p>
+              <p>{t('collection_empty_page')}</p>
               <button className="colv-add-btn" onClick={() => setPickerOpen(true)}>
                 <Plus size={14} />
-                Adicionar obras
+                {t('collection_add_obras')}
               </button>
             </div>
           )}
@@ -269,28 +276,74 @@ function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObra
         />
       )}
 
+      {bannerModalOpen && (
+        <BannerPickModal
+          isChanging={!!bannerUrl}
+          onConfirm={handleBannerModalConfirm}
+          onCancel={() => setBannerModalOpen(false)}
+        />
+      )}
+
       {confirmDeleteOpen && (
         <div className="colv-confirm-overlay" onClick={() => setConfirmDeleteOpen(false)}>
           <div className="colv-confirm-modal" onClick={e => e.stopPropagation()}>
             <div className="colv-confirm-icon">
               <AlertTriangle size={22} />
             </div>
-            <h2 className="colv-confirm-title">Excluir coleção</h2>
+            <h2 className="colv-confirm-title">{t('collection_confirm_delete_title')}</h2>
             <p className="colv-confirm-text">
-              Tem certeza que deseja excluir a coleção <strong>{colecao.nome}</strong>?
-              As obras não serão removidas da sua biblioteca.
+              {t('collection_confirm_delete_text').replace('{name}', colecao.nome)}
             </p>
             <div className="colv-confirm-actions">
               <button className="colv-confirm-btn colv-confirm-btn--ghost" onClick={() => setConfirmDeleteOpen(false)}>
-                Cancelar
+                {t('cancel')}
               </button>
               <button className="colv-confirm-btn colv-confirm-btn--danger" onClick={handleConfirmDelete}>
-                Excluir
+                {t('delete')}
               </button>
             </div>
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function BannerPickModal({ isChanging, onConfirm, onCancel }) {
+  const { t } = useLanguage();
+  const titleKey = isChanging ? 'profile_banner_modal_title_change' : 'profile_banner_modal_title';
+
+  return (
+    <div className="colv-modal-overlay" onClick={onCancel}>
+      <div className="colv-modal" onClick={e => e.stopPropagation()}>
+        <div className="colv-modal-header">
+          <Image size={18} className="colv-modal-icon" />
+          <h3>{t(titleKey)}</h3>
+        </div>
+        <div className="colv-modal-body">
+          <div className="colv-modal-tip">
+            <Info size={14} className="colv-modal-tip-icon" />
+            <span>{t('profile_banner_modal_tip_size').replace('{size}', BANNER_RECOMMENDED_SIZE)}</span>
+          </div>
+          <div className="colv-modal-tip">
+            <Info size={14} className="colv-modal-tip-icon" />
+            <span>{t('profile_banner_modal_tip_format')}</span>
+          </div>
+          <div className="colv-modal-tip">
+            <Info size={14} className="colv-modal-tip-icon" />
+            <span>{t('profile_banner_modal_tip_note')}</span>
+          </div>
+        </div>
+        <div className="colv-modal-footer">
+          <button className="colv-modal-btn colv-modal-btn--ghost" onClick={onCancel}>
+            {t('profile_banner_modal_cancel')}
+          </button>
+          <button className="colv-modal-btn colv-modal-btn--primary" onClick={onConfirm}>
+            <ImagePlus size={14} />
+            {t('profile_banner_modal_select')}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

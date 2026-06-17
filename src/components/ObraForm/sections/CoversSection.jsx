@@ -1,8 +1,10 @@
-/**
- * Covers section
- * Manages multiple cover images with principal selection
- */
+import { useRef } from 'react';
+import { Upload } from 'lucide-react';
+import { useLanguage } from '../../../i18n/LanguageContext';
+
 function CoversSection({ capasManager }) {
+  const { t } = useLanguage();
+  const fileInputRef = useRef(null);
   const {
     capasPreviews,
     novasCapas,
@@ -13,34 +15,31 @@ function CoversSection({ capasManager }) {
 
   return (
     <section className="form-section">
-      <h3>Capas</h3>
+      <h3>{t('form_section_covers')}</h3>
 
-      {/* Gallery of covers */}
       {capasPreviews.length > 0 && (
         <div className="capas-gallery">
           {capasPreviews.map((capa, index) => (
             <div key={index} className={`capa-item ${capa.principal ? 'principal' : ''}`}>
               <img src={capa.url} alt={`Capa ${index + 1}`} />
               <div className="capa-overlay">
-                {capa.principal && <span className="badge-principal">Principal</span>}
+                {capa.principal && <span className="badge-principal">{t('cover_principal')}</span>}
                 <div className="capa-actions">
                   {!capa.principal && (
                     <button
                       type="button"
                       className="btn-small"
                       onClick={() => handleSetPrincipal(index)}
-                      title="Definir como principal"
                     >
-                      Definir Principal
+                      {t('form_cover_set_main')}
                     </button>
                   )}
                   <button
                     type="button"
                     className="btn-small btn-danger"
                     onClick={() => handleRemoveCapa(index)}
-                    title="Remover capa"
                   >
-                    Remover
+                    {t('form_cover_remove')}
                   </button>
                 </div>
               </div>
@@ -49,22 +48,34 @@ function CoversSection({ capasManager }) {
         </div>
       )}
 
-      {/* Upload new covers */}
       <div className="form-group">
-        <label>Adicionar Capas (múltiplas)</label>
+        <label>{t('form_cover_add_label')}</label>
         <input
+          ref={fileInputRef}
           type="file"
           accept="image/*"
           multiple
           onChange={(e) => handleAddCapas(e.target.files)}
+          style={{ display: 'none' }}
         />
-        {novasCapas.length > 0 && (
-          <small style={{ fontSize: '12px', color: 'var(--accent-primary)', marginTop: '4px', display: 'block' }}>
-            {novasCapas.length} {novasCapas.length === 1 ? 'arquivo selecionado' : 'arquivos selecionados'}
-          </small>
-        )}
-        <small style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-          Você pode selecionar múltiplas imagens de uma vez. A primeira será definida como principal.
+        <div className="cover-upload-btn-row">
+          <button
+            type="button"
+            className="cover-upload-btn"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Upload size={14} />
+            {t('form_cover_select_btn')}
+          </button>
+          <span className="cover-upload-status">
+            {novasCapas.length > 0
+              ? `${novasCapas.length} ${novasCapas.length === 1 ? t('form_cover_file_singular') : t('form_cover_file_plural')}`
+              : t('form_cover_no_files')
+            }
+          </span>
+        </div>
+        <small className="cover-upload-hint">
+          {t('form_cover_hint')}
         </small>
       </div>
     </section>

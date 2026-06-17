@@ -11,6 +11,8 @@
  *     O App.jsx usa isso para iniciar o app normalmente.
  */
 
+import { useState, useEffect } from 'react';
+import { getVersion } from '@tauri-apps/api/app';
 import { useOnboarding, STEPS } from './hooks/useOnboarding';
 import StepWelcome from './steps/StepWelcome';
 import StepEdition from './steps/StepEdition';
@@ -20,6 +22,11 @@ import './OnboardingApp.css';
 
 function OnboardingApp({ onComplete }) {
   const ob = useOnboarding();
+  const [appVersion, setAppVersion] = useState('');
+
+  useEffect(() => {
+    getVersion().then(setAppVersion).catch(() => {});
+  }, []);
 
   return (
     <div className="ob-root">
@@ -42,7 +49,7 @@ function OnboardingApp({ onComplete }) {
 
       {/* ── Área central ─────────────────────────────── */}
       <main className="ob-main">
-        <div className="ob-card">
+        <div className={`ob-card${ob.step === STEPS.EDITION ? ' ob-card--wide' : ''}`}>
           {ob.step === STEPS.WELCOME && (
             <StepWelcome
               language={ob.language}
@@ -83,7 +90,7 @@ function OnboardingApp({ onComplete }) {
 
       {/* ── Rodapé discreto ──────────────────────────── */}
       <footer className="ob-footer">
-        <span>Yokanri v1.0.0</span>
+        <span>Yokanri{appVersion && ` v${appVersion}`}</span>
       </footer>
     </div>
   );

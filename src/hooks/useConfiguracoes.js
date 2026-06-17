@@ -39,19 +39,19 @@ export const DEFAULT_CONFIG = {
   statusObra: [
     // hidden: não aparece na UI (fallback interno para obras sem status definido)
     // isFixed: pode renomear/recolorir, mas NÃO pode excluir
-    { id: 'nao-definido', label: 'Não definido', isFixed: true, hidden: true,  color: '#666666', hideSchedule: false },
-    { id: 'em-andamento', label: 'Em andamento', isFixed: true,                color: '#10b981', hideSchedule: false },
-    { id: 'completo',     label: 'Completo',      isFixed: true,                color: '#3b82f6', hideSchedule: true  },
-    { id: 'hiato',        label: 'Hiato',          isFixed: true,                color: '#f59e0b', hideSchedule: false },
-    { id: 'cancelado',    label: 'Cancelado',      isFixed: true,                color: '#ef4444', hideSchedule: true  },
+    { id: 'nao-definido', label: 'Não definido', translationKey: 'status_obra_nao_definido', isFixed: true, hidden: true,  color: '#666666', hideSchedule: false },
+    { id: 'em-andamento', label: 'Em andamento', translationKey: 'status_obra_em_andamento', isFixed: true,                color: '#10b981', hideSchedule: false },
+    { id: 'completo',     label: 'Completo',      translationKey: 'status_obra_completo',     isFixed: true,                color: '#3b82f6', hideSchedule: true  },
+    { id: 'hiato',        label: 'Hiato',          translationKey: 'status_obra_hiato',         isFixed: true,                color: '#f59e0b', hideSchedule: false },
+    { id: 'cancelado',    label: 'Cancelado',      translationKey: 'status_obra_cancelado',     isFixed: true,                color: '#ef4444', hideSchedule: true  },
   ],
   statusLeitura: [
-    { id: 'nao-definido', label: 'Não definido', isFixed: true, hidden: true,  color: '#666666' },
-    { id: 'lendo',        label: 'Lendo',          isFixed: true,                color: '#4caf50' },
-    { id: 'completo',     label: 'Completo',        isFixed: true,                color: '#2196f3' },
-    { id: 'dropado',      label: 'Dropado',          isFixed: true,                color: '#f44336' },
-    { id: 'planeja-ler',  label: 'Planeja ler',    isFixed: true,                color: '#ff9800' },
-    { id: 'pausado',      label: 'Pausado',          isFixed: true,                color: '#9e9e9e' },
+    { id: 'nao-definido', label: 'Não definido', translationKey: 'status_leitura_nao_definido', isFixed: true, hidden: true,  color: '#666666' },
+    { id: 'lendo',        label: 'Lendo',          translationKey: 'status_leitura_lendo',        isFixed: true,                color: '#4caf50' },
+    { id: 'completo',     label: 'Completo',        translationKey: 'status_leitura_completo',      isFixed: true,                color: '#2196f3' },
+    { id: 'dropado',      label: 'Dropado',          translationKey: 'status_leitura_dropado',       isFixed: true,                color: '#f44336' },
+    { id: 'planeja-ler',  label: 'Planeja ler',    translationKey: 'status_leitura_planeja_ler',  isFixed: true,                color: '#ff9800' },
+    { id: 'pausado',      label: 'Pausado',          translationKey: 'status_leitura_pausado',       isFixed: true,                color: '#9e9e9e' },
   ],
   tipoLancamento: [
     { id: 'nao-definido', label: 'Não definido', protected: true },
@@ -61,47 +61,47 @@ export const DEFAULT_CONFIG = {
     { id: 'irregular', label: 'Irregular', protected: true },
   ],
   generos: [
-    { id: 'acao', label: 'Ação' },
-    { id: 'adulto', label: 'Adulto' },
-    { id: 'apocaliptico', label: 'Apocalíptico' },
-    { id: 'artes-marciais', label: 'Artes Marciais' },
-    { id: 'aventura', label: 'Aventura' },
-    { id: 'comedia', label: 'Comédia' },
-    { id: 'crime', label: 'Crime' },
-    { id: 'cultivo', label: 'Cultivo' },
-    { id: 'drama', label: 'Drama' },
-    { id: 'dungeon', label: 'Dungeon' },
-    { id: 'escolar', label: 'Escolar' },
-    { id: 'esportes', label: 'Esportes' },
-    { id: 'fantasia', label: 'Fantasia' },
-    { id: 'ficcao-cientifica', label: 'Ficção Científica' },
-    { id: 'game', label: 'Game' },
-    { id: 'harem', label: 'Harém' },
-    { id: 'historico', label: 'Histórico' },
-    { id: 'horror', label: 'Horror' },
-    { id: 'isekai', label: 'Isekai' },
-    { id: 'magia', label: 'Magia' },
-    { id: 'mecha', label: 'Mecha' },
-    { id: 'militar', label: 'Militar' },
-    { id: 'misterio', label: 'Mistério' },
-    { id: 'mitologia', label: 'Mitologia' },
-    { id: 'murim', label: 'Murim' },
-    { id: 'musica', label: 'Música' },
-    { id: 'psicologico', label: 'Psicológico' },
-    { id: 'realidade-virtual', label: 'Realidade Virtual' },
-    { id: 'reencarnacao', label: 'Reencarnação' },
-    { id: 'regressao', label: 'Regressão' },
-    { id: 'romance', label: 'Romance' },
-    { id: 'shoujo', label: 'Shoujo' },
-    { id: 'shounen', label: 'Shounen' },
-    { id: 'sistema', label: 'Sistema' },
-    { id: 'slice-of-life', label: 'Slice of Life' },
-    { id: 'sobrenatural', label: 'Sobrenatural' },
-    { id: 'super-poderes', label: 'Super Poderes' },
-    { id: 'suspense', label: 'Suspense' },
-    { id: 'thriller', label: 'Thriller' },
-    { id: 'viagem-no-tempo', label: 'Viagem no Tempo' },
-    { id: 'zumbi', label: 'Zumbi' },
+    { id: 'acao',              label: 'Ação',               translationKey: 'genero_acao'              },
+    { id: 'adulto',            label: 'Adulto',             translationKey: 'genero_adulto',            nsfw: true },
+    { id: 'apocaliptico',      label: 'Apocalíptico',       translationKey: 'genero_apocaliptico'      },
+    { id: 'artes-marciais',    label: 'Artes Marciais',     translationKey: 'genero_artes_marciais'    },
+    { id: 'aventura',          label: 'Aventura',           translationKey: 'genero_aventura'          },
+    { id: 'comedia',           label: 'Comédia',            translationKey: 'genero_comedia'           },
+    { id: 'crime',             label: 'Crime',              translationKey: 'genero_crime'             },
+    { id: 'cultivo',           label: 'Cultivo',            translationKey: 'genero_cultivo'           },
+    { id: 'drama',             label: 'Drama',              translationKey: 'genero_drama'             },
+    { id: 'dungeon',           label: 'Dungeon',            translationKey: 'genero_dungeon'           },
+    { id: 'escolar',           label: 'Escolar',            translationKey: 'genero_escolar'           },
+    { id: 'esportes',          label: 'Esportes',           translationKey: 'genero_esportes'          },
+    { id: 'fantasia',          label: 'Fantasia',           translationKey: 'genero_fantasia'          },
+    { id: 'ficcao-cientifica', label: 'Ficção Científica',  translationKey: 'genero_ficcao_cientifica' },
+    { id: 'game',              label: 'Game',               translationKey: 'genero_game'              },
+    { id: 'harem',             label: 'Harém',              translationKey: 'genero_harem'             },
+    { id: 'historico',         label: 'Histórico',          translationKey: 'genero_historico'         },
+    { id: 'horror',            label: 'Horror',             translationKey: 'genero_horror'            },
+    { id: 'isekai',            label: 'Isekai',             translationKey: 'genero_isekai'            },
+    { id: 'magia',             label: 'Magia',              translationKey: 'genero_magia'             },
+    { id: 'mecha',             label: 'Mecha',              translationKey: 'genero_mecha'             },
+    { id: 'militar',           label: 'Militar',            translationKey: 'genero_militar'           },
+    { id: 'misterio',          label: 'Mistério',           translationKey: 'genero_misterio'          },
+    { id: 'mitologia',         label: 'Mitologia',          translationKey: 'genero_mitologia'         },
+    { id: 'murim',             label: 'Murim',              translationKey: 'genero_murim'             },
+    { id: 'musica',            label: 'Música',             translationKey: 'genero_musica'            },
+    { id: 'psicologico',       label: 'Psicológico',        translationKey: 'genero_psicologico'       },
+    { id: 'realidade-virtual', label: 'Realidade Virtual',  translationKey: 'genero_realidade_virtual' },
+    { id: 'reencarnacao',      label: 'Reencarnação',       translationKey: 'genero_reencarnacao'      },
+    { id: 'regressao',         label: 'Regressão',          translationKey: 'genero_regressao'         },
+    { id: 'romance',           label: 'Romance',            translationKey: 'genero_romance'           },
+    { id: 'shoujo',            label: 'Shoujo',             translationKey: 'genero_shoujo'            },
+    { id: 'shounen',           label: 'Shounen',            translationKey: 'genero_shounen'           },
+    { id: 'sistema',           label: 'Sistema',            translationKey: 'genero_sistema'           },
+    { id: 'slice-of-life',     label: 'Slice of Life',      translationKey: 'genero_slice_of_life'     },
+    { id: 'sobrenatural',      label: 'Sobrenatural',       translationKey: 'genero_sobrenatural'      },
+    { id: 'super-poderes',     label: 'Super Poderes',      translationKey: 'genero_super_poderes'     },
+    { id: 'suspense',          label: 'Suspense',           translationKey: 'genero_suspense'          },
+    { id: 'thriller',          label: 'Thriller',           translationKey: 'genero_thriller'          },
+    { id: 'viagem-no-tempo',   label: 'Viagem no Tempo',    translationKey: 'genero_viagem_no_tempo'   },
+    { id: 'zumbi',             label: 'Zumbi',              translationKey: 'genero_zumbi'             },
   ],
 };
 
@@ -125,8 +125,11 @@ export function useConfiguracoes(obras, onSaveObras, ready) {
     const mergeList = (list, defaults) =>
       list.map(item => {
         const def = defaults.find(d => d.id === item.id);
+        // translationKey nunca é persistido no SQLite — sempre vem dos defaults em runtime.
+        // Se o usuário renomeou o item (customized: true), não re-injeta a chave.
+        const { translationKey: _discarded, ...itemWithoutTk } = item;
         const merged = {
-          ...item,
+          ...itemWithoutTk,
           color: item.color ?? def?.color,
           ...(item.hideSchedule === undefined && def?.hideSchedule !== undefined
             ? { hideSchedule: def.hideSchedule }
@@ -134,6 +137,8 @@ export function useConfiguracoes(obras, onSaveObras, ready) {
           // Flags de sistema: sempre sobrescritas pelos defaults (não são editáveis pelo usuário)
           ...(def?.isFixed !== undefined ? { isFixed: def.isFixed } : {}),
           ...(def?.hidden  !== undefined ? { hidden:  def.hidden  } : {}),
+          // Re-injeta translationKey do default somente se o item não foi customizado
+          ...(def?.translationKey && !item.customized ? { translationKey: def.translationKey } : {}),
         };
         // Remove campo legado 'protected' de configs salvas anteriormente
         delete merged.protected;
@@ -153,8 +158,8 @@ export function useConfiguracoes(obras, onSaveObras, ready) {
       colecoes: saved.colecoes ?? DEFAULT_CONFIG.colecoes,
       statusObra: mergeList(saved.statusObra, DEFAULT_CONFIG.statusObra),
       statusLeitura: mergeList(saved.statusLeitura, DEFAULT_CONFIG.statusLeitura),
-      // Garante que gêneros carregados do disco estejam em ordem alfabética
-      generos: sortGeneros(saved.generos ?? DEFAULT_CONFIG.generos),
+      // Gêneros: merge para re-injetar translationKey + ordena alfabeticamente
+      generos: sortGeneros(mergeList(saved.generos ?? DEFAULT_CONFIG.generos, DEFAULT_CONFIG.generos)),
     };
   };
 
@@ -221,7 +226,12 @@ export function useConfiguracoes(obras, onSaveObras, ready) {
 
     await persistConfig({
       ...config,
-      [category]: config[category].map(i => i.id === id ? { ...i, label: trimmed } : i),
+      [category]: config[category].map(i => {
+        if (i.id !== id) return i;
+        // Remove translationKey ao renomear: a partir daqui o app usa o label do usuário
+        const { translationKey: _discarded, ...rest } = i;
+        return { ...rest, label: trimmed, customized: true };
+      }),
     });
   };
 
@@ -260,6 +270,46 @@ export function useConfiguracoes(obras, onSaveObras, ready) {
     });
 
     return affectedCount;
+  };
+
+  const resetCategory = async (category) => {
+    const defaults = DEFAULT_CONFIG[category];
+    if (!defaults) return;
+
+    let updatedObras = obras;
+
+    const resetList = config[category].map(item => {
+      const def = defaults.find(d => d.id === item.id);
+      if (!def) return item; // item criado pelo usuário — mantém
+
+      // Gêneros guardam o label nas obras: restaurar o label original nas obras também
+      if (category === 'generos' && item.customized && item.label !== def.label) {
+        updatedObras = updatedObras.map(obra => ({
+          ...obra,
+          generos: obra.generos.map(g => g === item.label ? def.label : g),
+        }));
+      }
+
+      // Restaura o label padrão, remove customized e re-injeta translationKey
+      // (translationKey em memória permite tradução imediata sem F5;
+      //  mergeColors descarta e re-injeta novamente no próximo loadConfig)
+      const { customized: _c, translationKey: _tk, ...rest } = item;
+      return { ...rest, label: def.label, ...(def.translationKey ? { translationKey: def.translationKey } : {}) };
+    });
+
+    // Reinsere defaults que foram excluídos pelo usuário
+    const existingIds = new Set(resetList.map(i => i.id));
+    for (const def of defaults) {
+      if (!existingIds.has(def.id)) {
+        resetList.push({ ...def });
+      }
+    }
+
+    if (updatedObras !== obras) {
+      await onSaveObras(updatedObras);
+    }
+
+    await persistConfig({ ...config, [category]: resetList });
   };
 
   const toggleHideSchedule = async (id) => {
@@ -313,8 +363,8 @@ export function useConfiguracoes(obras, onSaveObras, ready) {
   };
 
   /** Cria uma nova coleção vazia e retorna seu id */
-  const addColecao = async () => {
-    const novaColecao = { id: generateId(), nome: 'Nova coleção', banner: null, obraIds: [] };
+  const addColecao = async (nome = 'Nova coleção') => {
+    const novaColecao = { id: generateId(), nome, banner: null, obraIds: [] };
     await persistConfig({
       ...config,
       colecoes: [...(config.colecoes ?? []), novaColecao],
@@ -356,5 +406,5 @@ export function useConfiguracoes(obras, onSaveObras, ready) {
     });
   };
 
-  return { config, addItem, renameItem, deleteItem, updateColor, toggleHideSchedule, toggleGenreNsfw, setNsfwMode, setPerfilDestaques, addActivityEntries, setPerfilBanner, addColecao, renameColecao, deleteColecao, setColecaoBanner, setColecaoObras };
+  return { config, addItem, renameItem, deleteItem, updateColor, toggleHideSchedule, toggleGenreNsfw, setNsfwMode, setPerfilDestaques, addActivityEntries, setPerfilBanner, addColecao, renameColecao, deleteColecao, setColecaoBanner, setColecaoObras, resetCategory };
 }

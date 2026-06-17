@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Pencil, Trash2, Check, X, Plus, Lock, ShieldAlert, Sun, Moon, ArrowLeft, RefreshCw, DownloadCloud, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Pencil, Trash2, Check, X, Plus, Lock, ShieldAlert, Sun, Moon, ArrowLeft, RefreshCw, DownloadCloud, CheckCircle2, AlertCircle, RotateCcw, Heart, Key, ExternalLink, ChevronRight } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { getItemLabel } from '../../i18n/itemLabel';
 import { getVersion } from '@tauri-apps/api/app';
 import { checkForUpdate, downloadAndInstall, restartApp } from '../../services/updaterService';
+import { openUrl } from '@tauri-apps/plugin-opener';
 import './Configuracoes.css';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -16,10 +19,42 @@ function sortGeneros(list) {
 // ─── Configuração das abas ───────────────────────────────────────────────────
 
 const TABS = [
-  { id: 'geral',          label: 'Geral',               isGeneral: true },
-  { id: 'statusObra',     label: 'Status da Obra',       hasColor: true,  hasHideSchedule: true  },
-  { id: 'statusLeitura',  label: 'Meu Status',           hasColor: true,  hasHideSchedule: false },
-  { id: 'generos',        label: 'Gêneros',              hasColor: false, hasHideSchedule: false },
+  { id: 'geral',          labelKey: 'config_tab_general',     isGeneral: true },
+  { id: 'statusObra',     labelKey: 'config_tab_obra_status', hasColor: true,  hasHideSchedule: true  },
+  { id: 'statusLeitura',  labelKey: 'config_tab_user_status', hasColor: true,  hasHideSchedule: false },
+  { id: 'generos',        labelKey: 'config_tab_genres',      hasColor: false, hasHideSchedule: false },
+  { id: 'supporter',      labelKey: 'config_tab_supporter',   isSupporter: true },
+];
+
+const SUP_PLATFORMS = [
+  {
+    id: 'patreon',
+    name: 'Patreon',
+    handle: 'patreon.com/yokanri',
+    url: 'https://patreon.com/yokanri',
+    color: '#FF424D',
+    bg: 'rgba(255,66,77,0.08)',
+    border: 'rgba(255,66,77,0.22)',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M14.82 2.41C11.57 2.41 8.93 5.05 8.93 8.3c0 3.24 2.64 5.88 5.89 5.88 3.24 0 5.88-2.64 5.88-5.88 0-3.25-2.64-5.89-5.88-5.89zM3.1 21.6h3.16V2.41H3.1z"/>
+      </svg>
+    ),
+  },
+  {
+    id: 'kofi',
+    name: 'Ko-fi',
+    handle: 'ko-fi.com/yokanri',
+    url: 'https://ko-fi.com/yokanri',
+    color: '#29ABE0',
+    bg: 'rgba(41,171,224,0.08)',
+    border: 'rgba(41,171,224,0.22)',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.034-.099-.1-.099-.1S6.95 10.086 6.869 9.24c-.136-1.383.594-2.583 1.607-3.086 1.444-.723 3.935.854 4.135 3.305zm5.101.774l-1.308 1.332 1.332 1.308-1.332 1.332-1.308-1.308-1.332 1.308-1.332-1.332 1.308-1.308-1.308-1.332 1.332-1.332 1.308 1.308 1.332-1.308 1.332 1.332z"/>
+      </svg>
+    ),
+  },
 ];
 
 const CATEGORY_TO_OBRA_FIELD = {
@@ -29,10 +64,10 @@ const CATEGORY_TO_OBRA_FIELD = {
   generos:        'generos',
 };
 
-const NSFW_MODES = [
-  { value: 'show',   label: 'Mostrar normalmente',  desc: 'Conteúdo adulto exibido sem restrição.' },
-  { value: 'blur',   label: 'Exibir com blur',       desc: 'Capas borradas — reveladas só por clique explícito.' },
-  { value: 'hidden', label: 'Ocultar completamente', desc: 'Obras NSFW não aparecem na biblioteca.' },
+const NSFW_MODE_KEYS = [
+  { value: 'show',   labelKey: 'config_nsfw_show_label',   descKey: 'config_nsfw_show_desc' },
+  { value: 'blur',   labelKey: 'config_nsfw_blur_label',   descKey: 'config_nsfw_blur_desc' },
+  { value: 'hidden', labelKey: 'config_nsfw_hidden_label', descKey: 'config_nsfw_hidden_desc' },
 ];
 
 // ─── Contagem de obras afetadas ──────────────────────────────────────────────
@@ -49,18 +84,22 @@ function countAffected(obras, category, itemId, itemLabel) {
 // ─── Config item row ─────────────────────────────────────────────────────────
 
 function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRename, onDelete, onUpdateColor, onToggleHideSchedule, onToggleNsfw }) {
+  const { t } = useLanguage();
   const [editing, setEditing] = useState(false);
-  const [editValue, setEditValue] = useState(item.label);
+  const [editValue, setEditValue] = useState(() => getItemLabel(item, t));
   const [editError, setEditError] = useState('');
 
+  const displayLabel = getItemLabel(item, t);
+
   const handleConfirmEdit = async () => {
-    if (!editValue.trim() || editValue.trim() === item.label) {
+    // Sem mudança se o texto for igual ao label exibido (traduzido ou customizado)
+    if (!editValue.trim() || editValue.trim() === displayLabel) {
       setEditing(false);
       return;
     }
     const result = await onRename(item.id, editValue.trim());
     if (result === 'duplicate') {
-      setEditError(`"${editValue.trim()}" já existe.`);
+      setEditError(t('config_item_duplicate').replace('{name}', editValue.trim()));
       return;
     }
     setEditing(false);
@@ -68,7 +107,7 @@ function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRena
   };
 
   const handleCancelEdit = () => {
-    setEditValue(item.label);
+    setEditValue(displayLabel);
     setEditing(false);
     setEditError('');
   };
@@ -86,7 +125,7 @@ function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRena
             type="color"
             value={item.color || '#888888'}
             onChange={e => onUpdateColor(item.id, e.target.value)}
-            title="Escolher cor"
+            title={t('config_item_choose_color')}
             disabled={item.protected || item.hidden}
           />
         </div>
@@ -104,18 +143,18 @@ function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRena
           {editError && <span className="config-item-error">{editError}</span>}
         </div>
       ) : (
-        <span className="config-item-label">{item.label}</span>
+        <span className="config-item-label">{getItemLabel(item, t)}</span>
       )}
 
       {hasHideSchedule && (
-        <label className="config-item-toggle" title="Ocultar seção de padrão de lançamento">
+        <label className="config-item-toggle" title={t('config_item_hide_sch_title')}>
           <input
             type="checkbox"
             checked={!!item.hideSchedule}
             onChange={() => onToggleHideSchedule(item.id)}
             disabled={item.protected}
           />
-          <span>oculta lançamento</span>
+          <span>{t('config_item_hide_schedule')}</span>
         </label>
       )}
 
@@ -123,7 +162,7 @@ function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRena
         <button
           className={`config-nsfw-btn${item.nsfw ? ' config-nsfw-btn--active' : ''}`}
           onClick={() => onToggleNsfw(item.id)}
-          title={item.nsfw ? 'Marcado como NSFW — clique para desmarcar' : 'Marcar como NSFW (+18)'}
+          title={item.nsfw ? t('config_nsfw_marked') : t('config_nsfw_mark')}
         >
           <ShieldAlert size={13} />
           <span>+18</span>
@@ -133,17 +172,17 @@ function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRena
       {(item.protected || readonly) ? (
         <div className="config-item-protected">
           <Lock size={11} />
-          fixo
+          {t('config_item_fixed')}
         </div>
       ) : item.isFixed ? (
         <div className="config-item-actions">
           {editing ? (
             <>
-              <button className="config-btn confirm" onClick={handleConfirmEdit} title="Confirmar"><Check size={13} /></button>
-              <button className="config-btn" onClick={handleCancelEdit} title="Cancelar"><X size={13} /></button>
+              <button className="config-btn confirm" onClick={handleConfirmEdit} title={t('confirm')}><Check size={13} /></button>
+              <button className="config-btn" onClick={handleCancelEdit} title={t('cancel')}><X size={13} /></button>
             </>
           ) : (
-            <button className="config-btn" onClick={() => { setEditValue(item.label); setEditing(true); }} title="Renomear">
+            <button className="config-btn" onClick={() => { setEditValue(displayLabel); setEditing(true); }} title={t('rename')}>
               <Pencil size={13} />
             </button>
           )}
@@ -152,15 +191,15 @@ function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRena
         <div className="config-item-actions">
           {editing ? (
             <>
-              <button className="config-btn confirm" onClick={handleConfirmEdit} title="Confirmar"><Check size={13} /></button>
-              <button className="config-btn" onClick={handleCancelEdit} title="Cancelar"><X size={13} /></button>
+              <button className="config-btn confirm" onClick={handleConfirmEdit} title={t('confirm')}><Check size={13} /></button>
+              <button className="config-btn" onClick={handleCancelEdit} title={t('cancel')}><X size={13} /></button>
             </>
           ) : (
             <>
-              <button className="config-btn" onClick={() => { setEditValue(item.label); setEditing(true); }} title="Renomear">
+              <button className="config-btn" onClick={() => { setEditValue(displayLabel); setEditing(true); }} title={t('rename')}>
                 <Pencil size={13} />
               </button>
-              <button className="config-btn danger" onClick={() => onDelete(item.id, item.label)} title="Excluir">
+              <button className="config-btn danger" onClick={() => onDelete(item.id, item.label)} title={t('delete')}>
                 <Trash2 size={13} />
               </button>
             </>
@@ -174,6 +213,7 @@ function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRena
 // ─── Seção de Atualizações ───────────────────────────────────────────────────
 
 function UpdateSection() {
+  const { t } = useLanguage();
   const [appVersion, setAppVersion] = useState('');
   const [status, setStatus] = useState('idle'); // idle | checking | up-to-date | available | downloading | finished | error
   const [update, setUpdate] = useState(null);
@@ -217,39 +257,39 @@ function UpdateSection() {
 
   return (
     <div className="config-section">
-      <span className="config-section-label">Atualizações</span>
+      <span className="config-section-label">{t('config_section_updates')}</span>
 
       <div className="config-row">
         <div className="config-row-info">
-          <span className="config-row-title">Versão atual</span>
+          <span className="config-row-title">{t('config_current_version')}</span>
           <span className="config-row-desc">Yokanri v{appVersion || '—'}</span>
         </div>
 
         {(status === 'idle' || status === 'up-to-date' || status === 'error') && (
           <button className="config-theme-btn" onClick={handleCheck}>
             <RefreshCw size={13} />
-            Verificar atualizações
+            {t('config_check_updates')}
           </button>
         )}
 
         {status === 'checking' && (
           <button className="config-theme-btn" disabled>
             <RefreshCw size={13} className="config-spin" />
-            Verificando…
+            {t('config_checking')}
           </button>
         )}
 
         {status === 'available' && (
           <button className="config-theme-btn config-theme-btn--accent" onClick={handleUpdate}>
             <DownloadCloud size={13} />
-            Atualizar para v{update.version}
+            {t('config_update_available').replace('{version}', update.version)}
           </button>
         )}
 
         {status === 'finished' && (
           <button className="config-theme-btn config-theme-btn--accent" onClick={restartApp}>
             <RefreshCw size={13} />
-            Reiniciar agora
+            {t('config_restart_now')}
           </button>
         )}
       </div>
@@ -257,7 +297,7 @@ function UpdateSection() {
       {status === 'up-to-date' && (
         <p className="config-update-status">
           <CheckCircle2 size={13} />
-          Você já está na versão mais recente.
+          {t('config_up_to_date')}
         </p>
       )}
 
@@ -266,21 +306,23 @@ function UpdateSection() {
           <div className="config-update-progress-bar">
             <div className="config-update-progress-fill" style={{ width: `${progress}%` }} />
           </div>
-          <span className="config-update-progress-text">Baixando atualização… {progress}%</span>
+          <span className="config-update-progress-text">
+            {t('config_downloading').replace('{progress}', progress)}
+          </span>
         </div>
       )}
 
       {status === 'finished' && (
         <p className="config-update-status">
           <CheckCircle2 size={13} />
-          Atualização instalada — reinicie para aplicar.
+          {t('config_update_installed')}
         </p>
       )}
 
       {status === 'error' && (
         <p className="config-update-status config-update-status--error">
           <AlertCircle size={13} />
-          Não foi possível verificar/instalar a atualização.
+          {t('config_update_error')}
         </p>
       )}
     </div>
@@ -289,8 +331,9 @@ function UpdateSection() {
 
 // ─── Aba Geral ───────────────────────────────────────────────────────────────
 
-function TabGeral({ nsfwMode, onSetNsfwMode }) {
+function TabGeral({ nsfwMode, onSetNsfwMode, onGoToSupporter }) {
   const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage, languages, t } = useLanguage();
 
   return (
     <div className="config-geral">
@@ -298,31 +341,69 @@ function TabGeral({ nsfwMode, onSetNsfwMode }) {
       {/* Atualizações */}
       <UpdateSection />
 
+      {/* Banner Supporter */}
+      <div className="config-section">
+        <button className="config-sup-banner" onClick={onGoToSupporter}>
+          <div className="config-sup-banner-icon">
+            <Heart size={18} />
+          </div>
+          <div className="config-sup-banner-info">
+            <span className="config-sup-banner-title">{t('sup_banner_title')}</span>
+            <span className="config-sup-banner-desc">{t('sup_banner_desc')}</span>
+          </div>
+          <ChevronRight size={16} className="config-sup-banner-arrow" />
+        </button>
+      </div>
+
       {/* Aparência */}
       <div className="config-section">
-        <span className="config-section-label">Aparência</span>
+        <span className="config-section-label">{t('config_section_appearance')}</span>
         <div className="config-row">
           <div className="config-row-info">
-            <span className="config-row-title">Tema</span>
+            <span className="config-row-title">{t('config_theme_label')}</span>
             <span className="config-row-desc">
-              {theme === 'dark' ? 'Tema escuro ativo' : 'Tema claro ativo'}
+              {theme === 'dark' ? t('config_theme_dark_active') : t('config_theme_light_active')}
             </span>
           </div>
           <button className="config-theme-btn" onClick={toggleTheme}>
             {theme === 'dark'
-              ? <><Sun size={13} /> Claro</>
-              : <><Moon size={13} /> Escuro</>
+              ? <><Sun size={13} /> {t('config_theme_to_light')}</>
+              : <><Moon size={13} /> {t('config_theme_to_dark')}</>
             }
           </button>
         </div>
       </div>
 
+      {/* Idioma */}
+      <div className="config-section">
+        <span className="config-section-label">{t('config_section_language')}</span>
+        <div className="config-row">
+          <div className="config-row-info">
+            <span className="config-row-title">{t('config_language_label')}</span>
+            <span className="config-row-desc">{t('config_language_desc')}</span>
+          </div>
+          <div className="config-language-select-wrapper">
+            <select
+              className="config-language-select"
+              value={language}
+              onChange={e => setLanguage(e.target.value)}
+            >
+              {languages.map(lang => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.flag} {t('lang_name_' + lang.code) || lang.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
       {/* Conteúdo adulto */}
       <div className="config-section">
-        <span className="config-section-label">Conteúdo adulto (+18)</span>
+        <span className="config-section-label">{t('config_section_nsfw')}</span>
 
         <div className="config-nsfw-modes">
-          {NSFW_MODES.map(mode => (
+          {NSFW_MODE_KEYS.map(mode => (
             <label
               key={mode.value}
               className={`config-nsfw-mode-option${nsfwMode === mode.value ? ' selected' : ''}`}
@@ -335,36 +416,162 @@ function TabGeral({ nsfwMode, onSetNsfwMode }) {
                 onChange={() => onSetNsfwMode(mode.value)}
               />
               <div className="config-nsfw-mode-info">
-                <span className="config-nsfw-mode-label">{mode.label}</span>
-                <span className="config-nsfw-mode-desc">{mode.desc}</span>
+                <span className="config-nsfw-mode-label">{t(mode.labelKey)}</span>
+                <span className="config-nsfw-mode-desc">{t(mode.descKey)}</span>
               </div>
             </label>
           ))}
         </div>
 
-        <p className="config-nsfw-hint">
-          Marque gêneros como +18 na seção "Gêneros".
-          No modo blur, a capa é revelada ao clicar nela.
-        </p>
+        <p className="config-nsfw-hint">{t('config_nsfw_hint')}</p>
       </div>
 
     </div>
   );
 }
 
+// ─── Aba Supporter ───────────────────────────────────────────────────────────
+
+function TabSupporter() {
+  const { t } = useLanguage();
+
+  const handlePlatformClick = (url) => {
+    openUrl(url).catch(() => {});
+  };
+
+  const benefits = [
+    t('sup_benefit_1'),
+    t('sup_benefit_2'),
+    t('sup_benefit_3'),
+    t('sup_benefit_4'),
+    t('sup_benefit_5'),
+  ];
+
+  return (
+    <div className="config-sup-page">
+
+      {/* Hero */}
+      <div className="config-sup-hero">
+        <div className="config-sup-hero-icon">♥</div>
+        <div className="config-sup-hero-text">
+          <span className="config-sup-hero-title">{t('sup_title')}</span>
+          <span className="config-sup-hero-subtitle">{t('sup_subtitle')}</span>
+        </div>
+      </div>
+
+      {/* Benefícios */}
+      <div>
+        <span className="config-sup-section-label">{t('sup_benefits_title')}</span>
+        <div className="config-sup-benefits">
+          {benefits.map((b, i) => (
+            <div key={i} className="config-sup-benefit">
+              <div className="config-sup-benefit-check">✓</div>
+              {b}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Plataformas */}
+      <div>
+        <span className="config-sup-section-label">{t('sup_platforms_title')}</span>
+        <div className="config-sup-platforms">
+          {SUP_PLATFORMS.map(p => (
+            <button
+              key={p.id}
+              className="config-sup-platform-card"
+              style={{
+                '--platform-color':  p.color,
+                '--platform-bg':     p.bg,
+                '--platform-border': p.border,
+              }}
+              onClick={() => handlePlatformClick(p.url)}
+            >
+              <div className="config-sup-platform-icon">{p.icon}</div>
+              <div className="config-sup-platform-info">
+                <span className="config-sup-platform-name">{p.name}</span>
+                <span className="config-sup-platform-handle">{p.handle}</span>
+              </div>
+              <ExternalLink size={14} className="config-sup-platform-arrow" />
+            </button>
+          ))}
+        </div>
+        <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px', textAlign: 'center' }}>
+          {t('sup_platforms_subtitle')}
+        </p>
+      </div>
+
+      {/* Key — Em breve */}
+      <div className="config-sup-key-box">
+        <Key size={16} className="config-sup-key-icon" />
+        <div className="config-sup-key-info">
+          <span className="config-sup-key-title">
+            {t('sup_key_title')}
+            <span className="config-sup-key-soon-badge">{t('sup_key_soon')}</span>
+          </span>
+          <span className="config-sup-key-desc">{t('sup_key_desc')}</span>
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
+// ─── Modal de reset ──────────────────────────────────────────────────────────
+
+function ResetModal({ tabLabel, onConfirm, onCancel }) {
+  const { t } = useLanguage();
+  return (
+    <div className="config-modal-overlay" onClick={onCancel}>
+      <div className="config-modal" onClick={e => e.stopPropagation()}>
+        <div className="config-modal-header">
+          <RotateCcw size={18} className="config-modal-icon--warn" />
+          <h3>{t('config_reset_title') || 'Restaurar padrões'}</h3>
+        </div>
+        <div className="config-modal-body">
+          <p>
+            {(t('config_reset_desc') || 'Os itens padrão de "{tab}" que foram renomeados voltarão aos nomes originais. Itens criados por você serão mantidos.')
+              .replace('{tab}', tabLabel)}
+          </p>
+          <p className="config-modal-warning">
+            {t('config_reset_warning') || 'Esta ação não pode ser desfeita.'}
+          </p>
+        </div>
+        <div className="config-modal-footer">
+          <button className="config-modal-btn" onClick={onCancel}>
+            {t('cancel') || 'Cancelar'}
+          </button>
+          <button className="config-modal-btn config-modal-btn--danger" onClick={onConfirm}>
+            <RotateCcw size={13} />
+            {t('config_reset_confirm') || 'Restaurar'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Componente principal ────────────────────────────────────────────────────
 
-function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor, onToggleHideSchedule, onToggleGenreNsfw, onSetNsfwMode, onClose }) {
+function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor, onToggleHideSchedule, onToggleGenreNsfw, onSetNsfwMode, onReset, onClose }) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('geral');
   const [newItemValue, setNewItemValue] = useState('');
   const [newItemColor, setNewItemColor] = useState('#888888');
   const [addError, setAddError] = useState('');
+  const [resetModalOpen, setResetModalOpen] = useState(false);
 
-  if (!config) return <div className="config-loading">Carregando configurações…</div>;
+  const handleReset = async () => {
+    await onReset(activeTab);
+    setResetModalOpen(false);
+  };
 
-  const activeTabDef = TABS.find(t => t.id === activeTab);
-  const isGeneral  = !!activeTabDef?.isGeneral;
-  const isReadonly = !!activeTabDef?.readonly;
+  if (!config) return <div className="config-loading">{t('config_loading')}</div>;
+
+  const activeTabDef = TABS.find(tab => tab.id === activeTab);
+  const isGeneral   = !!activeTabDef?.isGeneral;
+  const isSupporter = !!activeTabDef?.isSupporter;
+  const isReadonly  = !!activeTabDef?.readonly;
 
   const rawItems = config[activeTab] ?? [];
   const items = (activeTab === 'generos' ? sortGeneros(rawItems) : rawItems)
@@ -376,7 +583,7 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
     if (!newItemValue.trim()) return;
     const result = await onAdd(activeTab, newItemValue.trim(), newItemColor);
     if (result === 'duplicate') {
-      setAddError(`"${newItemValue.trim()}" já existe nesta lista.`);
+      setAddError(t('config_item_duplicate_list').replace('{name}', newItemValue.trim()));
       return;
     }
     setNewItemValue('');
@@ -390,11 +597,11 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
 
   const handleDelete = (id, label) => {
     const affected = countAffected(obras, activeTab, id, label);
-    let msg = `Excluir "${label}"?`;
+    let msg = t('config_delete_confirm').replace('{name}', label);
     if (activeTab === 'generos' && affected > 0) {
-      msg += `\n\nEste gênero será removido de ${affected} obra(s).`;
+      msg += t('config_delete_genre_affected').replace('{count}', affected);
     } else if (activeTab !== 'generos' && affected > 0) {
-      msg += `\n\n${affected} obra(s) com este valor serão redefinidas como "Não definido".`;
+      msg += t('config_delete_status_affected').replace('{count}', affected);
     }
     if (confirm(msg)) onDelete(activeTab, id);
   };
@@ -414,11 +621,11 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
         {onClose && (
           <button className="config-bar-back" onClick={onClose}>
             <ArrowLeft size={13} />
-            Biblioteca
+            {t('config_back')}
           </button>
         )}
         <div className="config-bar-divider" />
-        <span className="config-bar-title">Configurações</span>
+        <span className="config-bar-title">{t('config_title')}</span>
       </div>
 
       {/* ── Body: nav + content ───────────────────────────── */}
@@ -426,14 +633,14 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
 
         {/* Vertical nav */}
         <nav className="config-nav">
-          <span className="config-nav-section-label">Opções</span>
+          <span className="config-nav-section-label">{t('config_nav_label')}</span>
           {TABS.map(tab => (
             <button
               key={tab.id}
               className={`config-nav-item${activeTab === tab.id ? ' config-nav-item--active' : ''}`}
               onClick={() => handleTabChange(tab.id)}
             >
-              {tab.label}
+              {t(tab.labelKey)}
             </button>
           ))}
         </nav>
@@ -442,12 +649,58 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
         <div className="config-content">
 
           {isGeneral ? (
-            <TabGeral nsfwMode={nsfwMode} onSetNsfwMode={onSetNsfwMode} />
+            <TabGeral
+              nsfwMode={nsfwMode}
+              onSetNsfwMode={onSetNsfwMode}
+              onGoToSupporter={() => handleTabChange('supporter')}
+            />
+          ) : isSupporter ? (
+            <TabSupporter />
           ) : (
             <>
+              <div className="config-content-header">
+                <span className="config-content-title">{t(activeTabDef?.labelKey)}</span>
+                <button className="config-reset-btn" onClick={() => setResetModalOpen(true)} title={t('config_reset_title') || 'Restaurar padrões'}>
+                  <RotateCcw size={13} />
+                  {t('config_reset_btn') || 'Restaurar padrões'}
+                </button>
+              </div>
+
+              {!isReadonly && (
+                <div className="config-add-section">
+                  <div className="config-add-row">
+                    {activeTabDef?.hasColor && (
+                      <input
+                        type="color"
+                        className="config-add-color"
+                        value={newItemColor}
+                        onChange={e => setNewItemColor(e.target.value)}
+                        title={t('config_item_choose_color')}
+                      />
+                    )}
+                    <input
+                      className="config-add-input"
+                      placeholder={t('config_item_add_ph')}
+                      value={newItemValue}
+                      onChange={e => { setNewItemValue(e.target.value); setAddError(''); }}
+                      onKeyDown={handleNewKeyDown}
+                    />
+                    <button
+                      className="config-add-btn"
+                      onClick={handleAdd}
+                      disabled={!newItemValue.trim()}
+                    >
+                      <Plus size={14} />
+                      {t('config_item_add_btn')}
+                    </button>
+                  </div>
+                  {addError && <span className="config-add-error">{addError}</span>}
+                </div>
+              )}
+
               <div className="config-list">
                 {items.length === 0 ? (
-                  <div className="config-empty">Nenhum item cadastrado.</div>
+                  <div className="config-empty">{t('config_item_none')}</div>
                 ) : (
                   items.map(item => (
                     <ConfigItem
@@ -468,47 +721,21 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
               </div>
 
               {isReadonly && (
-                <p className="config-readonly-note">
-                  Os tipos de lançamento são gerenciados pelo sistema e não podem ser alterados.
-                </p>
-              )}
-
-              {!isReadonly && (
-                <div className="config-add-section">
-                  <div className="config-add-row">
-                    {activeTabDef?.hasColor && (
-                      <input
-                        type="color"
-                        className="config-add-color"
-                        value={newItemColor}
-                        onChange={e => setNewItemColor(e.target.value)}
-                        title="Cor do novo item"
-                      />
-                    )}
-                    <input
-                      className="config-add-input"
-                      placeholder="Novo item…"
-                      value={newItemValue}
-                      onChange={e => { setNewItemValue(e.target.value); setAddError(''); }}
-                      onKeyDown={handleNewKeyDown}
-                    />
-                    <button
-                      className="config-add-btn"
-                      onClick={handleAdd}
-                      disabled={!newItemValue.trim()}
-                    >
-                      <Plus size={14} />
-                      Adicionar
-                    </button>
-                  </div>
-                  {addError && <span className="config-add-error">{addError}</span>}
-                </div>
+                <p className="config-readonly-note">{t('config_readonly_note')}</p>
               )}
             </>
           )}
 
         </div>
       </div>
+
+      {resetModalOpen && (
+        <ResetModal
+          tabLabel={t(activeTabDef?.labelKey)}
+          onConfirm={handleReset}
+          onCancel={() => setResetModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
