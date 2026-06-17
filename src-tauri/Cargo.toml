@@ -1,6 +1,6 @@
 [package]
 name = "yokanri"
-version = "0.6.0"
+version = "0.7.0"
 description = "Gerenciador de leituras de mangá, manhwa e manhua"
 authors = ["Sabrina Alves"]
 license = "MIT"
