@@ -328,6 +328,204 @@
   border: 1px solid var(--border-subtle);
 }
 
+/* ─── Delete workspace modal ────────────────────────────── */
+
+.ws-del-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal, 900);
+  animation: wsFadeIn 0.15s ease;
+}
+
+@keyframes wsFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.ws-del-modal {
+  width: 360px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-12);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+  animation: wsModalIn 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
+}
+
+@keyframes wsModalIn {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.ws-del-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.ws-del-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-8);
+  background: rgba(252, 165, 165, 0.12);
+  border: 1px solid rgba(252, 165, 165, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--status-dropped);
+  flex-shrink: 0;
+}
+
+.ws-del-title {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.ws-del-body {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ws-del-warning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  background: rgba(252, 165, 165, 0.08);
+  border: 1px solid rgba(252, 165, 165, 0.18);
+  border-radius: var(--radius-6);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--status-dropped);
+}
+
+.ws-del-warning-icon {
+  flex-shrink: 0;
+}
+
+.ws-del-text {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ws-del-ws-name {
+  padding: 8px 12px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-6);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ws-del-step2-hint {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ws-del-input {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-6);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color var(--duration-instant) var(--ease-out),
+              box-shadow var(--duration-instant) var(--ease-out);
+}
+
+.ws-del-input:focus {
+  border-color: var(--status-dropped);
+  box-shadow: 0 0 0 3px rgba(252, 165, 165, 0.12);
+}
+
+.ws-del-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.ws-del-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-hairline);
+}
+
+.ws-del-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: var(--radius-6);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: opacity var(--duration-instant) var(--ease-out),
+              background var(--duration-instant) var(--ease-out);
+}
+
+.ws-del-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.ws-del-btn--ghost {
+  background: none;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+}
+
+.ws-del-btn--ghost:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.ws-del-btn--danger-outline {
+  background: none;
+  color: var(--status-dropped);
+  border: 1px solid rgba(252, 165, 165, 0.35);
+}
+
+.ws-del-btn--danger-outline:hover:not(:disabled) {
+  background: rgba(252, 165, 165, 0.08);
+}
+
+.ws-del-btn--danger {
+  background: var(--status-dropped);
+  color: #fff;
+}
+
+.ws-del-btn--danger:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
 /* ─── Responsive ────────────────────────────────────────── */
 
 @media (max-width: 768px) {

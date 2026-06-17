@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Star, Edit2, ExternalLink, EyeOff } from 'lucide-react';
+import { useLanguage } from '../../i18n/LanguageContext';
 import StatusBadge from './shared/StatusBadge';
 import ObraStatusBadge from './shared/ObraStatusBadge';
 import FlagIcon from './shared/FlagIcon';
@@ -18,6 +19,7 @@ function CompactCard({
   isNsfw,
   nsfwMode,
 }) {
+  const { t } = useLanguage();
   const [blurRevealed, setBlurRevealed] = useState(false);
 
   const hasObraLink = hasLink(obra);
@@ -98,14 +100,14 @@ function CompactCard({
       </td>
       <td className="compact-cell compact-cell-actions" onClick={(e) => e.stopPropagation()}>
         {hasObraLink && (
-          <button className="compact-btn" onClick={handleLink} title="Abrir link">
+          <button className="compact-btn" onClick={handleLink} title={t('card_open_link')}>
             <ExternalLink size={14} />
           </button>
         )}
-        <button className="compact-btn" onClick={handleEdit} title="Editar">
+        <button className="compact-btn" onClick={handleEdit} title={t('card_edit')}>
           <Edit2 size={14} />
         </button>
-        <button className="compact-btn" onClick={handleFavorite} title="Favoritar">
+        <button className="compact-btn" onClick={handleFavorite} title={t('card_favorite')}>
           <Star size={14} fill={obra.favorito ? 'currentColor' : 'none'} />
         </button>
       </td>

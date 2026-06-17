@@ -1,5 +1,6 @@
 import { ChevronDown } from 'lucide-react';
 import { useLanguage } from '../../../i18n/LanguageContext';
+import { getItemLabel } from '../../../i18n/itemLabel';
 
 function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statusObraList, statusLeituraList }) {
   const { t } = useLanguage();
@@ -20,7 +21,7 @@ function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statu
               onChange={(e) => onChange('status', e.target.value)}
             >
               {statusObraOptions.map(s => (
-                <option key={s.id} value={s.id}>{s.label}</option>
+                <option key={s.id} value={s.id}>{getItemLabel(s, t)}</option>
               ))}
             </select>
             <ChevronDown size={16} className="custom-select-icon" />
@@ -36,7 +37,7 @@ function StatusSection({ formData, onChange, onNumberChange, onNumberBlur, statu
               onChange={(e) => onChange('statusUsuario', e.target.value)}
             >
               {statusLeituraOptions.map(s => (
-                <option key={s.id} value={s.id}>{s.label}</option>
+                <option key={s.id} value={s.id}>{getItemLabel(s, t)}</option>
               ))}
             </select>
             <ChevronDown size={16} className="custom-select-icon" />

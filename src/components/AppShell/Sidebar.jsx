@@ -99,7 +99,7 @@ function Sidebar({
             onClick={() => onNavigateColecao?.(colecao.id)}
           />
         ))}
-        <NavItem icon={Plus} label={t('sidebar_new_collection')} muted onClick={onCreateColecao} />
+        <NavItem icon={Plus} label={t('sidebar_new_collection')} muted onClick={() => onCreateColecao(t('collection_new_name'))} />
       </nav>
 
       {/* Footer — sync status */}

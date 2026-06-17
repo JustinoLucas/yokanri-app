@@ -22,17 +22,63 @@
 export const SPLASH_HIDE_DURATION = 350;
 
 /**
- * Textos de status para cada fase de inicialização.
- * Centralizados aqui para facilitar internacionalização futura.
+ * Textos do splash por idioma.
+ * Devem ser strings simples — sem React, sem i18n, rodamos antes do React montar.
+ * Chave de localStorage: 'yokanri-language'
  */
+const SPLASH_TEXTS = {
+  'pt-BR': {
+    INITIALIZING: 'Iniciando...',
+    CHECKING:     'Verificando...',
+    WORKSPACE:    'Carregando workspace...',
+    DATA:         'Carregando biblioteca...',
+    SETTINGS:     'Carregando configurações...',
+    ERROR:        'Erro ao inicializar. Reinicie o aplicativo.',
+  },
+  'en': {
+    INITIALIZING: 'Starting...',
+    CHECKING:     'Checking...',
+    WORKSPACE:    'Loading workspace...',
+    DATA:         'Loading library...',
+    SETTINGS:     'Loading settings...',
+    ERROR:        'Error initializing. Please restart the application.',
+  },
+  'es': {
+    INITIALIZING: 'Iniciando...',
+    CHECKING:     'Verificando...',
+    WORKSPACE:    'Cargando espacio de trabajo...',
+    DATA:         'Cargando biblioteca...',
+    SETTINGS:     'Cargando configuración...',
+    ERROR:        'Error al inicializar. Reinicia la aplicación.',
+  },
+  'ja': {
+    INITIALIZING: '起動中...',
+    CHECKING:     '確認中...',
+    WORKSPACE:    'ワークスペースを読み込み中...',
+    DATA:         'ライブラリを読み込み中...',
+    SETTINGS:     '設定を読み込み中...',
+    ERROR:        '初期化エラー。アプリを再起動してください。',
+  },
+};
+
+function getLang() {
+  try { return localStorage.getItem('yokanri-language') || 'pt-BR'; } catch { return 'pt-BR'; }
+}
+
+export function getSplashText(key) {
+  const lang = getLang();
+  return (SPLASH_TEXTS[lang] ?? SPLASH_TEXTS['pt-BR'])[key] ?? '';
+}
+
+// Mantido para retrocompatibilidade — usa idioma detectado dinamicamente
 export const SPLASH_STATUS = {
-  INITIALIZING: 'Iniciando...',
-  CHECKING: 'Verificando...',
-  WORKSPACE: 'Carregando workspace...',
-  DATA: 'Carregando biblioteca...',
-  SETTINGS: 'Carregando configurações...',
-  READY: '',
-  ERROR: 'Erro ao inicializar. Reinicie o aplicativo.',
+  get INITIALIZING() { return getSplashText('INITIALIZING'); },
+  get CHECKING()     { return getSplashText('CHECKING'); },
+  get WORKSPACE()    { return getSplashText('WORKSPACE'); },
+  get DATA()         { return getSplashText('DATA'); },
+  get SETTINGS()     { return getSplashText('SETTINGS'); },
+  get READY()        { return ''; },
+  get ERROR()        { return getSplashText('ERROR'); },
 };
 
 // ─── API pública ─────────────────────────────────────────

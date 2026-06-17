@@ -4,6 +4,14 @@ import DaySelector from '../components/DaySelector';
 import { formatDateForInput, dateInputToISO } from '../utils/dataProcessing';
 import { useLanguage } from '../../../i18n/LanguageContext';
 
+const TIPO_LANCAMENTO_KEY = {
+  'nao-definido': 'lancamento_tipo_nao_definido',
+  'semanal':      'lancamento_tipo_semanal',
+  'quinzenal':    'lancamento_tipo_quinzenal',
+  'mensal':       'lancamento_tipo_mensal',
+  'irregular':    'lancamento_tipo_irregular',
+};
+
 function ReleaseScheduleSection({ formData, onChange, onNumberChange, onNumberBlur, onDayToggle, statusObraList, tipoLancamentoList }) {
   const { t } = useLanguage();
   const currentStatusItem = statusObraList?.find(s => s.id === formData.status);
@@ -14,7 +22,7 @@ function ReleaseScheduleSection({ formData, onChange, onNumberChange, onNumberBl
   const labelMensal    = tipoLancamentoList?.find(t => t.id === 'mensal')?.label     ?? TIPO_LANCAMENTO.MENSAL;
   const labelIrregular = tipoLancamentoList?.find(t => t.id === 'irregular')?.label  ?? TIPO_LANCAMENTO.IRREGULAR;
 
-  const tipoOptions = tipoLancamentoList?.map(t => t.label) ?? Object.values(TIPO_LANCAMENTO);
+  const tipoItems = tipoLancamentoList ?? Object.values(TIPO_LANCAMENTO).map(label => ({ id: label.toLowerCase(), label }));
 
   const availableDays = Object.values(DIAS_SEMANA).filter(
     dia => dia !== 'Não definido' && dia !== 'Variável'
@@ -32,8 +40,10 @@ function ReleaseScheduleSection({ formData, onChange, onNumberChange, onNumberBl
             value={formData.tipoLancamento}
             onChange={(e) => onChange('tipoLancamento', e.target.value)}
           >
-            {tipoOptions.map(tipo => (
-              <option key={tipo} value={tipo}>{tipo}</option>
+            {tipoItems.map(item => (
+              <option key={item.id} value={item.label}>
+                {t(TIPO_LANCAMENTO_KEY[item.id]) || item.label}
+              </option>
             ))}
           </select>
           <ChevronDown size={16} className="custom-select-icon" />

@@ -14,9 +14,11 @@ import {
   Library,
   Check,
   User,
+  AlertTriangle,
 } from 'lucide-react';
 import storage from '../../services/storage/storageService';
 import LibraryActionModal from '../LibraryActionModal';
+import { useLanguage } from '../../i18n/LanguageContext';
 import './WorkspaceMenu.css';
 
 /**
@@ -29,6 +31,7 @@ import './WorkspaceMenu.css';
  * - Export, Import (com modal multi-modo), Mover, Abrir pasta
  */
 function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, onWorkspaceChange, onRefresh }) {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [workspaces, setWorkspaces] = useState([]);
   const [showSwitcher, setShowSwitcher] = useState(false);
@@ -41,6 +44,11 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
   const [actionType, setActionType]             = useState(null);   // 'export'|'import'|'move'
   const [actionPreview, setActionPreview]       = useState(null);
   const [importZipData, setImportZipData]       = useState(null);
+
+  // Delete workspace modal state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteStep, setDeleteStep]           = useState(1);
+  const [deleteTyped, setDeleteTyped]         = useState('');
 
   const menuRef  = useRef(null);
   const inputRef = useRef(null);
@@ -127,13 +135,20 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
   const handleDelete = async () => {
     const list = await storage.listWorkspaces();
     if (list.length <= 1) {
-      alert('Não é possível excluir o único workspace.');
+      alert(t('ws_delete_only_one'));
       return;
     }
-    if (!confirm(`Tem certeza que deseja excluir "${workspace.name}"?\n\nTodos os dados desta biblioteca serão perdidos permanentemente.`)) return;
+    closeAll();
+    setDeleteStep(1);
+    setDeleteTyped('');
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
     await storage.deleteWorkspace(workspace.id);
     const active = await storage.getActiveWorkspace();
-    closeAll();
+    setDeleteModalOpen(false);
+    setDeleteTyped('');
     onWorkspaceChange(active);
   };
 
@@ -144,12 +159,12 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
     try {
       const preview = await storage.getExportPreview(workspace);
       if (preview.cancelled) return;
-      if (preview.error) { alert('Erro: ' + preview.error); return; }
+      if (preview.error) { alert(preview.error); return; }
       setActionPreview(preview);
       setActionType('export');
       setShowActionModal(true);
     } catch (error) {
-      alert('Erro ao preparar exportação: ' + (error?.message || error));
+      alert(t('ws_error_export') + ' ' + (error?.message || ''));
     }
   };
 
@@ -160,7 +175,7 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
     try {
       const selectResult = await storage.importWorkspaceFile();
       if (selectResult.message === 'cancelled') return;
-      if (!selectResult.success) { alert(selectResult.message); return; }
+      if (!selectResult.success) { alert(selectResult.message || t('ws_error_import')); return; }
 
       setImportZipData(selectResult._zipData);
       setActionPreview({
@@ -170,7 +185,7 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
       setActionType('import');
       setShowActionModal(true);
     } catch (error) {
-      alert('Erro ao ler arquivo: ' + (error?.message || error));
+      alert(t('ws_error_import') + ' ' + (error?.message || ''));
     }
   };
 
@@ -195,12 +210,12 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
     try {
       const preview = await storage.getMovePreview(workspace);
       if (preview.cancelled) return;
-      if (preview.error) { alert('Erro: ' + preview.error); return; }
+      if (preview.error) { alert(preview.error); return; }
       setActionPreview(preview);
       setActionType('move');
       setShowActionModal(true);
     } catch (error) {
-      alert('Erro ao preparar move: ' + (error?.message || error));
+      alert(t('ws_error_move') + ' ' + (error?.message || ''));
     }
   };
 
@@ -241,7 +256,7 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
     try {
       await storage.openWorkspaceFolder();
     } catch (error) {
-      alert('Erro ao abrir pasta: ' + (error?.message || error));
+      alert(t('ws_error_folder') + ' ' + (error?.message || ''));
     }
   };
 
@@ -293,7 +308,7 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
                 ) : (
                   <span className="ws-dropdown-name">{workspace?.name}</span>
                 )}
-                <span className="ws-dropdown-label">Workspace ativo</span>
+                <span className="ws-dropdown-label">{t('ws_active_label')}</span>
               </div>
             </div>
 
@@ -301,18 +316,18 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
 
             {/* Ações da biblioteca */}
             <div className="ws-section">
-              <span className="ws-section-title">Biblioteca</span>
+              <span className="ws-section-title">{t('ws_section_library')}</span>
               <button className="ws-item" onClick={() => handleMenuAction(onShowProfile)}>
                 <User size={16} />
-                <span>Meu Perfil</span>
+                <span>{t('ws_my_profile')}</span>
               </button>
               <button className="ws-item" onClick={() => handleMenuAction(onShowStats)}>
                 <BarChart3 size={16} />
-                <span>Estatísticas</span>
+                <span>{t('ws_statistics')}</span>
               </button>
               <button className="ws-item" onClick={() => handleMenuAction(onShowConfig)}>
                 <Settings size={16} />
-                <span>Configurações</span>
+                <span>{t('ws_settings')}</span>
               </button>
             </div>
 
@@ -320,7 +335,7 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
 
             {/* Ações de workspace */}
             <div className="ws-section">
-              <span className="ws-section-title">Workspace</span>
+              <span className="ws-section-title">{t('ws_section_workspace')}</span>
 
               {showSwitcher ? (
                 <div className="ws-switcher">
@@ -338,7 +353,7 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
                   <div className="ws-divider" />
                   <button className="ws-item ws-item--accent" onClick={handleStartCreate}>
                     <Plus size={16} />
-                    <span>Novo workspace</span>
+                    <span>{t('ws_new_workspace')}</span>
                   </button>
                 </div>
               ) : isCreating ? (
@@ -347,7 +362,7 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
                     ref={inputRef}
                     type="text"
                     className="ws-inline-input"
-                    placeholder="Nome do workspace..."
+                    placeholder={t('ws_name_placeholder')}
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleInputKeyDown}
@@ -355,10 +370,10 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
                   />
                   <div className="ws-create-actions">
                     <button className="ws-btn ws-btn--primary" onClick={handleCreate} disabled={!inputValue.trim()}>
-                      Criar
+                      {t('ws_create')}
                     </button>
                     <button className="ws-btn ws-btn--ghost" onClick={() => { setIsCreating(false); setInputValue(''); }}>
-                      Cancelar
+                      {t('cancel')}
                     </button>
                   </div>
                 </div>
@@ -366,15 +381,15 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
                 <>
                   <button className="ws-item" onClick={handleOpenSwitcher}>
                     <ArrowLeftRight size={16} />
-                    <span>Trocar workspace</span>
+                    <span>{t('ws_switch')}</span>
                   </button>
                   <button className="ws-item" onClick={handleStartRename}>
                     <Pencil size={16} />
-                    <span>Renomear</span>
+                    <span>{t('ws_rename')}</span>
                   </button>
                   <button className="ws-item ws-item--accent" onClick={handleStartCreate}>
                     <Plus size={16} />
-                    <span>Novo workspace</span>
+                    <span>{t('ws_new_workspace')}</span>
                   </button>
                 </>
               )}
@@ -386,19 +401,19 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
             <div className="ws-section">
               <button className="ws-item" onClick={handleExport}>
                 <Download size={16} />
-                <span>Exportar biblioteca</span>
+                <span>{t('ws_export')}</span>
               </button>
               <button className="ws-item" onClick={handleImport}>
                 <Upload size={16} />
-                <span>Importar biblioteca</span>
+                <span>{t('ws_import')}</span>
               </button>
               <button className="ws-item" onClick={handleMove}>
                 <FolderInput size={16} />
-                <span>Mover workspace</span>
+                <span>{t('ws_move')}</span>
               </button>
               <button className="ws-item" onClick={handleOpenFolder}>
                 <FolderOpen size={16} />
-                <span>Abrir pasta</span>
+                <span>{t('ws_open_folder')}</span>
               </button>
             </div>
 
@@ -407,7 +422,7 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
             <div className="ws-section">
               <button className="ws-item ws-item--danger" onClick={handleDelete}>
                 <Trash2 size={16} />
-                <span>Excluir workspace</span>
+                <span>{t('ws_delete')}</span>
               </button>
             </div>
           </div>
@@ -426,7 +441,98 @@ function WorkspaceMenu({ workspace, onShowStats, onShowConfig, onShowProfile, on
         onSuccess={handleActionSuccess}
         onClose={handleCloseActionModal}
       />
+
+      {/* Modal de confirmação dupla para excluir workspace */}
+      {deleteModalOpen && (
+        <DeleteWorkspaceModal
+          workspaceName={workspace?.name ?? ''}
+          step={deleteStep}
+          typed={deleteTyped}
+          onTyped={setDeleteTyped}
+          onNext={() => setDeleteStep(2)}
+          onBack={() => setDeleteStep(1)}
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => { setDeleteModalOpen(false); setDeleteTyped(''); }}
+          t={t}
+        />
+      )}
     </>
+  );
+}
+
+function DeleteWorkspaceModal({ workspaceName, step, typed, onTyped, onNext, onBack, onConfirm, onCancel, t }) {
+  const nameMatch = typed.trim() === workspaceName;
+
+  return (
+    <div className="ws-del-overlay" onClick={onCancel}>
+      <div className="ws-del-modal" onClick={e => e.stopPropagation()}>
+
+        {/* Header */}
+        <div className="ws-del-header">
+          <div className="ws-del-icon">
+            <Trash2 size={18} />
+          </div>
+          <h3 className="ws-del-title">{t('ws_delete_modal_title')}</h3>
+        </div>
+
+        {step === 1 ? (
+          <>
+            {/* Step 1 — Aviso */}
+            <div className="ws-del-body">
+              <div className="ws-del-warning">
+                <AlertTriangle size={14} className="ws-del-warning-icon" />
+                <span>{t('ws_delete_modal_irreversible')}</span>
+              </div>
+              <p className="ws-del-text">
+                {t('ws_delete_modal_step1_text').replace('{name}', workspaceName)}
+              </p>
+              <div className="ws-del-ws-name">
+                <span>{workspaceName}</span>
+              </div>
+            </div>
+            <div className="ws-del-footer">
+              <button className="ws-del-btn ws-del-btn--ghost" onClick={onCancel}>
+                {t('cancel')}
+              </button>
+              <button className="ws-del-btn ws-del-btn--danger-outline" onClick={onNext}>
+                {t('ws_delete_modal_continue')}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Step 2 — Digitar o nome */}
+            <div className="ws-del-body">
+              <p className="ws-del-step2-hint">
+                {t('ws_delete_modal_step2_hint').replace('{name}', workspaceName)}
+              </p>
+              <input
+                className="ws-del-input"
+                type="text"
+                autoFocus
+                value={typed}
+                onChange={e => onTyped(e.target.value)}
+                placeholder={workspaceName}
+                onKeyDown={e => { if (e.key === 'Enter' && nameMatch) onConfirm(); }}
+              />
+            </div>
+            <div className="ws-del-footer">
+              <button className="ws-del-btn ws-del-btn--ghost" onClick={onBack}>
+                {t('ws_delete_modal_back')}
+              </button>
+              <button
+                className="ws-del-btn ws-del-btn--danger"
+                onClick={onConfirm}
+                disabled={!nameMatch}
+              >
+                <Trash2 size={13} />
+                {t('ws_delete_modal_confirm')}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 

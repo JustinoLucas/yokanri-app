@@ -1,10 +1,19 @@
 import { Square, CheckSquare } from 'lucide-react';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
-/**
- * Reusable component for selecting weekdays
- * Displays as a grid of checkboxes with custom styling
- */
+const DIA_KEY = {
+  'Domingo':      'dia_domingo',
+  'Segunda-feira':'dia_segunda',
+  'Terça-feira':  'dia_terca',
+  'Quarta-feira': 'dia_quarta',
+  'Quinta-feira': 'dia_quinta',
+  'Sexta-feira':  'dia_sexta',
+  'Sábado':       'dia_sabado',
+};
+
 function DaySelector({ selectedDays = [], onToggle, availableDays }) {
+  const { t } = useLanguage();
+
   return (
     <div className="dias-grid">
       {availableDays.map(dia => {
@@ -23,7 +32,7 @@ function DaySelector({ selectedDays = [], onToggle, availableDays }) {
             ) : (
               <Square size={18} className="checkbox-icon-unchecked" />
             )}
-            <span>{dia}</span>
+            <span>{t(DIA_KEY[dia]) || dia}</span>
           </label>
         );
       })}

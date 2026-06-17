@@ -51,7 +51,7 @@ function App() {
     }
   };
 
-  const { config, addItem, renameItem, deleteItem, updateColor, toggleHideSchedule, toggleGenreNsfw, setNsfwMode, setPerfilDestaques, addActivityEntries, setPerfilBanner, addColecao, renameColecao, deleteColecao, setColecaoBanner, setColecaoObras } = useConfiguracoes(obras, saveData, ready);
+  const { config, addItem, renameItem, deleteItem, updateColor, toggleHideSchedule, toggleGenreNsfw, setNsfwMode, setPerfilDestaques, addActivityEntries, setPerfilBanner, addColecao, renameColecao, deleteColecao, setColecaoBanner, setColecaoObras, resetCategory } = useConfiguracoes(obras, saveData, ready);
 
   const [selectedColecaoId, setSelectedColecaoId] = useState(null);
 
@@ -78,7 +78,9 @@ function App() {
       setSplashStatus(SPLASH_STATUS.CHECKING);
       const onboardingState = await onboardingService.getState();
       if (onboardingState?.language) {
-        setInitialLanguage(onboardingState.language);
+        const lang = onboardingState.language;
+        setInitialLanguage(lang);
+        try { localStorage.setItem('yokanri-language', lang); } catch {}
       }
       const needed = await onboardingService.isNeeded();
 
@@ -250,8 +252,8 @@ function App() {
     setCurrentView('colecao');
   };
 
-  const handleCreateColecao = async () => {
-    const id = await addColecao();
+  const handleCreateColecao = async (nome) => {
+    const id = await addColecao(nome);
     setSelectedColecaoId(id);
     setCurrentView('colecao');
   };
@@ -425,6 +427,7 @@ function App() {
                 onToggleHideSchedule={toggleHideSchedule}
                 onToggleGenreNsfw={toggleGenreNsfw}
                 onSetNsfwMode={setNsfwMode}
+                onReset={resetCategory}
                 onClose={handleBackToList}
               />
             )}

@@ -1,29 +1,26 @@
 import { Square, CheckSquare } from 'lucide-react';
+import { useLanguage } from '../../../i18n/LanguageContext';
 
-/**
- * Links section
- * Manages multiple links with principal selection and auto-increment feature
- */
 function LinksSection({ formData, onChange, linksManager }) {
+  const { t } = useLanguage();
   const { linksState, handleAddLink, handleRemoveLink, handleLinkChange, handleSetLinkPrincipal } = linksManager;
 
   return (
     <section className="form-section">
-      <h3>Links</h3>
+      <h3>{t('form_section_links')}</h3>
 
-      {/* List of links */}
       {linksState.length > 0 && (
         <div className="links-list">
           {linksState.map((link, index) => (
             <div key={index} className={`link-item-form ${link.principal ? 'principal' : ''}`}>
               <div className="link-fields">
                 <div className="form-group">
-                  <label>Nome do Site</label>
+                  <label>{t('form_link_name_label')}</label>
                   <input
                     type="text"
                     value={link.nome}
                     onChange={(e) => handleLinkChange(index, 'nome', e.target.value)}
-                    placeholder="Ex: Se Liga Nerd"
+                    placeholder={t('form_link_name_ph')}
                   />
                 </div>
 
@@ -39,24 +36,22 @@ function LinksSection({ formData, onChange, linksManager }) {
               </div>
 
               <div className="link-actions">
-                {link.principal && <span className="badge-principal-link">Principal</span>}
+                {link.principal && <span className="badge-principal-link">{t('cover_principal')}</span>}
                 {!link.principal && (
                   <button
                     type="button"
                     className="btn-small"
                     onClick={() => handleSetLinkPrincipal(index)}
-                    title="Definir como principal"
                   >
-                    Definir Principal
+                    {t('form_link_set_main')}
                   </button>
                 )}
                 <button
                   type="button"
                   className="btn-small btn-danger"
                   onClick={() => handleRemoveLink(index)}
-                  title="Remover link"
                 >
-                  Remover
+                  {t('form_link_remove')}
                 </button>
               </div>
             </div>
@@ -64,17 +59,15 @@ function LinksSection({ formData, onChange, linksManager }) {
         </div>
       )}
 
-      {/* Button to add new link */}
       <button
         type="button"
         className="btn-secondary"
         onClick={handleAddLink}
         style={{ marginTop: linksState.length > 0 ? '16px' : '0' }}
       >
-        + Adicionar Link
+        + {t('form_link_add')}
       </button>
 
-      {/* Auto-increment feature */}
       <div className="form-group" style={{ marginTop: '16px' }}>
         <label className="checkbox-label">
           <input
@@ -88,7 +81,7 @@ function LinksSection({ formData, onChange, linksManager }) {
           ) : (
             <Square size={18} className="checkbox-icon-unchecked" />
           )}
-          Auto-incrementar capítulo ao clicar no link principal
+          {t('form_link_auto_increment')}
         </label>
       </div>
     </section>

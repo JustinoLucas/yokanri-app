@@ -2,6 +2,12 @@ import { ChevronDown, Search } from 'lucide-react';
 import { TIPO_OBRA } from '../../../types/obra';
 import { useLanguage } from '../../../i18n/LanguageContext';
 
+const TIPO_KEY = {
+  [TIPO_OBRA.COREANO]: 'form_type_manhwa',
+  [TIPO_OBRA.CHINES]:  'form_type_manhua',
+  [TIPO_OBRA.JAPONES]: 'form_type_manga',
+};
+
 function BasicInfoSection({ formData, onChange, onSearchClick }) {
   const { t } = useLanguage();
 
@@ -73,7 +79,7 @@ function BasicInfoSection({ formData, onChange, onSearchClick }) {
             >
               {Object.values(TIPO_OBRA).map(tipo => (
                 <option key={tipo} value={tipo}>
-                  {tipo === 'Coreano' ? 'Manhwa • Coreano' : tipo === 'Chinês' ? 'Manhua • Chinês' : 'Manga • Japonês'}
+                  {t(TIPO_KEY[tipo]) || tipo}
                 </option>
               ))}
             </select>

@@ -3,6 +3,7 @@ import { Search, X, Loader } from 'lucide-react';
 import { searchManga as searchAniList } from '../../../services/anilistService';
 import { searchManga as searchMangaDex } from '../../../services/mangadexService';
 import { searchManga as searchMangaUpdates, getSeriesDetails as getMangaUpdatesDetails } from '../../../services/mangaUpdatesService';
+import { useLanguage } from '../../../i18n/LanguageContext';
 import './SearchModal.css';
 
 /**
@@ -83,6 +84,7 @@ function getDisplayInfo(manga) {
  * SearchModal - Modal for searching manga on AniList, MangaDex and MangaUpdates
  */
 function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
+  const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -125,12 +127,12 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
       });
 
       if (combinedResults.length === 0 && allFailed) {
-        setError('Erro ao buscar mangás. Tente novamente.');
+        setError(t('search_error'));
       }
 
       setResults(combinedResults);
     } catch (err) {
-      setError('Erro ao buscar mangás. Tente novamente.');
+      setError(t('search_error'));
       console.error('Search error:', err);
     } finally {
       setLoading(false);
@@ -146,7 +148,7 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
         onClose();
       } catch (err) {
         console.error('MangaUpdates details error:', err);
-        setError('Erro ao carregar detalhes da obra. Tente novamente.');
+        setError(t('search_error_details'));
       } finally {
         setSelectingKey(null);
       }
@@ -172,7 +174,7 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
     <div className="modal-overlay" onClick={handleClose}>
       <div className="modal-content search-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Buscar Manga/Manhwa</h2>
+          <h2>{t('search_title')}</h2>
           <button className="modal-close-btn" onClick={handleClose}>
             <X size={20} />
           </button>
@@ -183,7 +185,7 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
             <input
               type="text"
               className="search-input"
-              placeholder="Digite o nome do manga..."
+              placeholder={t('search_placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               autoFocus
@@ -194,7 +196,7 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
               disabled={loading || !searchTerm.trim() || activeSources.length === 0}
             >
               {loading ? <Loader size={18} className="spinning" /> : <Search size={18} />}
-              {loading ? 'Buscando...' : 'Buscar'}
+              {loading ? t('search_loading_btn') : t('search_btn')}
             </button>
           </div>
 
@@ -216,7 +218,7 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
           </div>
 
           {activeSources.length === 0 && (
-            <p className="search-source-warning">Selecione ao menos uma fonte de busca.</p>
+            <p className="search-source-warning">{t('search_no_source')}</p>
           )}
         </form>
 
@@ -230,14 +232,14 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
           {loading && (
             <div className="search-loading">
               <Loader size={32} className="spinning" />
-              <p>Buscando mangás...</p>
+              <p>{t('search_loading_msg')}</p>
             </div>
           )}
 
           {!loading && searched && results.length === 0 && (
             <div className="search-empty">
-              <p>Nenhum resultado encontrado para "{searchTerm}"</p>
-              <p className="search-empty-hint">Tente buscar com outro nome ou em inglês</p>
+              <p>{t('search_no_results').replace('{term}', searchTerm)}</p>
+              <p className="search-empty-hint">{t('search_no_results_hint')}</p>
             </div>
           )}
 
@@ -280,7 +282,7 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
                           </span>
                         )}
                         {info.status && <span className="result-badge">{info.status}</span>}
-                        {info.chapters && <span className="result-badge">{info.chapters} caps</span>}
+                        {info.chapters && <span className="result-badge">{t('search_chapters').replace('{n}', info.chapters)}</span>}
                         {info.scoreLabel && <span className="result-badge">{info.scoreLabel}</span>}
                       </div>
                       {info.genres.length > 0 && (
@@ -308,10 +310,8 @@ function SearchModal({ isOpen, onClose, onSelect, initialSearch = '' }) {
           {!loading && !searched && (
             <div className="search-hint">
               <Search size={48} />
-              <p>Digite o nome do manga e clique em buscar</p>
-              <p className="search-hint-small">
-                Busca em <strong>AniList</strong>, <strong>MangaDex</strong> e <strong>MangaUpdates</strong> (use títulos em inglês ou romanizados)
-              </p>
+              <p>{t('search_hint_title')}</p>
+              <p className="search-hint-small">{t('search_hint_subtitle')}</p>
             </div>
           )}
         </div>

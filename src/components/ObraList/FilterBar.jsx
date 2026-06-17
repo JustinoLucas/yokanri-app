@@ -4,6 +4,8 @@ import { TIPO_OBRA, GENEROS } from '../../types/obra';
 import CustomSelect from '../CustomSelect';
 import ViewModeToggle from './ViewModeToggle';
 import { SORT_OPTIONS, LISTING_MODES } from './constants';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { getItemLabel } from '../../i18n/itemLabel';
 
 function FilterBar({
   searchTerm,
@@ -30,13 +32,15 @@ function FilterBar({
   onListingModeChange,
   config,
 }) {
-  // Exclui itens ocultos (nao-definido) — value = ID, label = rótulo configurado
-  const statusObraOptions = (config?.statusObra?.filter(s => !s.hidden) ?? []).map(s => ({ value: s.id, label: s.label }));
-  const statusLeituraOptions = (config?.statusLeitura?.filter(s => !s.hidden) ?? []).map(s => ({ value: s.id, label: s.label }));
+  const { t } = useLanguage();
+  // Exclui itens ocultos (nao-definido) — value = ID, label = rótulo traduzido
+  const statusObraOptions = (config?.statusObra?.filter(s => !s.hidden) ?? []).map(s => ({ value: s.id, label: getItemLabel(s, t) }));
+  const statusLeituraOptions = (config?.statusLeitura?.filter(s => !s.hidden) ?? []).map(s => ({ value: s.id, label: getItemLabel(s, t) }));
+  // value = label pt-BR salvo nas obras; label = texto traduzido para exibição
   const generosOptions = (config?.generos ?? GENEROS.map(label => ({ label })))
     .slice()
-    .sort((a, b) => a.label.localeCompare(b.label, 'pt-BR', { sensitivity: 'base' }))
-    .map(g => g.label);
+    .map(g => ({ value: g.label, label: getItemLabel(g, t) }))
+    .sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }));
   const [filtersExpanded, setFiltersExpanded] = useState(false);
 
   return (
@@ -124,7 +128,7 @@ function FilterBar({
             value={filterGenero}
             onChange={(e) => onFilterGeneroChange(e.target.value)}
             placeholder="Gênero"
-            options={generosOptions.map(g => ({ value: g, label: g }))}
+            options={generosOptions}
           />
 
           <div className="sort-group">

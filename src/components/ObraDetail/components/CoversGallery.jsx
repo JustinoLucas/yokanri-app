@@ -1,8 +1,8 @@
-/**
- * CoversGallery - Thumbnail gallery for multiple covers
- * Displays all available covers with visual indication of selected and principal cover
- */
+import { useLanguage } from '../../../i18n/LanguageContext';
+
 function CoversGallery({ covers, selectedIndex, onSelectCover }) {
+  const { t } = useLanguage();
+
   if (covers.length <= 1) return null;
 
   return (
@@ -14,7 +14,7 @@ function CoversGallery({ covers, selectedIndex, onSelectCover }) {
           onClick={() => onSelectCover(index)}
         >
           <img src={cover.url} alt={`Capa ${index + 1}`} />
-          {cover.principal && <span className="thumb-badge">Principal</span>}
+          {cover.principal && <span className="thumb-badge">{t('cover_principal')}</span>}
         </div>
       ))}
     </div>

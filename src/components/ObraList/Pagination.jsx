@@ -1,3 +1,5 @@
+import { useLanguage } from '../../i18n/LanguageContext';
+
 function Pagination({
   currentPage,
   totalPages,
@@ -6,6 +8,8 @@ function Pagination({
   onNextPage,
   onLastPage
 }) {
+  const { t } = useLanguage();
+
   if (totalPages <= 1) {
     return null;
   }
@@ -16,7 +20,7 @@ function Pagination({
         className="pagination-btn"
         onClick={onFirstPage}
         disabled={currentPage === 1}
-        title="Primeira página"
+        title={t('pagination_first')}
       >
         «
       </button>
@@ -24,20 +28,20 @@ function Pagination({
         className="pagination-btn"
         onClick={onPreviousPage}
         disabled={currentPage === 1}
-        title="Página anterior"
+        title={t('pagination_prev')}
       >
         ‹
       </button>
 
       <div className="pagination-info">
-        Página {currentPage} de {totalPages}
+        {t('pagination_page').replace('{current}', currentPage).replace('{total}', totalPages)}
       </div>
 
       <button
         className="pagination-btn"
         onClick={onNextPage}
         disabled={currentPage === totalPages}
-        title="Próxima página"
+        title={t('pagination_next')}
       >
         ›
       </button>
@@ -45,7 +49,7 @@ function Pagination({
         className="pagination-btn"
         onClick={onLastPage}
         disabled={currentPage === totalPages}
-        title="Última página"
+        title={t('pagination_last')}
       >
         »
       </button>

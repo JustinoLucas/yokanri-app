@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ImagePlus, Trash2, Plus, Pencil, X, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, ImagePlus, Trash2, Plus, Pencil, X, AlertTriangle, Image, Info } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
 import ObraCard from '../ObraCard';
 import storage from '../../services/storage/storageService';
@@ -26,6 +26,7 @@ function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObra
   const [titleDraft, setTitleDraft] = useState(colecao.nome);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [bannerModalOpen, setBannerModalOpen] = useState(false);
 
   useEffect(() => {
     setTitleDraft(colecao.nome);
@@ -46,7 +47,11 @@ function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObra
   const positionY = previewPositionY ?? banner?.positionY ?? 50;
 
   const handleBannerPick = () => {
-    alert(`Tamanho recomendado para o banner: ${BANNER_RECOMMENDED_SIZE}.`);
+    setBannerModalOpen(true);
+  };
+
+  const handleBannerModalConfirm = () => {
+    setBannerModalOpen(false);
     bannerInputRef.current?.click();
   };
 
@@ -271,6 +276,14 @@ function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObra
         />
       )}
 
+      {bannerModalOpen && (
+        <BannerPickModal
+          isChanging={!!bannerUrl}
+          onConfirm={handleBannerModalConfirm}
+          onCancel={() => setBannerModalOpen(false)}
+        />
+      )}
+
       {confirmDeleteOpen && (
         <div className="colv-confirm-overlay" onClick={() => setConfirmDeleteOpen(false)}>
           <div className="colv-confirm-modal" onClick={e => e.stopPropagation()}>
@@ -292,6 +305,45 @@ function ColecaoView({ colecao, obras, onClose, onRename, onSetBanner, onSetObra
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function BannerPickModal({ isChanging, onConfirm, onCancel }) {
+  const { t } = useLanguage();
+  const titleKey = isChanging ? 'profile_banner_modal_title_change' : 'profile_banner_modal_title';
+
+  return (
+    <div className="colv-modal-overlay" onClick={onCancel}>
+      <div className="colv-modal" onClick={e => e.stopPropagation()}>
+        <div className="colv-modal-header">
+          <Image size={18} className="colv-modal-icon" />
+          <h3>{t(titleKey)}</h3>
+        </div>
+        <div className="colv-modal-body">
+          <div className="colv-modal-tip">
+            <Info size={14} className="colv-modal-tip-icon" />
+            <span>{t('profile_banner_modal_tip_size').replace('{size}', BANNER_RECOMMENDED_SIZE)}</span>
+          </div>
+          <div className="colv-modal-tip">
+            <Info size={14} className="colv-modal-tip-icon" />
+            <span>{t('profile_banner_modal_tip_format')}</span>
+          </div>
+          <div className="colv-modal-tip">
+            <Info size={14} className="colv-modal-tip-icon" />
+            <span>{t('profile_banner_modal_tip_note')}</span>
+          </div>
+        </div>
+        <div className="colv-modal-footer">
+          <button className="colv-modal-btn colv-modal-btn--ghost" onClick={onCancel}>
+            {t('profile_banner_modal_cancel')}
+          </button>
+          <button className="colv-modal-btn colv-modal-btn--primary" onClick={onConfirm}>
+            <ImagePlus size={14} />
+            {t('profile_banner_modal_select')}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

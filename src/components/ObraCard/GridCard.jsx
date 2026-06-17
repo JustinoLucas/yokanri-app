@@ -83,7 +83,7 @@ function GridCard({
           <button
             className="favorite-btn"
             onClick={handleFavorite}
-            title="Favoritar"
+            title={t('card_favorite')}
           >
             {obra.favorito ? (
               <FavoriteStar obraId={obra.id} size={18} />

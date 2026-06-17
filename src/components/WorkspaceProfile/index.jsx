@@ -15,9 +15,12 @@ import {
   Pencil,
   ImagePlus,
   ArrowLeft,
+  Image,
+  Info,
 } from 'lucide-react';
 import { useConfig } from '../../context/ConfigContext';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { getItemLabel } from '../../i18n/itemLabel';
 import useCover from '../ObraCard/hooks/useCover';
 import storage from '../../services/storage/storageService';
 import './WorkspaceProfile.css';
@@ -43,6 +46,7 @@ function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSe
   const [bannerUrl, setBannerUrl] = useState(null);
   const [previewPositionY, setPreviewPositionY] = useState(null);
   const bannerInputRef = useRef(null);
+  const [bannerModalOpen, setBannerModalOpen] = useState(false);
 
   useEffect(() => {
     if (!bannerFileName) {
@@ -59,7 +63,11 @@ function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSe
   const positionY = previewPositionY ?? banner?.positionY ?? 50;
 
   const handleBannerPick = () => {
-    alert(`Tamanho recomendado para o banner: ${BANNER_RECOMMENDED_SIZE}.`);
+    setBannerModalOpen(true);
+  };
+
+  const handleBannerModalConfirm = () => {
+    setBannerModalOpen(false);
     bannerInputRef.current?.click();
   };
 
@@ -284,6 +292,55 @@ function WorkspaceProfile({ workspace, obras, onViewDetail, onSetDestaques, onSe
 
       </div>{/* wsp-page */}
       </div>{/* wsp-scroll */}
+
+      {bannerModalOpen && (
+        <BannerPickModal
+          isChanging={!!bannerUrl}
+          onConfirm={handleBannerModalConfirm}
+          onCancel={() => setBannerModalOpen(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ─── BANNER PICK MODAL ──────────────────────────────────────
+
+function BannerPickModal({ isChanging, onConfirm, onCancel }) {
+  const { t } = useLanguage();
+  const titleKey = isChanging ? 'profile_banner_modal_title_change' : 'profile_banner_modal_title';
+
+  return (
+    <div className="wsp-modal-overlay" onClick={onCancel}>
+      <div className="wsp-modal" onClick={e => e.stopPropagation()}>
+        <div className="wsp-modal-header">
+          <Image size={18} className="wsp-modal-icon" />
+          <h3>{t(titleKey)}</h3>
+        </div>
+        <div className="wsp-modal-body">
+          <div className="wsp-modal-tip">
+            <Info size={14} className="wsp-modal-tip-icon" />
+            <span>{t('profile_banner_modal_tip_size').replace('{size}', BANNER_RECOMMENDED_SIZE)}</span>
+          </div>
+          <div className="wsp-modal-tip">
+            <Info size={14} className="wsp-modal-tip-icon" />
+            <span>{t('profile_banner_modal_tip_format')}</span>
+          </div>
+          <div className="wsp-modal-tip">
+            <Info size={14} className="wsp-modal-tip-icon" />
+            <span>{t('profile_banner_modal_tip_note')}</span>
+          </div>
+        </div>
+        <div className="wsp-modal-footer">
+          <button className="wsp-modal-btn wsp-modal-btn--ghost" onClick={onCancel}>
+            {t('profile_banner_modal_cancel')}
+          </button>
+          <button className="wsp-modal-btn wsp-modal-btn--primary" onClick={onConfirm}>
+            <ImagePlus size={14} />
+            {t('profile_banner_modal_select')}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -451,6 +508,14 @@ const ACTIVITY_META = {
  * Item de atividade — mostra o que aconteceu com a obra, o status
  * atual dela (quando ainda existe) e há quanto tempo ocorreu.
  */
+function translateDetail(detail, t) {
+  if (!detail) return null;
+  // "Cap. 83" → traduz o prefixo mantendo o número
+  const match = detail.match(/^Cap\.\s*(.+)$/);
+  if (match) return `${t('detail_cap')} ${match[1]}`;
+  return detail;
+}
+
 function ActivityItem({ entry, obras, config, onViewDetail }) {
   const { t, language } = useLanguage();
   const meta = ACTIVITY_META[entry.type] ?? ACTIVITY_META.chapter_read;
@@ -464,7 +529,8 @@ function ActivityItem({ entry, obras, config, onViewDetail }) {
     : null;
 
   const label = t(meta.labelKey);
-  const detailText = entry.detail ? `${label} · ${entry.detail}` : label;
+  const translatedDetail = translateDetail(entry.detail, t);
+  const detailText = translatedDetail ? `${label} · ${translatedDetail}` : label;
 
   const Tag = obra ? 'button' : 'div';
 
@@ -495,7 +561,7 @@ function ActivityItem({ entry, obras, config, onViewDetail }) {
           <span className="wsp-recent-name-text">{entry.obraNome}</span>
           {statusInfo && (
             <span className="wsp-recent-status" style={{ color: statusInfo.color }}>
-              {statusInfo.label}
+              {getItemLabel(statusInfo, t)}
             </span>
           )}
         </span>

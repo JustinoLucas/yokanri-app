@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Edit2, Trash2, Star, ExternalLink, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
+import { useConfig } from '../../context/ConfigContext';
 import { useCoverLoader } from './hooks/useCoverLoader';
 import CoversGallery from './components/CoversGallery';
 import ObraStatusBadge from '../ObraCard/shared/ObraStatusBadge';
 import StatusBadge from '../ObraCard/shared/StatusBadge';
 import TipoBadge from '../ObraCard/shared/TipoBadge';
 import { getDescricaoLancamento } from '../../types/obra';
+import { getItemLabel } from '../../i18n/itemLabel';
 import { formatDate } from './utils/formatters';
 import './ObraDetail.css';
 
@@ -20,6 +22,7 @@ import './ObraDetail.css';
  */
 function ObraDetail({ obra, onEdit, onDelete, onClose }) {
   const { t } = useLanguage();
+  const config = useConfig();
   const { coverUrl, allCovers, selectedCoverIndex, selectCover } = useCoverLoader(obra);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
@@ -102,7 +105,7 @@ function ObraDetail({ obra, onEdit, onDelete, onClose }) {
               {obra.anoLancamento && <span className="detail-meta-item">{obra.anoLancamento}</span>}
               <span className="detail-meta-dot" />
               <span className="detail-meta-item detail-meta-launch">
-                {getDescricaoLancamento(obra)}
+                {getDescricaoLancamento(obra, t)}
               </span>
             </div>
           )}
@@ -112,7 +115,7 @@ function ObraDetail({ obra, onEdit, onDelete, onClose }) {
             {obra.capituloAtual > 0 && (
               <div className="detail-progress-row">
                 <span className="detail-progress-label">
-                  Cap.&nbsp;{obra.capituloAtualUsuario}/{obra.capituloAtual}
+                  {t('detail_cap')}&nbsp;{obra.capituloAtualUsuario}/{obra.capituloAtual}
                 </span>
                 <div className="detail-progress-track">
                   <div className="detail-progress-fill" style={{ width: `${pct}%` }} />
@@ -137,9 +140,14 @@ function ObraDetail({ obra, onEdit, onDelete, onClose }) {
           {/* Genres */}
           {obra.generos?.length > 0 && (
             <div className="detail-hero-genres">
-              {obra.generos.map(g => (
-                <span key={g} className="detail-genre-chip">{g}</span>
-              ))}
+              {obra.generos.map(g => {
+                const item = config?.generos?.find(c => c.label === g);
+                return (
+                  <span key={g} className="detail-genre-chip">
+                    {getItemLabel(item, t) || g}
+                  </span>
+                );
+              })}
             </div>
           )}
 
