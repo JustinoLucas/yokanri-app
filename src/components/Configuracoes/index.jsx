@@ -212,12 +212,25 @@ function ConfigItem({ item, hasColor, hasHideSchedule, hasNsfw, readonly, onRena
 
 // ─── Seção de Atualizações ───────────────────────────────────────────────────
 
+function renderMarkdown(text) {
+  if (!text) return null;
+  return text.split('\n').map((line, i) => {
+    if (/^### (.+)/.test(line))  return <p key={i} className="config-notes-h3">{line.replace(/^### /, '')}</p>;
+    if (/^## (.+)/.test(line))   return <p key={i} className="config-notes-h2">{line.replace(/^## /, '')}</p>;
+    if (/^- (.+)/.test(line))    return <p key={i} className="config-notes-li">· {line.replace(/^- /, '').replace(/\*\*(.+?)\*\*/g, '$1')}</p>;
+    if (/^---$/.test(line))      return <hr key={i} className="config-notes-hr" />;
+    if (line.trim() === '')      return <div key={i} className="config-notes-gap" />;
+    return <p key={i} className="config-notes-p">{line.replace(/\*\*(.+?)\*\*/g, '$1')}</p>;
+  });
+}
+
 function UpdateSection() {
   const { t } = useLanguage();
   const [appVersion, setAppVersion] = useState('');
   const [status, setStatus] = useState('idle'); // idle | checking | up-to-date | available | downloading | finished | error
   const [update, setUpdate] = useState(null);
   const [progress, setProgress] = useState(0);
+  const [releaseNotes, setReleaseNotes] = useState('');
 
   useEffect(() => {
     getVersion().then(setAppVersion).catch(() => {});
@@ -229,6 +242,7 @@ function UpdateSection() {
       const result = await checkForUpdate();
       if (result) {
         setUpdate(result);
+        setReleaseNotes(result.body || '');
         setStatus('available');
       } else {
         setStatus('up-to-date');
@@ -259,6 +273,8 @@ function UpdateSection() {
       setStatus('error');
     }
   };
+
+  const showNotes = releaseNotes && ['available', 'downloading', 'finished'].includes(status);
 
   return (
     <div className="config-section">
@@ -329,6 +345,20 @@ function UpdateSection() {
           <AlertCircle size={13} />
           {t('config_update_error')}
         </p>
+      )}
+
+      {showNotes && (
+        <div className="config-update-notes">
+          <span className="config-update-notes-title">
+            {status === 'finished'
+              ? t('config_update_notes_installed').replace('{version}', update?.version)
+              : t('config_update_notes_available').replace('{version}', update?.version)
+            }
+          </span>
+          <div className="config-update-notes-body">
+            {renderMarkdown(releaseNotes)}
+          </div>
+        </div>
       )}
     </div>
   );
