@@ -1,4 +1,38 @@
 [
-  { "code": "pt-BR", "flag": "🇧🇷", "native": "Português", "label": "Português (BR)" },
-  { "code": "en",    "flag": "🇺🇸", "native": "English",   "label": "English" }
+  {
+    "code": "pt-BR",
+    "flag": "🇧🇷",
+    "native": "Português",
+    "label": "Português (BR)"
+  },
+  {
+    "code": "en",
+    "flag": "🇺🇸",
+    "native": "English",
+    "label": "English"
+  },
+  {
+    "code": "es",
+    "flag": "🇪🇸",
+    "native": "Espanõl",
+    "label": "Espanõl"
+  },
+  {
+    "code": "jp",
+    "flag": "🇯🇵",
+    "native": "日本語",
+    "label": "日本語"
+  },
+  {
+    "code": "kr",
+    "flag": "🇰🇷",
+    "native": "한국어",
+    "label": "한국어"
+  },
+  {
+    "code": "ch",
+    "flag": "🇨🇳",
+    "native": "中国人",
+    "label": "中国人"
+  }
 ]
