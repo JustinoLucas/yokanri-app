@@ -387,6 +387,271 @@
   background: var(--accent-bg);
 }
 
+/* ─── Supporter banner (Geral) ─────────────────────────── */
+
+.config-sup-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.10) 0%, rgba(168, 85, 247, 0.06) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.28);
+  border-radius: var(--radius-8);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: background var(--duration-instant) var(--ease-out),
+              border-color var(--duration-instant) var(--ease-out);
+}
+
+.config-sup-banner:hover {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.16) 0%, rgba(168, 85, 247, 0.10) 100%);
+  border-color: rgba(139, 92, 246, 0.50);
+}
+
+.config-sup-banner-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-8);
+  background: rgba(139, 92, 246, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a855f7;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.config-sup-banner-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.config-sup-banner-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #c084fc;
+}
+
+.config-sup-banner-desc {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.config-sup-banner-arrow {
+  color: #a855f7;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+/* ─── Supporter page ────────────────────────────────────── */
+
+.config-sup-page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.config-sup-hero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.10) 0%, rgba(168, 85, 247, 0.05) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: var(--radius-8);
+}
+
+.config-sup-hero-icon {
+  font-size: 32px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.config-sup-hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.config-sup-hero-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #c084fc;
+  letter-spacing: -0.2px;
+}
+
+.config-sup-hero-subtitle {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.config-sup-section-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  display: block;
+}
+
+.config-sup-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.config-sup-benefit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-8);
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.config-sup-benefit-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.15);
+  color: #a855f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.config-sup-platforms {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.config-sup-platform-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  border-radius: var(--radius-8);
+  border: 1px solid var(--platform-border, var(--border-default));
+  background: var(--platform-bg, var(--bg-panel));
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color var(--duration-instant) var(--ease-out),
+              box-shadow var(--duration-instant) var(--ease-out),
+              transform var(--duration-instant) var(--ease-out);
+  text-align: left;
+  width: 100%;
+}
+
+.config-sup-platform-card:hover {
+  border-color: var(--platform-color, var(--accent-primary));
+  box-shadow: 0 0 14px color-mix(in srgb, var(--platform-color, var(--accent-primary)) 18%, transparent);
+  transform: translateY(-1px);
+}
+
+.config-sup-platform-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-8);
+  background: color-mix(in srgb, var(--platform-color, var(--accent-primary)) 14%, transparent);
+  color: var(--platform-color, var(--accent-primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.config-sup-platform-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.config-sup-platform-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.config-sup-platform-handle {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.config-sup-platform-arrow {
+  color: var(--platform-color, var(--text-muted));
+  opacity: 0.65;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.config-sup-platform-card:hover .config-sup-platform-arrow {
+  transform: translate(2px, -2px);
+  opacity: 1;
+}
+
+.config-sup-key-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--bg-panel);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-8);
+  opacity: 0.72;
+}
+
+.config-sup-key-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.config-sup-key-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.config-sup-key-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.config-sup-key-soon-badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: rgba(139, 92, 246, 0.12);
+  color: #a855f7;
+}
+
+.config-sup-key-desc {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
 .config-item-label {
   flex: 1;
   font-family: var(--font-sans);
@@ -550,10 +815,150 @@
 
 /* ─── Add section ──────────────────────────────────────── */
 
+/* ── Cabeçalho da aba (título + botão reset) ────────────────────────────────── */
+
+.config-content-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.config-content-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.config-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-6, 6px);
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid color-mix(in srgb, var(--danger-color) 40%, transparent);
+  background: none;
+  color: var(--danger-color);
+  transition: background 0.15s;
+}
+
+.config-reset-btn:hover {
+  background: color-mix(in srgb, var(--danger-color) 10%, transparent);
+}
+
+/* ── Modal de reset ─────────────────────────────────────────────────────────── */
+
+.config-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.config-modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  width: 400px;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.config-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.config-modal-header h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.config-modal-icon--warn {
+  color: var(--danger-color);
+  flex-shrink: 0;
+}
+
+.config-modal-body {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.config-modal-body p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.config-modal-warning {
+  color: var(--danger-color) !important;
+  background: color-mix(in srgb, var(--danger-color) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger-color) 25%, transparent);
+  border-radius: 7px;
+  padding: 10px 12px !important;
+}
+
+.config-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px 16px;
+  border-top: 1px solid var(--border-default);
+}
+
+.config-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border-default);
+  background: var(--bg-tertiary, var(--bg-primary));
+  color: var(--text-primary);
+  transition: background 0.15s;
+}
+
+.config-modal-btn:hover {
+  background: var(--hover-bg, var(--bg-primary));
+}
+
+.config-modal-btn--danger {
+  background: var(--danger-color);
+  color: #fff;
+  border-color: transparent;
+}
+
+.config-modal-btn--danger:hover {
+  filter: brightness(1.1);
+}
+
+/* ── Add section ─────────────────────────────────────────────────────────────── */
+
 .config-add-section {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  margin-bottom: 16px;
 }
 
 .config-add-row {
