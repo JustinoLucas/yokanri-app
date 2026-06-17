@@ -2,17 +2,18 @@ import { useState, useEffect } from 'react';
 import { SlidersHorizontal, X, ChevronDown } from 'lucide-react';
 import { TIPO_OBRA } from '../../types/obra';
 import { FILTER_ALL } from './constants';
+import { useLanguage } from '../../i18n/LanguageContext';
+import { getItemLabel } from '../../i18n/itemLabel';
 import './LibraryFilterPanel.css';
 
-/**
- * LibraryFilterPanel V3F — Painel de filtros avançados com staging.
- *
- * Usa estado local (draft) para todas as seleções.
- * "Cancelar" fecha sem aplicar. "Aplicar filtros N" commita e fecha.
- */
+const TIPO_KEY_MAP = {
+  'Coreano': 'tipo_coreano',
+  'Chinês':  'tipo_chines',
+  'Japonês': 'tipo_japones',
+};
+
 function LibraryFilterPanel({
   config,
-  // Valores atuais commitados
   filterTipo, filterStatusObra, filterStatusLeitura, filterGenero,
   filterAutor, filterArtista,
   filterAnoMin, filterAnoMax,
@@ -20,7 +21,6 @@ function LibraryFilterPanel({
   filterMode,
   showFavoritosOnly,
   nsfwMode,
-  // Callbacks para commitar
   onFilterTipoChange, onFilterStatusObraChange, onFilterStatusLeituraChange,
   onFilterGeneroChange, onFilterAutorChange, onFilterArtistaChange,
   onFilterAnoMinChange, onFilterAnoMaxChange,
@@ -32,7 +32,6 @@ function LibraryFilterPanel({
   onClose,
   totalResults,
 }) {
-  // ── Draft state (local, não comitado) ──────────────────────────────────────
   const [draft, setDraft] = useState({
     filterTipo:           filterTipo           ?? FILTER_ALL,
     filterStatusObra:     filterStatusObra      ?? FILTER_ALL,
@@ -49,14 +48,11 @@ function LibraryFilterPanel({
     nsfwMode:             nsfwMode              ?? 'hidden',
   });
 
+  const { t } = useLanguage();
   const [genresExpanded, setGenresExpanded] = useState(true);
-  const [temasExpanded, setTemasExpanded]   = useState(false);
 
-  // Fecha com ESC
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
+    const handleKeyDown = (e) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
@@ -65,7 +61,6 @@ function LibraryFilterPanel({
   const toggle = (key, val, all) =>
     setDraft(prev => ({ ...prev, [key]: prev[key] === val ? all : val }));
 
-  // Opções
   const statusLeituraOpts = config?.statusLeitura?.filter(s => !s.hidden) ?? [];
   const statusObraOpts    = config?.statusObra?.filter(s => !s.hidden) ?? [];
   const generos = (config?.generos ?? []).slice().sort((a, b) =>
@@ -73,7 +68,6 @@ function LibraryFilterPanel({
   );
   const tipoOpts = Object.values(TIPO_OBRA);
 
-  // Contar filtros ativos no draft
   const activeCount = [
     draft.filterStatusLeitura !== FILTER_ALL,
     draft.filterStatusObra    !== FILTER_ALL,
@@ -88,7 +82,6 @@ function LibraryFilterPanel({
     draft.showFavoritosOnly,
   ].filter(Boolean).length;
 
-  // ── Aplicar ────────────────────────────────────────────────────────────────
   const handleApply = () => {
     onFilterStatusLeituraChange(draft.filterStatusLeitura);
     onFilterStatusObraChange(draft.filterStatusObra);
@@ -106,7 +99,6 @@ function LibraryFilterPanel({
     onClose();
   };
 
-  // ── Limpar (apenas o draft) ────────────────────────────────────────────────
   const handleClear = () => {
     setDraft(prev => ({
       ...prev,
@@ -120,42 +112,41 @@ function LibraryFilterPanel({
     }));
   };
 
-  // ── Chips ativos no footer ─────────────────────────────────────────────────
   const activeChips = [
     draft.filterStatusLeitura !== FILTER_ALL && {
-      label: statusLeituraOpts.find(s => s.id === draft.filterStatusLeitura)?.label ?? draft.filterStatusLeitura,
+      label: getItemLabel(statusLeituraOpts.find(s => s.id === draft.filterStatusLeitura), t) || draft.filterStatusLeitura,
       clear: () => set('filterStatusLeitura', FILTER_ALL),
     },
     draft.filterStatusObra !== FILTER_ALL && {
-      label: statusObraOpts.find(s => s.id === draft.filterStatusObra)?.label ?? draft.filterStatusObra,
+      label: getItemLabel(statusObraOpts.find(s => s.id === draft.filterStatusObra), t) || draft.filterStatusObra,
       clear: () => set('filterStatusObra', FILTER_ALL),
     },
     draft.filterTipo !== FILTER_ALL && {
-      label: draft.filterTipo,
+      label: t(TIPO_KEY_MAP[draft.filterTipo]) || draft.filterTipo,
       clear: () => set('filterTipo', FILTER_ALL),
     },
     draft.filterGenero !== FILTER_ALL && {
-      label: draft.filterGenero,
+      label: getItemLabel(generos.find(g => g.label === draft.filterGenero), t) || draft.filterGenero,
       clear: () => set('filterGenero', FILTER_ALL),
     },
     draft.filterAutor && {
-      label: `Autor: ${draft.filterAutor}`,
+      label: `${t('filter_chip_author')}: ${draft.filterAutor}`,
       clear: () => set('filterAutor', ''),
     },
     draft.filterArtista && {
-      label: `Artista: ${draft.filterArtista}`,
+      label: `${t('filter_chip_artist')}: ${draft.filterArtista}`,
       clear: () => set('filterArtista', ''),
     },
     (draft.filterAnoMin || draft.filterAnoMax) && {
-      label: `Ano: ${draft.filterAnoMin || '?'} – ${draft.filterAnoMax || '?'}`,
+      label: `${t('filter_chip_year')}: ${draft.filterAnoMin || '?'} – ${draft.filterAnoMax || '?'}`,
       clear: () => setDraft(p => ({ ...p, filterAnoMin: '', filterAnoMax: '' })),
     },
     (draft.filterCapMin || draft.filterCapMax) && {
-      label: `Cap: ${draft.filterCapMin || '0'} – ${draft.filterCapMax || '∞'}`,
+      label: `${t('filter_chip_chapters')}: ${draft.filterCapMin || '0'} – ${draft.filterCapMax || '∞'}`,
       clear: () => setDraft(p => ({ ...p, filterCapMin: '', filterCapMax: '' })),
     },
     draft.showFavoritosOnly && {
-      label: 'Favoritos',
+      label: t('filter_chip_favorites'),
       clear: () => set('showFavoritosOnly', false),
     },
   ].filter(Boolean);
@@ -163,16 +154,17 @@ function LibraryFilterPanel({
   return (
     <div className="filter-panel-backdrop" onClick={onClose}>
     <div className="filter-panel" onClick={e => e.stopPropagation()}>
+
       {/* ── Cabeçalho ────────────────────────────────────────────────────── */}
       <div className="filter-panel-header">
         <SlidersHorizontal size={14} className="filter-panel-header-icon" />
-        <span className="filter-panel-header-title">Filtros avançados</span>
+        <span className="filter-panel-header-title">{t('filter_title')}</span>
         {activeCount > 0 && (
-          <span className="filter-panel-active-badge">{activeCount} ativos</span>
+          <span className="filter-panel-active-badge">{activeCount} {t('filter_active')}</span>
         )}
         <div className="filter-panel-header-spacer" />
         <button className="filter-panel-clear-btn" onClick={handleClear}>
-          Limpar tudo
+          {t('filter_clear_all')}
         </button>
         <div className="filter-panel-divider-v" />
         <button className="filter-panel-close-btn" onClick={onClose}>
@@ -185,12 +177,12 @@ function LibraryFilterPanel({
 
         {/* Linha 1: STATUS | TIPO | AUTOR | ARTISTA */}
         <div className="filter-panel-row filter-panel-row--4col">
-          <FilterGroup label="Status">
+          <FilterGroup label={t('filter_group_status')}>
             <div className="filter-chips-wrap">
               {statusLeituraOpts.map(s => (
                 <FChip
                   key={s.id}
-                  label={s.label}
+                  label={getItemLabel(s, t)}
                   selected={draft.filterStatusLeitura === s.id}
                   onClick={() => toggle('filterStatusLeitura', s.id, FILTER_ALL)}
                 />
@@ -198,48 +190,48 @@ function LibraryFilterPanel({
             </div>
           </FilterGroup>
 
-          <FilterGroup label="Tipo">
+          <FilterGroup label={t('filter_group_tipo')}>
             <div className="filter-chips-wrap">
-              {tipoOpts.map(t => (
+              {tipoOpts.map(tipo => (
                 <FChip
-                  key={t}
-                  label={t}
-                  selected={draft.filterTipo === t}
-                  onClick={() => toggle('filterTipo', t, FILTER_ALL)}
+                  key={tipo}
+                  label={t(TIPO_KEY_MAP[tipo]) || tipo}
+                  selected={draft.filterTipo === tipo}
+                  onClick={() => toggle('filterTipo', tipo, FILTER_ALL)}
                 />
               ))}
             </div>
           </FilterGroup>
 
-          <FilterGroup label="Autor">
+          <FilterGroup label={t('filter_group_author')}>
             <input
               type="text"
               className="filter-text-input"
-              placeholder="Nome do autor"
+              placeholder={t('filter_author_placeholder')}
               value={draft.filterAutor}
               onChange={e => set('filterAutor', e.target.value)}
             />
           </FilterGroup>
 
-          <FilterGroup label="Artista">
+          <FilterGroup label={t('filter_group_artist')}>
             <input
               type="text"
               className="filter-text-input"
-              placeholder="Nome do artista"
+              placeholder={t('filter_artist_placeholder')}
               value={draft.filterArtista}
               onChange={e => set('filterArtista', e.target.value)}
             />
           </FilterGroup>
         </div>
 
-        {/* Linha 2: ANO LANÇAMENTO | CTD CAPÍTULOS | MODO FILTRO | CONTEÚDO ADULTO */}
+        {/* Linha 2: ANO | CAPÍTULOS | MODO FILTRO | CONTEÚDO ADULTO */}
         <div className="filter-panel-row filter-panel-row--4col filter-panel-row--border">
-          <FilterGroup label="Ano de Lançamento">
+          <FilterGroup label={t('filter_group_year')}>
             <div className="filter-range-wrap">
               <input
                 type="number"
                 className="filter-text-input filter-text-input--range"
-                placeholder="De"
+                placeholder={t('filter_year_from')}
                 value={draft.filterAnoMin}
                 onChange={e => set('filterAnoMin', e.target.value)}
                 min="1900" max="2100"
@@ -247,7 +239,7 @@ function LibraryFilterPanel({
               <input
                 type="number"
                 className="filter-text-input filter-text-input--range"
-                placeholder="Até"
+                placeholder={t('filter_year_to')}
                 value={draft.filterAnoMax}
                 onChange={e => set('filterAnoMax', e.target.value)}
                 min="1900" max="2100"
@@ -255,12 +247,12 @@ function LibraryFilterPanel({
             </div>
           </FilterGroup>
 
-          <FilterGroup label="Ctd. de Capítulos">
+          <FilterGroup label={t('filter_group_chapters')}>
             <div className="filter-range-wrap">
               <input
                 type="number"
                 className="filter-text-input filter-text-input--range"
-                placeholder="Min"
+                placeholder={t('filter_chapters_min')}
                 value={draft.filterCapMin}
                 onChange={e => set('filterCapMin', e.target.value)}
                 min="0"
@@ -268,7 +260,7 @@ function LibraryFilterPanel({
               <input
                 type="number"
                 className="filter-text-input filter-text-input--range"
-                placeholder="Máx"
+                placeholder={t('filter_chapters_max')}
                 value={draft.filterCapMax}
                 onChange={e => set('filterCapMax', e.target.value)}
                 min="0"
@@ -276,35 +268,35 @@ function LibraryFilterPanel({
             </div>
           </FilterGroup>
 
-          <FilterGroup label="Modo de Filtro">
+          <FilterGroup label={t('filter_group_mode')}>
             <div className="filter-chips-wrap">
               <FChip
-                label="OU (qualquer)"
+                label={t('filter_mode_or')}
                 selected={draft.filterMode === 'or'}
                 onClick={() => set('filterMode', 'or')}
               />
               <FChip
-                label="E (todas)"
+                label={t('filter_mode_and')}
                 selected={draft.filterMode === 'and'}
                 onClick={() => set('filterMode', 'and')}
               />
             </div>
           </FilterGroup>
 
-          <FilterGroup label="Conteúdo Adulto">
+          <FilterGroup label={t('filter_group_nsfw')}>
             <div className="filter-chips-wrap">
               <FChip
-                label="Ocultar"
+                label={t('filter_nsfw_hidden')}
                 selected={draft.nsfwMode === 'hidden'}
                 onClick={() => set('nsfwMode', 'hidden')}
               />
               <FChip
-                label="Incluir"
+                label={t('filter_nsfw_show')}
                 selected={draft.nsfwMode === 'show'}
                 onClick={() => set('nsfwMode', 'show')}
               />
               <FChip
-                label="Blur"
+                label={t('filter_nsfw_blur')}
                 selected={draft.nsfwMode === 'blur'}
                 onClick={() => set('nsfwMode', 'blur')}
               />
@@ -314,12 +306,12 @@ function LibraryFilterPanel({
 
         {/* Linha 3: Status da Obra + Especial */}
         <div className="filter-panel-row filter-panel-row--3col filter-panel-row--border">
-          <FilterGroup label="Status da Obra">
+          <FilterGroup label={t('filter_group_status_obra')}>
             <div className="filter-chips-wrap">
               {statusObraOpts.map(s => (
                 <FChip
                   key={s.id}
-                  label={s.label}
+                  label={getItemLabel(s, t)}
                   selected={draft.filterStatusObra === s.id}
                   onClick={() => toggle('filterStatusObra', s.id, FILTER_ALL)}
                 />
@@ -327,10 +319,10 @@ function LibraryFilterPanel({
             </div>
           </FilterGroup>
 
-          <FilterGroup label="Especial">
+          <FilterGroup label={t('filter_group_special')}>
             <div className="filter-chips-wrap">
               <FChip
-                label="⭐ Favoritos"
+                label={t('filter_favorites')}
                 selected={draft.showFavoritosOnly}
                 onClick={() => set('showFavoritosOnly', !draft.showFavoritosOnly)}
               />
@@ -341,7 +333,7 @@ function LibraryFilterPanel({
         {/* Gêneros — colapsável */}
         {generos.length > 0 && (
           <CollapsibleSection
-            label="Gêneros"
+            label={t('filter_group_genres')}
             expanded={genresExpanded}
             onToggle={() => setGenresExpanded(v => !v)}
           >
@@ -349,7 +341,7 @@ function LibraryFilterPanel({
               {generos.map(g => (
                 <FChip
                   key={g.id || g.label}
-                  label={g.label}
+                  label={getItemLabel(g, t)}
                   selected={draft.filterGenero === g.label}
                   onClick={() => toggle('filterGenero', g.label, FILTER_ALL)}
                 />
@@ -358,14 +350,6 @@ function LibraryFilterPanel({
           </CollapsibleSection>
         )}
 
-        {/* Temas — colapsável (placeholder para futura expansão) */}
-        <CollapsibleSection
-          label="Temas"
-          expanded={temasExpanded}
-          onToggle={() => setTemasExpanded(v => !v)}
-        >
-          <p className="filter-placeholder-text">Em breve</p>
-        </CollapsibleSection>
 
       </div>
 
@@ -373,7 +357,7 @@ function LibraryFilterPanel({
       <div className="filter-panel-footer">
         <div className="filter-panel-footer-chips">
           {activeChips.length === 0 ? (
-            <span className="filter-panel-footer-empty">Nenhum filtro ativo</span>
+            <span className="filter-panel-footer-empty">{t('filter_no_active')}</span>
           ) : (
             activeChips.map((chip, i) => (
               <span key={i} className="filter-active-chip">
@@ -388,10 +372,10 @@ function LibraryFilterPanel({
 
         <div className="filter-panel-footer-actions">
           <button className="filter-panel-cancel-btn" onClick={onClose}>
-            Cancelar
+            {t('cancel')}
           </button>
           <button className="filter-panel-apply-btn" onClick={handleApply}>
-            Aplicar filtros
+            {t('filter_apply')}
             {activeCount > 0 && <span className="filter-panel-apply-badge">{activeCount}</span>}
           </button>
         </div>

@@ -16,7 +16,10 @@ const SECTIONS = [
   { id: 'biblioteca', label: 'Biblioteca',      prefixes: ['library_', 'colpicker_'] },
   { id: 'adicao',     label: 'Página Adição',   prefix: 'form_' },
   { id: 'obra',       label: 'Página da Obra',  prefix: 'detail_' },
-  { id: 'opcoes',     label: 'Opções',          prefix: 'config_' },
+  { id: 'opcoes',         label: 'Opções',          prefix: 'config_' },
+  { id: 'status_obra',    label: 'Status da Obra',  prefix: 'status_obra_' },
+  { id: 'status_leitura', label: 'Status Leitura',  prefix: 'status_leitura_' },
+  { id: 'generos',        label: 'Gêneros',         prefix: 'genero_' },
   { id: 'stats',      label: 'Estatísticas',    prefix: 'stats_' },
   { id: 'cards',      label: 'Cards',           prefix: 'card_' },
   { id: 'agenda',     label: 'Agenda',          prefix: 'releases_' },
@@ -24,6 +27,14 @@ const SECTIONS = [
   { id: 'perfil',     label: 'Meu Perfil',      prefix: 'profile_' },
   { id: 'busca',      label: 'Busca Online',    prefix: 'search_' },
   { id: 'colecoes',   label: 'Coleções',        prefix: 'collection_' },
+  { id: 'filtros',      label: 'Filtros',           prefix: 'filter_' },
+  { id: 'lam',          label: 'Export/Import/Mover', prefix: 'lam_' },
+  { id: 'workspace',    label: 'Menu Workspace',   prefix: 'ws_' },
+  { id: 'ob_welcome',   label: 'OB · Boas-vindas', prefix: 'welcome_' },
+  { id: 'ob_edition',   label: 'OB · Edição',       prefix: 'edition_' },
+  { id: 'ob_supporter', label: 'OB · Apoio',         prefix: 'supporter_' },
+  { id: 'ob_workspace', label: 'OB · Workspace',     prefix: 'workspace_' },
+  { id: 'sup',          label: '♥ Apoiar',            prefix: 'sup_' },
 ];
 
 function getSectionKeys(section, allKeys) {
