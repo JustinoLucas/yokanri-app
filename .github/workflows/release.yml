@@ -38,6 +38,32 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: 'Yokanri ${{ github.ref_name }}'
-          releaseBody: 'Veja o changelog para detalhes desta versão.'
+          releaseBody: |
+            ## What's New in v0.7.0
+
+            ### Internationalization (i18n) — 6 Languages
+            Full multi-language support across the entire app: **Portuguese (pt-BR)**, **English**, **Spanish**, **Japanese**, **Korean**, and **Chinese**.
+
+            - Unified i18n system: `strings.json` is now the single source of truth for all UI strings, including the onboarding flow
+            - All components fully translated: ObraCard, ObraForm, ObraDetail, ObraList, ColecaoView, WorkspaceMenu, WorkspaceProfile, Statistics, and more
+            - Library filter panel fully translated; Themes section removed
+            - Export / Import / Move workspace modal fully translated
+            - Visual Translation Editor (dev-only) now covers all sections: filters, modals, workspace menu, onboarding steps, and the Supporter page
+
+            ### Onboarding Redesign
+            - **StepSupporter** rewritten with two internal stages: platform selection (Patreon / Ko-fi cards with external links) → key input form; back button returns to platform selection instead of leaving the step
+            - **StepEdition** layout improved: wider spacing, larger fonts, supporter badge repositioned inline
+
+            ### Supporter Page (Settings)
+            - New **"♥ Support"** tab in Settings navigation
+            - Purple banner in the General tab links directly to the Supporter page
+            - Supporter page includes: hero section, benefits list, Patreon and Ko-fi platform cards, and a key activation section (coming soon)
+
+            ### Settings — Genres
+            - **Adulto** genre is now marked as **+18 (NSFW) by default** on fresh installs
+            - **Restore Defaults** now also reinstates genres that were deleted by the user
+
+            ---
+            **Full changelog:** https://github.com/JustinoLucas/yokanri-app/commits/main
           releaseDraft: true
           prerelease: false
