@@ -9,12 +9,7 @@ import { relaunch } from '@tauri-apps/plugin-process';
  *   se já estiver na versão mais recente.
  */
 export const checkForUpdate = async () => {
-  try {
-    return await check();
-  } catch (error) {
-    console.error('Erro ao verificar atualizações:', error);
-    return null;
-  }
+  return await check();
 };
 
 /**

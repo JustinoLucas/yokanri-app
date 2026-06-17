@@ -225,12 +225,17 @@ function UpdateSection() {
 
   const handleCheck = async () => {
     setStatus('checking');
-    const result = await checkForUpdate();
-    if (result) {
-      setUpdate(result);
-      setStatus('available');
-    } else {
-      setStatus('up-to-date');
+    try {
+      const result = await checkForUpdate();
+      if (result) {
+        setUpdate(result);
+        setStatus('available');
+      } else {
+        setStatus('up-to-date');
+      }
+    } catch (error) {
+      console.error('Erro ao verificar atualizações:', error);
+      setStatus('error');
     }
   };
 
