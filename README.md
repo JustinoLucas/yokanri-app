@@ -1,87 +1,83 @@
 # Yokanri
 
-A local-first desktop application for managing your personal manga, manhwa, and manhua library.
+**Yokanri** is a free, offline desktop app for tracking your manga, manhwa, and manhua reading library — all on your own machine, no account required.
 
-Built with **Tauri 2** + **React** + **Vite**.
+> Available for **Windows** · 6 languages supported
+
+---
 
 ## Features
 
-- Organize your reading library with detailed tracking (status, chapters, ratings, notes)
-- Multi-workspace system for separate collections
-- Search and import metadata from AniList and MangaDex
-- Release schedule with daily highlights
-- Cover image management with local storage
-- Detailed statistics and profile dashboard
-- Multiple view modes (grid, compact, row)
-- Advanced filtering by status, genre, type, rating, and more
-- 100% offline, no account required, all data stays on your machine
+- **Library management** — add works with cover images, reading status, chapter progress, ratings, and personal notes
+- **Metadata search** — pull info and covers automatically from AniList and MangaDex
+- **Release schedule** — see what's releasing today and keep up with ongoing series
+- **Multiple workspaces** — keep separate libraries (e.g. one for manga, one for manhwa)
+- **Advanced filters** — filter by status, genre, type, year, author, chapter count, and more
+- **Statistics** — visual dashboard with reading progress, genre distribution, and activity history
+- **Multiple view modes** — grid, compact, or row layout
+- **Collections** — group works into custom collections with cover banners
+- **NSFW controls** — hide, blur, or show adult content per your preference
+- **100% offline** — all data stays on your machine, nothing is sent anywhere
 
-## Tech Stack
+---
 
-- **Desktop**: [Tauri 2](https://v2.tauri.app/) (Rust + WebView2)
-- **Frontend**: React 18 + Vite 5
-- **Storage**: Native filesystem via `@tauri-apps/plugin-fs` (JSON-based, SQLite-ready)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **Data location**: `AppData/Roaming/Yokanri/`
+## Download & Install
+
+1. Go to the [**Releases**](https://github.com/JustinoLucas/yokanri-app/releases/latest) page
+2. Download **`Yokanri_x64-setup.exe`** (recommended) or the `.msi` installer
+3. Run the installer and follow the steps
+4. Launch **Yokanri** from your Start Menu or desktop shortcut
+
+**System requirements:** Windows 10/11 (64-bit)
+
+---
 
 ## Getting Started
 
-### Prerequisites
+When you open Yokanri for the first time, a short setup wizard will guide you through:
 
-- [Node.js](https://nodejs.org/) (v18+)
-- [Rust](https://www.rust-lang.org/tools/install)
-- [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with C++ workload (Windows)
+1. **Language** — choose your preferred language
+2. **Edition** — pick the app edition that fits you
+3. **Workspace** — name and create your first library
 
-### Development
+After that, click **+ Add** in the top bar to start adding works to your library. You can search by title and Yokanri will fill in the details automatically.
 
-```bash
-# Install dependencies
-npm install
+---
 
-# Run in development mode (opens desktop window with hot reload)
-npm run tauri:dev
-```
+## Your Data
 
-### Build
-
-```bash
-# Build the desktop application
-npm run tauri:build
-```
-
-The installer will be generated at `src-tauri/target/release/bundle/nsis/`.
-
-## Project Structure
+All your library data is stored locally on your machine at:
 
 ```
-yokanri/
-├── src/                      # React frontend
-│   ├── components/           # UI components
-│   │   ├── Configuracoes/    # Settings panel
-│   │   ├── CustomSelect/     # Custom select input
-│   │   ├── Header/           # App header with workspace menu
-│   │   ├── ObraCard/         # Card views (grid, compact, row)
-│   │   ├── ObraDetail/       # Detailed view of a single work
-│   │   ├── ObraForm/         # Add/edit form with API search
-│   │   ├── ObraList/         # Main list with filters and pagination
-│   │   ├── ReleasesToday/    # Daily release schedule
-│   │   ├── Statistics/       # Library statistics
-│   │   ├── WorkspaceMenu/    # Workspace dropdown menu
-│   │   └── WorkspaceProfile/ # Profile/dashboard page
-│   ├── context/              # React context (config)
-│   ├── hooks/                # Shared hooks
-│   ├── services/             # Data and API services
-│   │   ├── storage/          # Storage abstraction layer
-│   │   └── workspace/        # Workspace management
-│   ├── styles/               # Global CSS variables and utilities
-│   ├── types/                # Data type definitions
-│   └── utils/                # Helper functions
-├── src-tauri/                # Tauri backend (Rust)
-│   ├── capabilities/         # Permission scopes
-│   ├── icons/                # App icons
-│   └── src/                  # Rust source
-└── index.html                # Entry point
+C:\Users\{you}\AppData\Roaming\Yokanri\
 ```
+
+Nothing is uploaded to any server. You can back up or move this folder freely. The app also supports moving your workspace to any custom location (external drive, cloud sync folder, etc.) from **Settings → Workspace**.
+
+---
+
+## Automatic Updates
+
+Yokanri checks for updates in the background. When a new version is available, a button will appear in **Settings → General** — just click it to download and install.
+
+---
+
+## Languages
+
+Yokanri is available in:
+
+🇧🇷 Portuguese · 🇺🇸 English · 🇪🇸 Spanish · 🇯🇵 Japanese · 🇰🇷 Korean · 🇨🇳 Chinese
+
+---
+
+## Support
+
+Yokanri is developed independently and free to use. If you'd like to support ongoing development:
+
+- [**Patreon**](https://patreon.com/yokanri) — patreon.com/yokanri
+- [**Ko-fi**](https://ko-fi.com/yokanri) — ko-fi.com/yokanri
+
+---
 
 ## License
 
