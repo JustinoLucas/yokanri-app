@@ -2,6 +2,7 @@ import { Search, Plus, Settings, BarChart3, X } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import useCover from '../ObraCard/hooks/useCover';
 import { useLanguage } from '../../i18n/LanguageContext';
+import YokanriLogo from '../YokanriLogo';
 
 const TIPO_COLORS = {
   'Coreano': '#1e40af',
@@ -82,15 +83,7 @@ function Topbar({ onNewObra, onShowStats, onShowConfig, workspaceMenu, obras = [
   return (
     <header className="topbar" data-tauri-drag-region="">
       {/* Logo */}
-      <svg className="topbar-logo" width="18" height="18" viewBox="0 0 56 56">
-        <path
-          d="M 10 10 L 10 30 L 28 30 L 28 46 M 46 10 L 28 30"
-          stroke="var(--text-primary)"
-          strokeWidth="5.5"
-          strokeLinecap="square"
-          fill="none"
-        />
-      </svg>
+      <YokanriLogo variant="icon" size={22} />
 
       <div className="topbar-divider" />
       {workspaceMenu}
