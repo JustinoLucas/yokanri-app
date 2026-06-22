@@ -770,8 +770,9 @@
   text-transform: uppercase;
   padding: 2px 7px;
   border-radius: 99px;
-  background: rgba(139, 92, 246, 0.12);
-  color: #a855f7;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--accent-fg);
 }
 
 .config-sup-key-desc {

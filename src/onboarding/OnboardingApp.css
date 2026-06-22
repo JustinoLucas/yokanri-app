@@ -414,8 +414,9 @@
   gap: 4px;
   padding: 3px 9px;
   border-radius: var(--border-radius-full);
-  background: rgba(139, 92, 246, 0.15);
-  color: var(--accent-secondary);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--accent-fg);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.3px;
