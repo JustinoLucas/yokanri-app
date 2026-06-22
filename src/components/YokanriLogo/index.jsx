@@ -26,7 +26,7 @@ export default function YokanriLogo({
     height:         size,
     minWidth:       size,
     borderRadius:   radius,
-    background:     'linear-gradient(145deg, var(--accent-grad-from, #2dd4bf), var(--accent-grad-to, #7c5cff))',
+    background:     'linear-gradient(145deg, var(--accent-grad-icon-from, #2dd4bf), var(--accent-grad-icon-to, #7c5cff))',
     display:        'inline-flex',
     alignItems:     'center',
     justifyContent: 'center',
