@@ -596,7 +596,16 @@
     "sup_platforms_subtitle": "Qualquer valor já faz uma grande diferença. Obrigado!",
     "sup_key_title": "Ativação de chave",
     "sup_key_desc": "Em breve você poderá inserir sua chave aqui para ativar os benefícios exclusivos.",
-    "sup_key_soon": "Em breve"
+    "sup_key_soon": "Em breve",
+    "config_accent_label": "Cor de destaque",
+    "theme_yokanri": "Yokanri",
+    "theme_rubi": "Rubi",
+    "theme_amber": "Âmbar",
+    "theme_esmeralda": "Esmeralda",
+    "theme_safira": "Safira",
+    "theme_rosa": "Rosa",
+    "theme_uva": "Uva",
+    "theme_ardosia": "Ardósia"
   },
   "en": {
     "loading": "Loading...",
@@ -1195,7 +1204,16 @@
     "sup_platforms_subtitle": "Any amount already makes a big difference. Thank you!",
     "sup_key_title": "Key activation",
     "sup_key_desc": "Soon you will be able to enter your key here to activate exclusive benefits.",
-    "sup_key_soon": "Coming soon"
+    "sup_key_soon": "Coming soon",
+    "config_accent_label": "Accent color",
+    "theme_yokanri": "Yokanri",
+    "theme_rubi": "Ruby",
+    "theme_amber": "Amber",
+    "theme_esmeralda": "Emerald",
+    "theme_safira": "Sapphire",
+    "theme_rosa": "Pink",
+    "theme_uva": "Grape",
+    "theme_ardosia": "Slate"
   },
   "es": {
     "lang_name_pt-BR": "Portugués (BR)",
@@ -1356,7 +1374,16 @@
     "sup_platforms_subtitle": "Cualquier cantidad ya hace una gran diferencia. ¡Gracias!",
     "sup_key_title": "Activación de clave",
     "sup_key_desc": "Pronto podrás ingresar tu clave aquí para activar los beneficios exclusivos.",
-    "sup_key_soon": "Próximamente"
+    "sup_key_soon": "Próximamente",
+    "config_accent_label": "Color de acento",
+    "theme_yokanri": "Yokanri",
+    "theme_rubi": "Rubí",
+    "theme_amber": "Ámbar",
+    "theme_esmeralda": "Esmeralda",
+    "theme_safira": "Zafiro",
+    "theme_rosa": "Rosa",
+    "theme_uva": "Uva",
+    "theme_ardosia": "Pizarra"
   },
   "jp": {
     "lang_name_pt-BR": "ポルトガル語 (BR)",
@@ -1517,7 +1544,16 @@
     "sup_platforms_subtitle": "どんな金額でも大きな違いになります。ありがとうございます！",
     "sup_key_title": "キーの有効化",
     "sup_key_desc": "近日中に、ここでキーを入力して限定特典を有効化できるようになります。",
-    "sup_key_soon": "近日公開"
+    "sup_key_soon": "近日公開",
+    "config_accent_label": "アクセントカラー",
+    "theme_yokanri": "Yokanri",
+    "theme_rubi": "ルビー",
+    "theme_amber": "アンバー",
+    "theme_esmeralda": "エメラルド",
+    "theme_safira": "サファイア",
+    "theme_rosa": "ピンク",
+    "theme_uva": "グレープ",
+    "theme_ardosia": "スレート"
   },
   "kr": {
     "lang_name_pt-BR": "포르투갈어 (BR)",
@@ -1678,7 +1714,16 @@
     "sup_platforms_subtitle": "어떤 금액이든 큰 차이를 만듭니다. 감사합니다!",
     "sup_key_title": "키 활성화",
     "sup_key_desc": "곧 여기에 키를 입력하여 독점 혜택을 활성화할 수 있습니다.",
-    "sup_key_soon": "곧 출시"
+    "sup_key_soon": "곧 출시",
+    "config_accent_label": "강조 색상",
+    "theme_yokanri": "Yokanri",
+    "theme_rubi": "루비",
+    "theme_amber": "앰버",
+    "theme_esmeralda": "에메랄드",
+    "theme_safira": "사파이어",
+    "theme_rosa": "핑크",
+    "theme_uva": "포도",
+    "theme_ardosia": "슬레이트"
   },
   "ch": {
     "lang_name_pt-BR": "葡萄牙语（巴西）",
@@ -1839,6 +1884,15 @@
     "sup_platforms_subtitle": "任何金额都会产生重大影响。谢谢！",
     "sup_key_title": "密钥激活",
     "sup_key_desc": "很快您将能够在此输入密钥以激活独家权益。",
-    "sup_key_soon": "即将推出"
+    "sup_key_soon": "即将推出",
+    "config_accent_label": "强调色",
+    "theme_yokanri": "Yokanri",
+    "theme_rubi": "红宝石",
+    "theme_amber": "琥珀",
+    "theme_esmeralda": "翠绿",
+    "theme_safira": "蓝宝石",
+    "theme_rosa": "粉红",
+    "theme_uva": "葡萄紫",
+    "theme_ardosia": "石板灰"
   }
 }

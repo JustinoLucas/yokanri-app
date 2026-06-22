@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Pencil, Trash2, Check, X, Plus, Lock, ShieldAlert, Sun, Moon, ArrowLeft, RefreshCw, DownloadCloud, CheckCircle2, AlertCircle, RotateCcw, Heart, Key, ExternalLink, ChevronRight } from 'lucide-react';
+import { ACCENT_THEMES } from '../../context/accentThemes';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { getItemLabel } from '../../i18n/itemLabel';
@@ -367,7 +368,7 @@ function UpdateSection() {
 // ─── Aba Geral ───────────────────────────────────────────────────────────────
 
 function TabGeral({ nsfwMode, onSetNsfwMode, onGoToSupporter }) {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, accent, setAccent } = useTheme();
   const { language, setLanguage, languages, t } = useLanguage();
 
   return (
@@ -393,7 +394,9 @@ function TabGeral({ nsfwMode, onSetNsfwMode, onGoToSupporter }) {
       {/* Aparência */}
       <div className="config-section">
         <span className="config-section-label">{t('config_section_appearance')}</span>
-        <div className="config-row">
+
+        {/* Modo claro/escuro */}
+        <div className="config-row" style={{ marginBottom: '14px' }}>
           <div className="config-row-info">
             <span className="config-row-title">{t('config_theme_label')}</span>
             <span className="config-row-desc">
@@ -406,6 +409,27 @@ function TabGeral({ nsfwMode, onSetNsfwMode, onGoToSupporter }) {
               : <><Moon size={13} /> {t('config_theme_to_dark')}</>
             }
           </button>
+        </div>
+
+        {/* Cor de destaque */}
+        <span className="config-accent-label">{t('config_accent_label')}</span>
+        <div className="config-accent-grid">
+          {ACCENT_THEMES.map(th => (
+            <button
+              key={th.id}
+              className={`config-accent-swatch${accent === th.id ? ' config-accent-swatch--active' : ''}`}
+              style={{ background: th.gradient }}
+              title={t(th.labelKey)}
+              onClick={() => setAccent(th.id)}
+              aria-label={t(th.labelKey)}
+            >
+              {accent === th.id && (
+                <span className="config-accent-check">
+                  <Check size={14} strokeWidth={3} />
+                </span>
+              )}
+            </button>
+          ))}
         </div>
       </div>
 

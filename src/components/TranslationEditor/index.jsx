@@ -35,6 +35,7 @@ const SECTIONS = [
   { id: 'ob_supporter', label: 'OB · Apoio',         prefix: 'supporter_' },
   { id: 'ob_workspace', label: 'OB · Workspace',     prefix: 'workspace_' },
   { id: 'sup',          label: '♥ Apoiar',            prefix: 'sup_' },
+  { id: 'temas',        label: 'Temas',               prefix: 'theme_' },
 ];
 
 function getSectionKeys(section, allKeys) {
