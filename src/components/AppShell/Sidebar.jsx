@@ -10,6 +10,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useLanguage } from '../../i18n/LanguageContext';
+import YokanriLogo from '../YokanriLogo';
 
 /**
  * AppSidebar V3F — 216px lateral de navegação semântica
@@ -102,13 +103,12 @@ function Sidebar({
         <NavItem icon={Plus} label={t('sidebar_new_collection')} muted onClick={() => onCreateColecao(t('collection_new_name'))} />
       </nav>
 
-      {/* Footer — sync status */}
+      {/* Footer — brand + versão */}
       <div className="sidebar-footer">
-        <span className="sidebar-footer-dot" />
-        <span className="sidebar-footer-text">
-          Yokanri {appVersion && `v${appVersion}`}
-        </span>
-        <RefreshCw size={11} className="sidebar-footer-icon" />
+        <YokanriLogo variant="lockup" size={18} gap={7} />
+        {appVersion && (
+          <span className="sidebar-footer-version">v{appVersion}</span>
+        )}
       </div>
     </aside>
   );

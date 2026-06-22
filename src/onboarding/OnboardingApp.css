@@ -34,12 +34,11 @@
   flex-shrink: 0;
 }
 
-.ob-wordmark {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.3px;
-  color: var(--text-primary);
-  opacity: 0.9;
+.ob-footer-version {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: 2px;
 }
 
 /* ── Barra de progresso (dots) ───────────────────────── */

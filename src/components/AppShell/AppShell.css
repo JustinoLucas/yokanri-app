@@ -565,27 +565,14 @@
   border-top: 1px solid var(--border-hairline);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
-.sidebar-footer-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: var(--radius-pill);
-  background: var(--status-reading-dot);
-  flex-shrink: 0;
-}
-
-.sidebar-footer-text {
+.sidebar-footer-version {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   color: var(--text-muted);
-  flex: 1;
-}
-
-.sidebar-footer-icon {
-  color: var(--text-muted);
-  flex-shrink: 0;
+  margin-left: 2px;
 }
 
 /* ─── WorkspaceMenu overrides inside Topbar ───────────────────────────── */

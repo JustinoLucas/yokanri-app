@@ -18,6 +18,7 @@ import StepWelcome from './steps/StepWelcome';
 import StepEdition from './steps/StepEdition';
 import StepSupporter from './steps/StepSupporter';
 import StepWorkspace from './steps/StepWorkspace';
+import YokanriLogo from '../components/YokanriLogo';
 import './OnboardingApp.css';
 
 function OnboardingApp({ onComplete }) {
@@ -32,7 +33,7 @@ function OnboardingApp({ onComplete }) {
     <div className="ob-root">
       {/* ── Cabeçalho ────────────────────────────────── */}
       <header className="ob-header">
-        <span className="ob-wordmark">Yokanri</span>
+        <YokanriLogo variant="lockup" size={22} gap={8} />
         <div className="ob-progress" aria-label="Progresso do setup">
           {Array.from({ length: ob.totalVisualSteps }).map((_, i) => (
             <div
@@ -90,7 +91,8 @@ function OnboardingApp({ onComplete }) {
 
       {/* ── Rodapé discreto ──────────────────────────── */}
       <footer className="ob-footer">
-        <span>Yokanri{appVersion && ` v${appVersion}`}</span>
+        <YokanriLogo variant="lockup" size={14} gap={5} />
+        {appVersion && <span className="ob-footer-version">v{appVersion}</span>}
       </footer>
     </div>
   );
