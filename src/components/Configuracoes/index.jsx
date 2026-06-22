@@ -21,6 +21,7 @@ function sortGeneros(list) {
 
 const TABS = [
   { id: 'geral',          labelKey: 'config_tab_general',     isGeneral: true },
+  { id: 'aparencia',      labelKey: 'config_tab_aparencia',   isAparencia: true },
   { id: 'statusObra',     labelKey: 'config_tab_obra_status', hasColor: true,  hasHideSchedule: true  },
   { id: 'statusLeitura',  labelKey: 'config_tab_user_status', hasColor: true,  hasHideSchedule: false },
   { id: 'generos',        labelKey: 'config_tab_genres',      hasColor: false, hasHideSchedule: false },
@@ -365,10 +366,63 @@ function UpdateSection() {
   );
 }
 
+// ─── Aba Aparência ───────────────────────────────────────────────────────────
+
+function TabAparencia() {
+  const { theme, toggleTheme, accent, setAccent } = useTheme();
+  const { t } = useLanguage();
+
+  return (
+    <div className="config-geral">
+
+      {/* Modo claro/escuro */}
+      <div className="config-section">
+        <span className="config-section-label">{t('config_theme_label')}</span>
+        <div className="config-row">
+          <div className="config-row-info">
+            <span className="config-row-title">
+              {theme === 'dark' ? t('config_theme_dark_active') : t('config_theme_light_active')}
+            </span>
+          </div>
+          <button className="config-theme-btn" onClick={toggleTheme}>
+            {theme === 'dark'
+              ? <><Sun size={13} /> {t('config_theme_to_light')}</>
+              : <><Moon size={13} /> {t('config_theme_to_dark')}</>
+            }
+          </button>
+        </div>
+      </div>
+
+      {/* Cor de destaque */}
+      <div className="config-section">
+        <span className="config-section-label">{t('config_accent_label')}</span>
+        <div className="config-accent-grid">
+          {ACCENT_THEMES.map(th => (
+            <button
+              key={th.id}
+              className={`config-accent-swatch${accent === th.id ? ' config-accent-swatch--active' : ''}`}
+              style={{ background: th.gradient }}
+              title={t(th.labelKey)}
+              onClick={() => setAccent(th.id)}
+              aria-label={t(th.labelKey)}
+            >
+              {accent === th.id && (
+                <span className="config-accent-check">
+                  <Check size={14} strokeWidth={3} />
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+    </div>
+  );
+}
+
 // ─── Aba Geral ───────────────────────────────────────────────────────────────
 
 function TabGeral({ nsfwMode, onSetNsfwMode, onGoToSupporter }) {
-  const { theme, toggleTheme, accent, setAccent } = useTheme();
   const { language, setLanguage, languages, t } = useLanguage();
 
   return (
@@ -389,48 +443,6 @@ function TabGeral({ nsfwMode, onSetNsfwMode, onGoToSupporter }) {
           </div>
           <ChevronRight size={16} className="config-sup-banner-arrow" />
         </button>
-      </div>
-
-      {/* Aparência */}
-      <div className="config-section">
-        <span className="config-section-label">{t('config_section_appearance')}</span>
-
-        {/* Modo claro/escuro */}
-        <div className="config-row" style={{ marginBottom: '14px' }}>
-          <div className="config-row-info">
-            <span className="config-row-title">{t('config_theme_label')}</span>
-            <span className="config-row-desc">
-              {theme === 'dark' ? t('config_theme_dark_active') : t('config_theme_light_active')}
-            </span>
-          </div>
-          <button className="config-theme-btn" onClick={toggleTheme}>
-            {theme === 'dark'
-              ? <><Sun size={13} /> {t('config_theme_to_light')}</>
-              : <><Moon size={13} /> {t('config_theme_to_dark')}</>
-            }
-          </button>
-        </div>
-
-        {/* Cor de destaque */}
-        <span className="config-accent-label">{t('config_accent_label')}</span>
-        <div className="config-accent-grid">
-          {ACCENT_THEMES.map(th => (
-            <button
-              key={th.id}
-              className={`config-accent-swatch${accent === th.id ? ' config-accent-swatch--active' : ''}`}
-              style={{ background: th.gradient }}
-              title={t(th.labelKey)}
-              onClick={() => setAccent(th.id)}
-              aria-label={t(th.labelKey)}
-            >
-              {accent === th.id && (
-                <span className="config-accent-check">
-                  <Check size={14} strokeWidth={3} />
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Idioma */}
@@ -629,6 +641,7 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
 
   const activeTabDef = TABS.find(tab => tab.id === activeTab);
   const isGeneral   = !!activeTabDef?.isGeneral;
+  const isAparencia = !!activeTabDef?.isAparencia;
   const isSupporter = !!activeTabDef?.isSupporter;
   const isReadonly  = !!activeTabDef?.readonly;
 
@@ -713,6 +726,8 @@ function Configuracoes({ config, obras, onAdd, onRename, onDelete, onUpdateColor
               onSetNsfwMode={onSetNsfwMode}
               onGoToSupporter={() => handleTabChange('supporter')}
             />
+          ) : isAparencia ? (
+            <TabAparencia />
           ) : isSupporter ? (
             <TabSupporter />
           ) : (

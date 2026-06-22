@@ -605,7 +605,8 @@
     "theme_safira": "Safira",
     "theme_rosa": "Rosa",
     "theme_uva": "Uva",
-    "theme_ardosia": "Ardósia"
+    "theme_ardosia": "Ardósia",
+    "config_tab_aparencia": "Aparência"
   },
   "en": {
     "loading": "Loading...",
@@ -1213,7 +1214,8 @@
     "theme_safira": "Sapphire",
     "theme_rosa": "Pink",
     "theme_uva": "Grape",
-    "theme_ardosia": "Slate"
+    "theme_ardosia": "Slate",
+    "config_tab_aparencia": "Appearance"
   },
   "es": {
     "lang_name_pt-BR": "Portugués (BR)",
@@ -1383,7 +1385,8 @@
     "theme_safira": "Zafiro",
     "theme_rosa": "Rosa",
     "theme_uva": "Uva",
-    "theme_ardosia": "Pizarra"
+    "theme_ardosia": "Pizarra",
+    "config_tab_aparencia": "Apariencia"
   },
   "jp": {
     "lang_name_pt-BR": "ポルトガル語 (BR)",
@@ -1553,7 +1556,8 @@
     "theme_safira": "サファイア",
     "theme_rosa": "ピンク",
     "theme_uva": "グレープ",
-    "theme_ardosia": "スレート"
+    "theme_ardosia": "スレート",
+    "config_tab_aparencia": "外観"
   },
   "kr": {
     "lang_name_pt-BR": "포르투갈어 (BR)",
@@ -1723,7 +1727,8 @@
     "theme_safira": "사파이어",
     "theme_rosa": "핑크",
     "theme_uva": "포도",
-    "theme_ardosia": "슬레이트"
+    "theme_ardosia": "슬레이트",
+    "config_tab_aparencia": "외관"
   },
   "ch": {
     "lang_name_pt-BR": "葡萄牙语（巴西）",
@@ -1893,6 +1898,7 @@
     "theme_safira": "蓝宝石",
     "theme_rosa": "粉红",
     "theme_uva": "葡萄紫",
-    "theme_ardosia": "石板灰"
+    "theme_ardosia": "石板灰",
+    "config_tab_aparencia": "外观"
   }
 }
