@@ -120,6 +120,14 @@ export const COMPONENT_DEFS = [
     defaultAngle: 120,
     defaultIntensity: 100,
   },
+  {
+    id: 'carousel',
+    label: 'Carrossel de lançamentos',
+    desc: 'Borda, fundo, sparkle e day pills',
+    supportsGradient: false,
+    defaultColors: ['#e0b873'],
+    defaultIntensity: 100,
+  },
 ];
 
 // Componentes padrão inicializados das cores base
@@ -134,6 +142,7 @@ export function defaultComponents(colors = ['#2dd4bf', '#7c5cff']) {
     indicator: { colors: [c1, c2], angle: 180, intensity: 100 },
     logoIcon:  { colors: [c1, c2], angle: 145, intensity: 100 },
     logoText:  { colors: [lighten(c1, 0.07), lighten(c2, 0.07)], angle: 120, intensity: 100 },
+    carousel:  { colors: ['#e0b873'], intensity: 100 },
   };
 }
 
@@ -162,6 +171,7 @@ export function deriveAllVars(components = {}, mode = 'dark') {
   const indicator = components.indicator || { colors: base.colors, angle: 180, intensity: 100 };
   const logoIcon  = components.logoIcon  || { colors: base.colors, angle: 145, intensity: 100 };
   const logoText  = components.logoText  || { colors: base.colors, angle: 120, intensity: 100 };
+  const carousel  = components.carousel  || { colors: ['#e0b873'], intensity: 100 };
 
   const c1 = base.colors[0] || '#2dd4bf';
   const [r,g,b] = hexToRgb(c1);
@@ -183,6 +193,12 @@ export function deriveAllVars(components = {}, mode = 'dark') {
   const ltFrom = mode === 'dark' ? lighten(ltRaw0, 0.07) : ltRaw0;
   const ltTo   = mode === 'dark' ? lighten(ltRawN, 0.07) : ltRawN;
 
+  // Carousel variables
+  const cc = carousel.colors[0] || '#e0b873';
+  const [cr, cg, cb] = hexToRgb(cc);
+  const carScale = Math.max(0.1, (carousel.intensity ?? 100) / 100);
+  const cop = (a) => `rgba(${cr},${cg},${cb},${(a * carScale).toFixed(2)})`;
+
   return {
     '--accent-fg':                 fg,
     '--accent-bg':                 op(0.10),
@@ -199,6 +215,11 @@ export function deriveAllVars(components = {}, mode = 'dark') {
     '--accent-grad-to':            ltTo,
     '--accent-grad-icon-from':     liFrom,
     '--accent-grad-icon-to':       liTo,
+    '--carousel-accent':           cc,
+    '--carousel-bg':               cop(0.07),
+    '--carousel-border':           cop(0.14),
+    '--carousel-pill-bg':          cop(0.11),
+    '--carousel-pill-border':      cop(0.24),
   };
 }
 
