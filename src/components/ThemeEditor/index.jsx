@@ -10,24 +10,29 @@ import './ThemeEditor.css';
 
 function isValidHex(v) { return /^#[0-9a-fA-F]{6}$/.test(v); }
 
-function buildTheme(id, name, colors, angle, intensity) {
+function buildTheme(id, name, colors, angle, intensity, compAngle) {
   return {
-    id, name, colors, angle, intensity,
+    id, name, colors, angle, intensity, compAngle,
     gradient: gradientString(colors, angle),
-    dark:  deriveAccentVars(colors, angle, intensity, 'dark'),
-    light: deriveAccentVars(colors, angle, intensity, 'light'),
+    dark:  deriveAccentVars(colors, angle, intensity, 'dark',  compAngle),
+    light: deriveAccentVars(colors, angle, intensity, 'light', compAngle),
   };
 }
 
 // Extrai estado de edição inicial de qualquer tema (custom ou built-in)
 function initialEditState(theme) {
-  if (!theme) return { colors: ['#2dd4bf', '#7c5cff'], angle: 135, intensity: 100, name: '' };
+  if (!theme) return { colors: ['#2dd4bf', '#7c5cff'], angle: 135, intensity: 100, compAngle: 90, name: '' };
   if (theme.colors) {
-    return { colors: theme.colors, angle: theme.angle ?? 135, intensity: theme.intensity ?? 100, name: theme.name || theme.id };
+    return {
+      colors:    theme.colors,
+      angle:     theme.angle     ?? 135,
+      intensity: theme.intensity ?? 100,
+      compAngle: theme.compAngle ?? 90,
+      name:      theme.name || theme.id,
+    };
   }
-  // Built-in sem overrides: parseia o gradiente
   const parsed = parseGradientColors(theme.gradient || '');
-  return { colors: parsed.colors, angle: parsed.angle, intensity: 100, name: theme.id };
+  return { colors: parsed.colors, angle: parsed.angle, intensity: 100, compAngle: 90, name: theme.id };
 }
 
 // ─── Botão flutuante ─────────────────────────────────────────────────────────
@@ -51,6 +56,7 @@ export default function ThemeEditor({ onClose }) {
   const [colors,     setColors]     = useState(['#2dd4bf', '#7c5cff']);
   const [angle,      setAngle]      = useState(135);
   const [intensity,  setIntensity]  = useState(100);
+  const [compAngle,  setCompAngle]  = useState(90);
   const [name,       setName]       = useState('');
 
   const builtInTheme  = ACCENT_THEMES.find(t => t.id === selected);
@@ -67,11 +73,12 @@ export default function ThemeEditor({ onClose }) {
     setColors(state.colors);
     setAngle(state.angle);
     setIntensity(state.intensity);
+    setCompAngle(state.compAngle);
     setName(state.name);
   }, [selected]);
 
   // Variáveis derivadas ao vivo
-  const liveVars = deriveAccentVars(colors, angle, intensity, editMode);
+  const liveVars = deriveAccentVars(colors, angle, intensity, editMode, compAngle);
 
   // Aplica ao vivo no DOM
   useEffect(() => {
@@ -86,9 +93,9 @@ export default function ThemeEditor({ onClose }) {
     setAccent(id);
   }, [setAccent]);
 
-  const persist = useCallback((nextColors, nextAngle, nextIntensity, nextName) => {
+  const persist = useCallback((nextColors, nextAngle, nextIntensity, nextName, nextCompAngle) => {
     const existing = customThemes.find(t => t.id === selected);
-    const theme = buildTheme(selected, nextName, nextColors, nextAngle, nextIntensity);
+    const theme = buildTheme(selected, nextName, nextColors, nextAngle, nextIntensity, nextCompAngle);
     if (existing) {
       setCustomThemes(customThemes.map(t => t.id === selected ? theme : t));
     } else {
@@ -99,42 +106,47 @@ export default function ThemeEditor({ onClose }) {
   const handleColorChange = useCallback((idx, value) => {
     const next = [...colors]; next[idx] = value;
     setColors(next);
-    persist(next, angle, intensity, name);
-  }, [colors, angle, intensity, name, persist]);
+    persist(next, angle, intensity, name, compAngle);
+  }, [colors, angle, intensity, name, compAngle, persist]);
 
   const handleAngleChange = useCallback((v) => {
     setAngle(v);
-    persist(colors, v, intensity, name);
-  }, [colors, intensity, name, persist]);
+    persist(colors, v, intensity, name, compAngle);
+  }, [colors, intensity, name, compAngle, persist]);
 
   const handleIntensityChange = useCallback((v) => {
     setIntensity(v);
-    persist(colors, angle, v, name);
-  }, [colors, angle, name, persist]);
+    persist(colors, angle, v, name, compAngle);
+  }, [colors, angle, name, compAngle, persist]);
+
+  const handleCompAngleChange = useCallback((v) => {
+    setCompAngle(v);
+    persist(colors, angle, intensity, name, v);
+  }, [colors, angle, intensity, name, persist]);
 
   const handleNameChange = useCallback((v) => {
     setName(v);
-    persist(colors, angle, intensity, v);
-  }, [colors, angle, intensity, persist]);
+    persist(colors, angle, intensity, v, compAngle);
+  }, [colors, angle, intensity, compAngle, persist]);
 
   const handleAddColor = useCallback(() => {
     if (colors.length >= 3) return;
     const next = [...colors, '#7c5cff'];
     setColors(next);
-    persist(next, angle, intensity, name);
-  }, [colors, angle, intensity, name, persist]);
+    persist(next, angle, intensity, name, compAngle);
+  }, [colors, angle, intensity, name, compAngle, persist]);
 
   const handleRemoveColor = useCallback((idx) => {
     if (colors.length <= 1) return;
     const next = colors.filter((_, i) => i !== idx);
     setColors(next);
-    persist(next, angle, intensity, name);
-  }, [colors, angle, intensity, name, persist]);
+    persist(next, angle, intensity, name, compAngle);
+  }, [colors, angle, intensity, name, compAngle, persist]);
 
   const handleAddNewTheme = useCallback(() => {
     const id = `custom-${Date.now()}`;
     const src = initialEditState(activeTheme);
-    const theme = buildTheme(id, 'Novo Tema', src.colors, src.angle, src.intensity);
+    const theme = buildTheme(id, 'Novo Tema', src.colors, src.angle, src.intensity, src.compAngle);
     setCustomThemes([...customThemes, theme]);
     handleSelectTheme(id);
   }, [activeTheme, customThemes, setCustomThemes, handleSelectTheme]);
@@ -155,7 +167,7 @@ export default function ThemeEditor({ onClose }) {
   }, [selected, builtInTheme, customThemes, setCustomThemes]);
 
   const handleExportJS = useCallback(() => {
-    const theme = buildTheme(selected, name, colors, angle, intensity);
+    const theme = buildTheme(selected, name, colors, angle, intensity, compAngle);
     const dark  = JSON.stringify(theme.dark, null, 6).replace(/"/g, "'");
     const light = JSON.stringify(theme.light, null, 6).replace(/"/g, "'");
     const code  = `  {\n    id: '${selected}',\n    labelKey: 'theme_${name.toLowerCase().replace(/\s+/g, '_')}',\n    gradient: '${theme.gradient}',\n    dark: ${dark},\n    light: ${light},\n  },`;
@@ -314,7 +326,7 @@ export default function ThemeEditor({ onClose }) {
             {/* Gradiente ao vivo */}
             <div className="te-gradient-bar" style={{ background: gradientString(colors, angle) }} />
 
-            {/* Direção */}
+            {/* Direção do gradiente (swatch/logo) */}
             <div className="te-field">
               <div className="te-field-header">
                 <label className="te-label">Direção do gradiente</label>
@@ -327,6 +339,23 @@ export default function ThemeEditor({ onClose }) {
                 onChange={e => handleAngleChange(Number(e.target.value))}
               />
             </div>
+
+            {/* Ângulo nos componentes (botão, barra, indicador) */}
+            {colors.length > 1 && (
+              <div className="te-field">
+                <div className="te-field-header">
+                  <label className="te-label">Ângulo nos componentes</label>
+                  <span className="te-value">{compAngle}°</span>
+                </div>
+                <input
+                  type="range" min="0" max="360" step="1"
+                  className="te-range"
+                  value={compAngle}
+                  onChange={e => handleCompAngleChange(Number(e.target.value))}
+                />
+                <span className="te-hint">Controla o ângulo do gradiente no botão, barra de progresso e indicador da sidebar</span>
+              </div>
+            )}
 
             {/* Intensidade */}
             <div className="te-field">

@@ -411,6 +411,13 @@
   border: 1px solid var(--border-subtle);
 }
 
+/* Hint text */
+.te-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
 /* Range sliders */
 .te-range {
   width: 100%;

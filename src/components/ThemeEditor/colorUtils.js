@@ -73,16 +73,17 @@ export function parseGradientColors(gradient = '') {
 // ─── Derivação automática de variáveis ─────────────────────────────────────
 
 /**
- * Dado um array de cores base, ângulo e intensidade,
+ * Dado um array de cores base, ângulos e intensidade,
  * deriva todos os valores das CSS variables do tema.
  *
- * @param {string[]} colors - Array de cores hex (#rrggbb)
- * @param {number}   angle  - Ângulo do gradiente (0-360)
- * @param {number}   intensity - Intensidade (0-100), afeta opacidade de bg/border/glow
+ * @param {string[]} colors      - Array de cores hex (#rrggbb)
+ * @param {number}   angle       - Ângulo do gradiente decorativo/swatch (0-360)
+ * @param {number}   intensity   - Intensidade (0-100), afeta opacidade de bg/border/glow
  * @param {'dark'|'light'} mode
+ * @param {number}   compAngle   - Ângulo do gradiente nos componentes (botão, barra, etc.)
  * @returns {Object} mapa de CSS variable → valor
  */
-export function deriveAccentVars(colors, angle = 135, intensity = 100, mode = 'dark') {
+export function deriveAccentVars(colors, angle = 135, intensity = 100, mode = 'dark', compAngle = 90) {
   const c1 = colors?.[0] || '#2dd4bf';
   const c2 = colors?.[colors.length - 1] || c1;
   const [r, g, b] = hexToRgb(c1);
@@ -95,6 +96,13 @@ export function deriveAccentVars(colors, angle = 135, intensity = 100, mode = 'd
   const gradFrom = mode === 'dark' ? lighten(c1, 0.07) : c1;
   const gradTo   = mode === 'dark' ? lighten(c2, 0.07) : c2;
 
+  // Gradiente aplicado diretamente nos componentes (botão, barra de progresso, etc.)
+  // Usa as cores brutas (sem lighten) para máximo impacto visual
+  const isMultiColor = colors && colors.length > 1;
+  const compGradient = isMultiColor
+    ? `linear-gradient(${compAngle}deg, ${c1}, ${c2})`
+    : c1;
+
   return {
     '--accent-fg':             fg,
     '--accent-bg':             op(0.10),
@@ -106,5 +114,6 @@ export function deriveAccentVars(colors, angle = 135, intensity = 100, mode = 'd
     '--accent-grad-to':        gradTo,
     '--accent-grad-icon-from': c1,
     '--accent-grad-icon-to':   c2,
+    '--accent-comp-gradient':  compGradient,
   };
 }

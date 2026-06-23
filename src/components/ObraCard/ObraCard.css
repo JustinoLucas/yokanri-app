@@ -304,8 +304,8 @@
 
 .progress-fill {
   height: 100%;
-  background: var(--accent-fg);
-  opacity: 0.7;
+  background: var(--accent-comp-gradient);
+  opacity: 0.85;
   transition: width 0.3s ease;
 }
 
@@ -554,7 +554,7 @@
 
 .progress-fill-row {
   height: 100%;
-  background: var(--accent-fg);
+  background: var(--accent-comp-gradient);
   border-radius: 2px;
   transition: width 0.3s ease;
 }
@@ -924,8 +924,8 @@
 
 .ccard-progress-fill {
   height: 100%;
-  background: var(--accent-fg);
-  opacity: 0.65;
+  background: var(--accent-comp-gradient);
+  opacity: 0.85;
   border-radius: 1px;
   transition: width 0.3s ease;
 }

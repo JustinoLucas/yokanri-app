@@ -320,9 +320,9 @@
   height: 30px;
   padding: 0 12px;
   border-radius: var(--radius-8);
-  background: var(--accent-fg);
+  background: var(--accent-comp-gradient);
   border: none;
-  color: var(--bg-app);
+  color: #fff;
   font-family: var(--font-sans);
   font-size: 12.5px;
   font-weight: 600;
@@ -500,7 +500,7 @@
   width: 2px;
   height: 16px;
   border-radius: 1px;
-  background: var(--accent-fg);
+  background: var(--accent-comp-gradient);
 }
 
 /* Colored dot (for collections) */
