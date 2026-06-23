@@ -220,33 +220,56 @@
   gap: 14px;
 }
 
-/* Readonly state */
-.te-readonly {
+/* Built-in theme header */
+.te-builtin-header {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  height: 100%;
-  text-align: center;
+  gap: 12px;
 }
 
-.te-readonly-swatch {
-  width: 64px;
-  height: 64px;
-  border-radius: var(--radius-14);
+.te-swatch--lg {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-10);
+  flex-shrink: 0;
 }
 
-.te-readonly-name {
+.te-builtin-name {
+  display: block;
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
+  margin-bottom: 4px;
 }
 
-.te-readonly-hint {
-  font-size: 12px;
+.te-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-6);
+  background: none;
+  border: 1px solid var(--border-default);
   color: var(--text-muted);
+  font-size: 11px;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all var(--duration-instant) var(--ease-out);
+}
+.te-reset-btn:hover {
+  border-color: var(--status-dropped);
+  color: var(--status-dropped);
+}
+
+/* Ponto de modificado na lista */
+.te-modified-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-fg);
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 /* ─── Fields ────────────────────────────────────────────── */

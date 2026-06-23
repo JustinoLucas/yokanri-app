@@ -58,6 +58,18 @@ export function gradientString(colors, angle = 135) {
   return `linear-gradient(${angle}deg, ${colors.join(', ')})`;
 }
 
+/**
+ * Extrai cores e ângulo de uma string CSS de gradiente.
+ * Retorna fallback seguro se não conseguir parsear.
+ */
+export function parseGradientColors(gradient = '') {
+  const match = gradient.match(/linear-gradient\((\d+)deg,\s*(.+)\)/);
+  if (!match) return { angle: 135, colors: [gradient || '#888888'] };
+  const angle  = parseInt(match[1], 10);
+  const colors = match[2].split(',').map(s => s.trim()).filter(s => /^#[0-9a-fA-F]{6}$/.test(s));
+  return { angle, colors: colors.length ? colors : ['#888888'] };
+}
+
 // ─── Derivação automática de variáveis ─────────────────────────────────────
 
 /**
