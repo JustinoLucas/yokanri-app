@@ -22,7 +22,7 @@ export default function ThemePreview({ vars }) {
               <div className="te-preview-card-title" />
               <div className="te-preview-progress-track">
                 <div className="te-preview-progress-fill" style={{
-                  background: vars['--accent-fg'],
+                  background: vars['--accent-comp-gradient'],
                   width: '60%',
                 }} />
               </div>
@@ -38,7 +38,7 @@ export default function ThemePreview({ vars }) {
             border: `1px solid ${vars['--accent-border']}`,
             color: vars['--accent-fg'],
           }}>
-            <div className="te-preview-indicator" style={{ background: vars['--accent-fg'] }} />
+            <div className="te-preview-indicator" style={{ background: vars['--accent-comp-gradient'] }} />
             <span>Biblioteca</span>
           </div>
         </div>
@@ -46,7 +46,7 @@ export default function ThemePreview({ vars }) {
         {/* Botão primário */}
         <div className="te-preview-item">
           <span className="te-preview-item-label">Botão primário</span>
-          <div className="te-preview-btn" style={{ background: vars['--accent-fg'] }}>
+          <div className="te-preview-btn" style={{ background: vars['--accent-comp-gradient'] }}>
             + Adicionar
           </div>
         </div>
