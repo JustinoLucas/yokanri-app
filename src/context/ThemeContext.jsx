@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { DEFAULT_ACCENT_ID, getAccentTheme } from './accentThemes';
+import { deriveAllVars } from '../components/ThemeEditor/colorUtils';
 
 const ThemeContext = createContext(null);
 
@@ -13,9 +14,14 @@ function applyVarMap(vars) {
 }
 
 function applyAccentVars(accentId, isDark, customThemes = []) {
-  // Verifica temas custom primeiro
   const custom = customThemes.find(t => t.id === accentId);
   if (custom) {
+    // Tema com estrutura nova (components map)
+    if (custom.components) {
+      applyVarMap(deriveAllVars(custom.components, isDark ? 'dark' : 'light'));
+      return;
+    }
+    // Tema com dark/light pré-computado
     const vars = isDark ? custom.dark : custom.light;
     if (vars) { applyVarMap(vars); return; }
   }

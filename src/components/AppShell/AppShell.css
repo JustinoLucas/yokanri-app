@@ -320,7 +320,7 @@
   height: 30px;
   padding: 0 12px;
   border-radius: var(--radius-8);
-  background: var(--accent-comp-gradient);
+  background: var(--accent-btn-gradient);
   border: none;
   color: #fff;
   font-family: var(--font-sans);
@@ -500,7 +500,7 @@
   width: 2px;
   height: 16px;
   border-radius: 1px;
-  background: var(--accent-comp-gradient);
+  background: var(--accent-indicator-gradient);
 }
 
 /* Colored dot (for collections) */

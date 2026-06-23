@@ -2,7 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { X, Plus, Trash2, Copy, Check, Palette, RotateCcw } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { ACCENT_THEMES } from '../../context/accentThemes';
-import { deriveAccentVars, gradientString, parseGradientColors } from './colorUtils';
+import {
+  COMPONENT_DEFS,
+  defaultComponents,
+  deriveAllVars,
+  gradientString,
+  parseGradientColors,
+} from './colorUtils';
 import ThemePreview from './ThemePreview';
 import './ThemeEditor.css';
 
@@ -10,29 +16,25 @@ import './ThemeEditor.css';
 
 function isValidHex(v) { return /^#[0-9a-fA-F]{6}$/.test(v); }
 
-function buildTheme(id, name, colors, angle, intensity, compAngle) {
-  return {
-    id, name, colors, angle, intensity, compAngle,
-    gradient: gradientString(colors, angle),
-    dark:  deriveAccentVars(colors, angle, intensity, 'dark',  compAngle),
-    light: deriveAccentVars(colors, angle, intensity, 'light', compAngle),
-  };
+function swatchFor(theme) {
+  if (theme.gradient) return theme.gradient;
+  if (theme.components?.logoIcon) {
+    const c = theme.components.logoIcon;
+    return gradientString(c.colors, c.angle ?? 145);
+  }
+  return '#888';
 }
 
-// Extrai estado de edição inicial de qualquer tema (custom ou built-in)
-function initialEditState(theme) {
-  if (!theme) return { colors: ['#2dd4bf', '#7c5cff'], angle: 135, intensity: 100, compAngle: 90, name: '' };
-  if (theme.colors) {
-    return {
-      colors:    theme.colors,
-      angle:     theme.angle     ?? 135,
-      intensity: theme.intensity ?? 100,
-      compAngle: theme.compAngle ?? 90,
-      name:      theme.name || theme.id,
-    };
-  }
+function buildTheme(id, name, components) {
+  return { id, name, components, gradient: swatchFor({ components }) };
+}
+
+function initialComponents(theme) {
+  if (!theme) return defaultComponents();
+  if (theme.components) return JSON.parse(JSON.stringify(theme.components));
+  // Built-in: parseia gradiente e inicializa
   const parsed = parseGradientColors(theme.gradient || '');
-  return { colors: parsed.colors, angle: parsed.angle, intensity: 100, compAngle: 90, name: theme.id };
+  return defaultComponents(parsed.colors);
 }
 
 // ─── Botão flutuante ─────────────────────────────────────────────────────────
@@ -45,108 +47,172 @@ export function ThemeEditorButton({ onClick }) {
   );
 }
 
+// ─── Editor de um componente ─────────────────────────────────────────────────
+
+function ComponentEditor({ def, value, onChange }) {
+  const colors    = value?.colors    || def.defaultColors;
+  const angle     = value?.angle     ?? def.defaultAngle ?? 0;
+  const intensity = value?.intensity ?? def.defaultIntensity ?? 100;
+
+  const update = (patch) => onChange({ colors, angle, intensity, ...patch });
+
+  const handleColorChange = (idx, v) => {
+    const next = [...colors]; next[idx] = v;
+    update({ colors: next });
+  };
+
+  const addColor = () => {
+    if (colors.length >= 3) return;
+    update({ colors: [...colors, colors[colors.length - 1]] });
+  };
+
+  const removeColor = (idx) => {
+    if (colors.length <= 1) return;
+    update({ colors: colors.filter((_, i) => i !== idx) });
+  };
+
+  const preview = def.supportsGradient && colors.length > 1
+    ? gradientString(colors, angle)
+    : colors[0] || '#888';
+
+  return (
+    <div className="te-comp-card">
+      <div className="te-comp-header">
+        <div className="te-comp-swatch" style={{ background: preview }} />
+        <div className="te-comp-info">
+          <span className="te-comp-label">{def.label}</span>
+          <span className="te-comp-desc">{def.desc}</span>
+        </div>
+      </div>
+
+      {/* Color stops */}
+      <div className="te-comp-colors">
+        {colors.map((color, i) => (
+          <div key={i} className="te-color-stop">
+            <input
+              type="color"
+              className="te-color-native"
+              value={isValidHex(color) ? color : '#000000'}
+              onChange={e => handleColorChange(i, e.target.value)}
+            />
+            <input
+              type="text"
+              className="te-input te-hex"
+              value={color}
+              maxLength={7}
+              onChange={e => {
+                if (/^#[0-9a-fA-F]{0,6}$/.test(e.target.value))
+                  handleColorChange(i, e.target.value);
+              }}
+            />
+            {colors.length > 1 && (
+              <button className="te-color-remove" onClick={() => removeColor(i)}>
+                <X size={9} />
+              </button>
+            )}
+          </div>
+        ))}
+        {def.supportsGradient && colors.length < 3 && (
+          <button className="te-add-color-btn" onClick={addColor}>
+            <Plus size={10} /> cor
+          </button>
+        )}
+      </div>
+
+      {/* Gradient preview strip */}
+      {def.supportsGradient && colors.length > 1 && (
+        <div className="te-comp-grad-bar" style={{ background: preview }} />
+      )}
+
+      {/* Angle (only for gradient) */}
+      {def.supportsGradient && colors.length > 1 && (
+        <div className="te-comp-row">
+          <span className="te-comp-row-label">Ângulo</span>
+          <input
+            type="range" min="0" max="360" step="1"
+            className="te-range te-range--sm"
+            value={angle}
+            onChange={e => update({ angle: Number(e.target.value) })}
+          />
+          <span className="te-comp-row-val">{angle}°</span>
+        </div>
+      )}
+
+      {/* Intensity */}
+      <div className="te-comp-row">
+        <span className="te-comp-row-label">Intensidade</span>
+        <input
+          type="range" min="10" max="100" step="1"
+          className="te-range te-range--sm"
+          value={intensity}
+          onChange={e => update({ intensity: Number(e.target.value) })}
+        />
+        <span className="te-comp-row-val">{intensity}%</span>
+      </div>
+    </div>
+  );
+}
+
 // ─── Painel principal ────────────────────────────────────────────────────────
 
 export default function ThemeEditor({ onClose }) {
   const { isDark, accent, setAccent, customThemes, setCustomThemes } = useTheme();
 
-  const [editMode,   setEditMode]   = useState(isDark ? 'dark' : 'light');
-  const [selected,   setSelected]   = useState(accent);
-  const [copied,     setCopied]     = useState(false);
-  const [colors,     setColors]     = useState(['#2dd4bf', '#7c5cff']);
-  const [angle,      setAngle]      = useState(135);
-  const [intensity,  setIntensity]  = useState(100);
-  const [compAngle,  setCompAngle]  = useState(90);
-  const [name,       setName]       = useState('');
+  const [selected,    setSelected]    = useState(accent);
+  const [components,  setComponents]  = useState(defaultComponents());
+  const [name,        setName]        = useState('');
+  const [editMode,    setEditMode]    = useState(isDark ? 'dark' : 'light');
+  const [copied,      setCopied]      = useState(false);
 
-  const builtInTheme  = ACCENT_THEMES.find(t => t.id === selected);
+  const builtIn      = ACCENT_THEMES.find(t => t.id === selected);
   const customOverride = customThemes.find(t => t.id === selected);
-  // Qualquer tema é editável. Se o ID existe nos built-ins, é um override.
-  const isBuiltIn     = !!builtInTheme;
-  const hasOverride   = isBuiltIn && !!customOverride;
-  // Mostra editor para todos os temas (built-in ou custom puro)
-  const activeTheme   = customOverride || builtInTheme;
+  const isBuiltIn    = !!builtIn;
+  const hasOverride  = isBuiltIn && !!customOverride;
+  const activeTheme  = customOverride || builtIn;
+  const pureCustom   = customThemes.filter(t => !ACCENT_THEMES.find(b => b.id === t.id));
 
-  // Carrega estado quando muda o tema selecionado
+  // Carrega quando muda seleção
   useEffect(() => {
-    const state = initialEditState(activeTheme);
-    setColors(state.colors);
-    setAngle(state.angle);
-    setIntensity(state.intensity);
-    setCompAngle(state.compAngle);
-    setName(state.name);
+    const comps = initialComponents(activeTheme);
+    setComponents(comps);
+    setName(customOverride?.name || builtIn?.id || '');
   }, [selected]);
 
-  // Variáveis derivadas ao vivo
-  const liveVars = deriveAccentVars(colors, angle, intensity, editMode, compAngle);
-
-  // Aplica ao vivo no DOM
+  // Aplica ao vivo
+  const liveVars = deriveAllVars(components, editMode);
   useEffect(() => {
     const root = document.documentElement;
     Object.entries(liveVars).forEach(([k, v]) => root.style.setProperty(k, v));
   }, [liveVars]);
 
-  // ── Ações ──────────────────────────────────────────────────────────────────
+  // Persiste no customThemes
+  const persist = useCallback((comps, n) => {
+    const theme = buildTheme(selected, n, comps);
+    const exists = customThemes.find(t => t.id === selected);
+    if (exists) setCustomThemes(customThemes.map(t => t.id === selected ? theme : t));
+    else setCustomThemes([...customThemes, theme]);
+  }, [selected, customThemes, setCustomThemes]);
+
+  const handleCompChange = useCallback((compId, value) => {
+    const next = { ...components, [compId]: value };
+    setComponents(next);
+    persist(next, name);
+  }, [components, name, persist]);
+
+  const handleNameChange = useCallback((v) => {
+    setName(v);
+    persist(components, v);
+  }, [components, persist]);
 
   const handleSelectTheme = useCallback((id) => {
     setSelected(id);
     setAccent(id);
   }, [setAccent]);
 
-  const persist = useCallback((nextColors, nextAngle, nextIntensity, nextName, nextCompAngle) => {
-    const existing = customThemes.find(t => t.id === selected);
-    const theme = buildTheme(selected, nextName, nextColors, nextAngle, nextIntensity, nextCompAngle);
-    if (existing) {
-      setCustomThemes(customThemes.map(t => t.id === selected ? theme : t));
-    } else {
-      setCustomThemes([...customThemes, theme]);
-    }
-  }, [selected, customThemes, setCustomThemes]);
-
-  const handleColorChange = useCallback((idx, value) => {
-    const next = [...colors]; next[idx] = value;
-    setColors(next);
-    persist(next, angle, intensity, name, compAngle);
-  }, [colors, angle, intensity, name, compAngle, persist]);
-
-  const handleAngleChange = useCallback((v) => {
-    setAngle(v);
-    persist(colors, v, intensity, name, compAngle);
-  }, [colors, intensity, name, compAngle, persist]);
-
-  const handleIntensityChange = useCallback((v) => {
-    setIntensity(v);
-    persist(colors, angle, v, name, compAngle);
-  }, [colors, angle, name, compAngle, persist]);
-
-  const handleCompAngleChange = useCallback((v) => {
-    setCompAngle(v);
-    persist(colors, angle, intensity, name, v);
-  }, [colors, angle, intensity, name, persist]);
-
-  const handleNameChange = useCallback((v) => {
-    setName(v);
-    persist(colors, angle, intensity, v, compAngle);
-  }, [colors, angle, intensity, compAngle, persist]);
-
-  const handleAddColor = useCallback(() => {
-    if (colors.length >= 3) return;
-    const next = [...colors, '#7c5cff'];
-    setColors(next);
-    persist(next, angle, intensity, name, compAngle);
-  }, [colors, angle, intensity, name, compAngle, persist]);
-
-  const handleRemoveColor = useCallback((idx) => {
-    if (colors.length <= 1) return;
-    const next = colors.filter((_, i) => i !== idx);
-    setColors(next);
-    persist(next, angle, intensity, name, compAngle);
-  }, [colors, angle, intensity, name, compAngle, persist]);
-
-  const handleAddNewTheme = useCallback(() => {
+  const handleAddTheme = useCallback(() => {
     const id = `custom-${Date.now()}`;
-    const src = initialEditState(activeTheme);
-    const theme = buildTheme(id, 'Novo Tema', src.colors, src.angle, src.intensity, src.compAngle);
+    const comps = initialComponents(activeTheme);
+    const theme = buildTheme(id, 'Novo Tema', comps);
     setCustomThemes([...customThemes, theme]);
     handleSelectTheme(id);
   }, [activeTheme, customThemes, setCustomThemes, handleSelectTheme]);
@@ -156,35 +222,22 @@ export default function ThemeEditor({ onClose }) {
     if (selected === id) handleSelectTheme(ACCENT_THEMES[0].id);
   }, [customThemes, selected, setCustomThemes, handleSelectTheme]);
 
-  const handleResetBuiltIn = useCallback(() => {
-    // Remove o override do tema built-in
+  const handleReset = useCallback(() => {
     setCustomThemes(customThemes.filter(t => t.id !== selected));
-    const state = initialEditState(builtInTheme);
-    setColors(state.colors);
-    setAngle(state.angle);
-    setIntensity(state.intensity);
-    setName(state.name);
-  }, [selected, builtInTheme, customThemes, setCustomThemes]);
+    const comps = initialComponents(builtIn);
+    setComponents(comps);
+  }, [selected, builtIn, customThemes, setCustomThemes]);
 
-  const handleExportJS = useCallback(() => {
-    const theme = buildTheme(selected, name, colors, angle, intensity, compAngle);
-    const dark  = JSON.stringify(theme.dark, null, 6).replace(/"/g, "'");
-    const light = JSON.stringify(theme.light, null, 6).replace(/"/g, "'");
-    const code  = `  {\n    id: '${selected}',\n    labelKey: 'theme_${name.toLowerCase().replace(/\s+/g, '_')}',\n    gradient: '${theme.gradient}',\n    dark: ${dark},\n    light: ${light},\n  },`;
-    navigator.clipboard.writeText(code).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  }, [selected, name, colors, angle, intensity]);
-
-  // ── Render ─────────────────────────────────────────────────────────────────
-
-  // Temas custom puros (ID não existe nos built-ins)
-  const pureCustomThemes = customThemes.filter(t => !ACCENT_THEMES.find(b => b.id === t.id));
+  const handleExport = useCallback(() => {
+    const dark  = deriveAllVars(components, 'dark');
+    const light = deriveAllVars(components, 'light');
+    const code  = `  {\n    id: '${selected}',\n    labelKey: 'theme_${name.toLowerCase().replace(/\s+/g,'_')}',\n    gradient: '${swatchFor({components})}',\n    dark: ${JSON.stringify(dark,null,6).replace(/"/g,"'")},\n    light: ${JSON.stringify(light,null,6).replace(/"/g,"'")},\n  },`;
+    navigator.clipboard.writeText(code).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
+  }, [selected, name, components]);
 
   return (
     <div className="te-backdrop" onClick={onClose}>
-      <div className="te-panel" onClick={e => e.stopPropagation()}>
+      <div className="te-panel te-panel--wide" onClick={e => e.stopPropagation()}>
 
         {/* Header */}
         <div className="te-header">
@@ -201,44 +254,36 @@ export default function ThemeEditor({ onClose }) {
           <div className="te-sidebar">
             <span className="te-section-label">Sistema</span>
             {ACCENT_THEMES.map(t => {
-              const override = customThemes.find(c => c.id === t.id);
+              const ov = customThemes.find(c => c.id === t.id);
               return (
-                <button
-                  key={t.id}
-                  className={`te-theme-item ${selected === t.id ? 'te-theme-item--active' : ''}`}
+                <button key={t.id}
+                  className={`te-theme-item ${selected===t.id?'te-theme-item--active':''}`}
                   onClick={() => handleSelectTheme(t.id)}
                 >
-                  <span className="te-swatch" style={{ background: override?.gradient || t.gradient }} />
+                  <span className="te-swatch" style={{ background: swatchFor(ov||t) }} />
                   <span className="te-theme-name">{t.id}</span>
-                  {override && <span className="te-modified-dot" title="Modificado" />}
+                  {ov && <span className="te-modified-dot" />}
                 </button>
               );
             })}
 
-            {pureCustomThemes.length > 0 && (
-              <>
-                <span className="te-section-label" style={{ marginTop: 14 }}>Personalizados</span>
-                {pureCustomThemes.map(t => (
-                  <button
-                    key={t.id}
-                    className={`te-theme-item ${selected === t.id ? 'te-theme-item--active' : ''}`}
-                    onClick={() => handleSelectTheme(t.id)}
-                  >
-                    <span className="te-swatch" style={{ background: t.gradient }} />
-                    <span className="te-theme-name">{t.name}</span>
-                    <button
-                      className="te-item-delete"
-                      onClick={e => { e.stopPropagation(); handleRemoveTheme(t.id); }}
-                      title="Remover"
-                    >
-                      <Trash2 size={10} />
-                    </button>
-                  </button>
-                ))}
-              </>
-            )}
+            {pureCustom.length > 0 && <>
+              <span className="te-section-label" style={{ marginTop: 14 }}>Personalizados</span>
+              {pureCustom.map(t => (
+                <button key={t.id}
+                  className={`te-theme-item ${selected===t.id?'te-theme-item--active':''}`}
+                  onClick={() => handleSelectTheme(t.id)}
+                >
+                  <span className="te-swatch" style={{ background: swatchFor(t) }} />
+                  <span className="te-theme-name">{t.name}</span>
+                  <button className="te-item-delete"
+                    onClick={e => { e.stopPropagation(); handleRemoveTheme(t.id); }}
+                  ><Trash2 size={10} /></button>
+                </button>
+              ))}
+            </>}
 
-            <button className="te-add-theme-btn" onClick={handleAddNewTheme}>
+            <button className="te-add-theme-btn" onClick={handleAddTheme}>
               <Plus size={12} /> Novo tema
             </button>
           </div>
@@ -246,139 +291,50 @@ export default function ThemeEditor({ onClose }) {
           {/* ── Editor ── */}
           <div className="te-editor">
 
-            {/* Nome (só para temas custom puros) */}
-            {!isBuiltIn && (
-              <div className="te-field">
-                <label className="te-label">Nome</label>
-                <input
-                  className="te-input"
-                  value={name}
-                  onChange={e => handleNameChange(e.target.value)}
-                  placeholder="Meu Tema"
-                />
-              </div>
-            )}
-
-            {/* Cabeçalho built-in com botão de reset */}
-            {isBuiltIn && (
-              <div className="te-builtin-header">
-                <div className="te-swatch te-swatch--lg" style={{ background: gradientString(colors, angle) }} />
-                <div>
+            {/* Cabeçalho do tema */}
+            <div className="te-builtin-header">
+              <div className="te-swatch te-swatch--lg" style={{ background: swatchFor({ components }) }} />
+              <div style={{ flex: 1 }}>
+                {!isBuiltIn ? (
+                  <input className="te-input" value={name}
+                    onChange={e => handleNameChange(e.target.value)}
+                    placeholder="Nome do tema" style={{ width: '100%' }}
+                  />
+                ) : (
                   <span className="te-builtin-name">{selected}</span>
-                  {hasOverride && (
-                    <button className="te-reset-btn" onClick={handleResetBuiltIn} title="Restaurar padrão">
-                      <RotateCcw size={11} /> Restaurar padrão
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Toggle dark / light */}
-            <div className="te-mode-row">
-              <button
-                className={`te-mode-btn ${editMode === 'dark' ? 'te-mode-btn--active' : ''}`}
-                onClick={() => setEditMode('dark')}
-              >🌙 Escuro</button>
-              <button
-                className={`te-mode-btn ${editMode === 'light' ? 'te-mode-btn--active' : ''}`}
-                onClick={() => setEditMode('light')}
-              >☀ Claro</button>
-            </div>
-
-            {/* Cores base */}
-            <div className="te-field">
-              <label className="te-label">Cores</label>
-              <div className="te-color-stops">
-                {colors.map((color, i) => (
-                  <div key={i} className="te-color-stop">
-                    <input
-                      type="color"
-                      className="te-color-native"
-                      value={isValidHex(color) ? color : '#000000'}
-                      onChange={e => handleColorChange(i, e.target.value)}
-                    />
-                    <input
-                      type="text"
-                      className="te-input te-hex"
-                      value={color}
-                      onChange={e => {
-                        const v = e.target.value;
-                        if (/^#[0-9a-fA-F]{0,6}$/.test(v)) handleColorChange(i, v);
-                      }}
-                      maxLength={7}
-                    />
-                    {colors.length > 1 && (
-                      <button className="te-color-remove" onClick={() => handleRemoveColor(i)}>
-                        <X size={10} />
-                      </button>
-                    )}
-                  </div>
-                ))}
-                {colors.length < 3 && (
-                  <button className="te-add-color-btn" onClick={handleAddColor}>
-                    <Plus size={11} /> Adicionar cor
+                )}
+                {hasOverride && (
+                  <button className="te-reset-btn" onClick={handleReset}>
+                    <RotateCcw size={11} /> Restaurar padrão
                   </button>
                 )}
               </div>
-            </div>
-
-            {/* Gradiente ao vivo */}
-            <div className="te-gradient-bar" style={{ background: gradientString(colors, angle) }} />
-
-            {/* Direção do gradiente (swatch/logo) */}
-            <div className="te-field">
-              <div className="te-field-header">
-                <label className="te-label">Direção do gradiente</label>
-                <span className="te-value">{angle}°</span>
+              <div className="te-mode-row" style={{ margin: 0 }}>
+                <button className={`te-mode-btn ${editMode==='dark'?'te-mode-btn--active':''}`}
+                  onClick={() => setEditMode('dark')}>🌙</button>
+                <button className={`te-mode-btn ${editMode==='light'?'te-mode-btn--active':''}`}
+                  onClick={() => setEditMode('light')}>☀</button>
               </div>
-              <input
-                type="range" min="0" max="360" step="1"
-                className="te-range"
-                value={angle}
-                onChange={e => handleAngleChange(Number(e.target.value))}
-              />
             </div>
 
-            {/* Ângulo nos componentes (botão, barra, indicador) */}
-            {colors.length > 1 && (
-              <div className="te-field">
-                <div className="te-field-header">
-                  <label className="te-label">Ângulo nos componentes</label>
-                  <span className="te-value">{compAngle}°</span>
-                </div>
-                <input
-                  type="range" min="0" max="360" step="1"
-                  className="te-range"
-                  value={compAngle}
-                  onChange={e => handleCompAngleChange(Number(e.target.value))}
+            {/* Grid de componentes */}
+            <div className="te-comp-grid">
+              {COMPONENT_DEFS.map(def => (
+                <ComponentEditor
+                  key={def.id}
+                  def={def}
+                  value={components[def.id]}
+                  onChange={v => handleCompChange(def.id, v)}
                 />
-                <span className="te-hint">Controla o ângulo do gradiente no botão, barra de progresso e indicador da sidebar</span>
-              </div>
-            )}
-
-            {/* Intensidade */}
-            <div className="te-field">
-              <div className="te-field-header">
-                <label className="te-label">Intensidade de cor</label>
-                <span className="te-value">{intensity}%</span>
-              </div>
-              <input
-                type="range" min="20" max="100" step="1"
-                className="te-range"
-                value={intensity}
-                onChange={e => handleIntensityChange(Number(e.target.value))}
-              />
+              ))}
             </div>
 
-            {/* Preview */}
+            {/* Preview + export */}
             <ThemePreview vars={liveVars} />
 
-            {/* Exportar */}
-            <button className="te-export-btn" onClick={handleExportJS}>
+            <button className="te-export-btn" onClick={handleExport}>
               {copied ? <><Check size={12} /> Copiado!</> : <><Copy size={12} /> Exportar JS</>}
             </button>
-
           </div>
         </div>
       </div>
