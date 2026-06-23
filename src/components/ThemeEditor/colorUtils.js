@@ -96,12 +96,18 @@ export function deriveAccentVars(colors, angle = 135, intensity = 100, mode = 'd
   const gradFrom = mode === 'dark' ? lighten(c1, 0.07) : c1;
   const gradTo   = mode === 'dark' ? lighten(c2, 0.07) : c2;
 
-  // Gradiente aplicado diretamente nos componentes (botão, barra de progresso, etc.)
-  // Usa as cores brutas (sem lighten) para máximo impacto visual
+  // Gradiente para componentes com opacity ligada à intensidade
+  // Assim botão, barra e indicador ficam mais suaves em intensidades menores
   const isMultiColor = colors && colors.length > 1;
+  const [r2, g2, b2] = hexToRgb(c2);
+  const c1op = `rgba(${r},${g},${b},${scale.toFixed(2)})`;
+  const c2op = `rgba(${r2},${g2},${b2},${scale.toFixed(2)})`;
   const compGradient = isMultiColor
-    ? `linear-gradient(${compAngle}deg, ${c1}, ${c2})`
-    : c1;
+    ? `linear-gradient(${compAngle}deg, ${c1op}, ${c2op})`
+    : c1op;
+
+  // Cor do focus ring com opacidade variável
+  const focusColor = op(0.80);
 
   return {
     '--accent-fg':             fg,
@@ -115,5 +121,6 @@ export function deriveAccentVars(colors, angle = 135, intensity = 100, mode = 'd
     '--accent-grad-icon-from': c1,
     '--accent-grad-icon-to':   c2,
     '--accent-comp-gradient':  compGradient,
+    '--accent-focus-color':    focusColor,
   };
 }

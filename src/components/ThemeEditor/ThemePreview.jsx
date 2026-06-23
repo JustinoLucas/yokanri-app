@@ -55,7 +55,7 @@ export default function ThemePreview({ vars }) {
         <div className="te-preview-item">
           <span className="te-preview-item-label">Focus ring</span>
           <div className="te-preview-input" style={{
-            outline: `2px solid ${vars['--accent-fg']}`,
+            outline: `2px solid ${vars['--accent-focus-color']}`,
           }}>
             Buscar obras...
           </div>
