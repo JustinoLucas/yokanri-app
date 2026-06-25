@@ -1,38 +1,24 @@
 import { useState, useEffect, useCallback } from 'react';
-import { X, Plus, Trash2, Copy, Check, Palette, RotateCcw } from 'lucide-react';
+import { X, Plus, Trash2, Palette, RotateCcw } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { ACCENT_THEMES } from '../../context/accentThemes';
-import {
-  COMPONENT_DEFS,
-  defaultComponents,
-  deriveAllVars,
-  gradientString,
-  parseGradientColors,
-} from './colorUtils';
-import ThemePreview from './ThemePreview';
+import { defaultComponents, gradientString, parseGradientColors } from './colorUtils';
 import './ThemeEditor.css';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function isValidHex(v) { return /^#[0-9a-fA-F]{6}$/.test(v); }
-
 function swatchFor(theme) {
-  if (theme.gradient) return theme.gradient;
-  if (theme.components?.logoIcon) {
+  if (theme?.gradient) return theme.gradient;
+  if (theme?.components?.logoIcon) {
     const c = theme.components.logoIcon;
     return gradientString(c.colors, c.angle ?? 145);
   }
   return '#888';
 }
 
-function buildTheme(id, name, components) {
-  return { id, name, components, gradient: swatchFor({ components }) };
-}
-
 function initialComponents(theme) {
   if (!theme) return defaultComponents();
   if (theme.components) return JSON.parse(JSON.stringify(theme.components));
-  // Built-in: parseia gradiente e inicializa
   const parsed = parseGradientColors(theme.gradient || '');
   return defaultComponents(parsed.colors);
 }
@@ -47,200 +33,91 @@ export function ThemeEditorButton({ onClick }) {
   );
 }
 
-// ─── Editor de um componente ─────────────────────────────────────────────────
-
-function ComponentEditor({ def, value, onChange }) {
-  const colors    = value?.colors    || def.defaultColors;
-  const angle     = value?.angle     ?? def.defaultAngle ?? 0;
-  const intensity = value?.intensity ?? def.defaultIntensity ?? 100;
-
-  const update = (patch) => onChange({ colors, angle, intensity, ...patch });
-
-  const handleColorChange = (idx, v) => {
-    const next = [...colors]; next[idx] = v;
-    update({ colors: next });
-  };
-
-  const addColor = () => {
-    if (colors.length >= 3) return;
-    update({ colors: [...colors, colors[colors.length - 1]] });
-  };
-
-  const removeColor = (idx) => {
-    if (colors.length <= 1) return;
-    update({ colors: colors.filter((_, i) => i !== idx) });
-  };
-
-  const preview = def.supportsGradient && colors.length > 1
-    ? gradientString(colors, angle)
-    : colors[0] || '#888';
-
-  return (
-    <div className="te-comp-card">
-      <div className="te-comp-header">
-        <div className="te-comp-swatch" style={{ background: preview }} />
-        <div className="te-comp-info">
-          <span className="te-comp-label">{def.label}</span>
-          <span className="te-comp-desc">{def.desc}</span>
-        </div>
-      </div>
-
-      {/* Color stops */}
-      <div className="te-comp-colors">
-        {colors.map((color, i) => (
-          <div key={i} className="te-color-stop">
-            <input
-              type="color"
-              className="te-color-native"
-              value={isValidHex(color) ? color : '#000000'}
-              onChange={e => handleColorChange(i, e.target.value)}
-            />
-            <input
-              type="text"
-              className="te-input te-hex"
-              value={color}
-              maxLength={7}
-              onChange={e => {
-                if (/^#[0-9a-fA-F]{0,6}$/.test(e.target.value))
-                  handleColorChange(i, e.target.value);
-              }}
-            />
-            {colors.length > 1 && (
-              <button className="te-color-remove" onClick={() => removeColor(i)}>
-                <X size={9} />
-              </button>
-            )}
-          </div>
-        ))}
-        {def.supportsGradient && colors.length < 3 && (
-          <button className="te-add-color-btn" onClick={addColor}>
-            <Plus size={10} /> cor
-          </button>
-        )}
-      </div>
-
-      {/* Gradient preview strip */}
-      {def.supportsGradient && colors.length > 1 && (
-        <div className="te-comp-grad-bar" style={{ background: preview }} />
-      )}
-
-      {/* Angle (only for gradient) */}
-      {def.supportsGradient && colors.length > 1 && (
-        <div className="te-comp-row">
-          <span className="te-comp-row-label">Ângulo</span>
-          <input
-            type="range" min="0" max="360" step="1"
-            className="te-range te-range--sm"
-            value={angle}
-            onChange={e => update({ angle: Number(e.target.value) })}
-          />
-          <span className="te-comp-row-val">{angle}°</span>
-        </div>
-      )}
-
-      {/* Intensity */}
-      <div className="te-comp-row">
-        <span className="te-comp-row-label">Intensidade</span>
-        <input
-          type="range" min="10" max="100" step="1"
-          className="te-range te-range--sm"
-          value={intensity}
-          onChange={e => update({ intensity: Number(e.target.value) })}
-        />
-        <span className="te-comp-row-val">{intensity}%</span>
-      </div>
-    </div>
-  );
-}
-
 // ─── Painel principal ────────────────────────────────────────────────────────
 
 export default function ThemeEditor({ onClose }) {
-  const { isDark, accent, setAccent, setTheme, customThemes, setCustomThemes, hiddenIds, setHiddenIds } = useTheme();
+  const {
+    accent, setAccent,
+    customThemes, setCustomThemes,
+    hiddenIds, setHiddenIds,
+  } = useTheme();
 
-  const [selected,    setSelected]    = useState(accent);
-  const [components,  setComponents]  = useState(defaultComponents());
-  const [name,        setName]        = useState('');
-  const [editMode,    setEditMode]    = useState(isDark ? 'dark' : 'light');
-  const [copied,      setCopied]      = useState(false);
-
-  const saveHiddenIds = setHiddenIds;
+  const [selected, setSelected] = useState(accent);
+  const [name,     setName]     = useState('');
 
   const builtIn        = ACCENT_THEMES.find(t => t.id === selected);
   const customOverride = customThemes.find(t => t.id === selected);
-  const isBuiltIn      = !!builtIn;
-  const hasOverride    = isBuiltIn && !!customOverride;
+  const hasOverride    = !!builtIn && !!customOverride;
   const activeTheme    = customOverride || builtIn;
   const pureCustom     = customThemes.filter(t => !ACCENT_THEMES.find(b => b.id === t.id));
   const visibleBuiltIn = ACCENT_THEMES.filter(t => !hiddenIds.includes(t.id));
 
-  // Carrega quando muda seleção
+  // Carrega nome ao mudar seleção
   useEffect(() => {
-    const comps = initialComponents(activeTheme);
-    setComponents(comps);
     setName(customOverride?.name || builtIn?.id || '');
   }, [selected]);
-
-  // Aplica ao vivo
-  const liveVars = deriveAllVars(components, editMode);
-  useEffect(() => {
-    const root = document.documentElement;
-    Object.entries(liveVars).forEach(([k, v]) => root.style.setProperty(k, v));
-  }, [liveVars]);
-
-  // Persiste no customThemes
-  const persist = useCallback((comps, n) => {
-    const theme = buildTheme(selected, n, comps);
-    const exists = customThemes.find(t => t.id === selected);
-    if (exists) setCustomThemes(customThemes.map(t => t.id === selected ? theme : t));
-    else setCustomThemes([...customThemes, theme]);
-  }, [selected, customThemes, setCustomThemes]);
-
-  const handleCompChange = useCallback((compId, value) => {
-    const next = { ...components, [compId]: value };
-    setComponents(next);
-    persist(next, name);
-  }, [components, name, persist]);
-
-  const handleNameChange = useCallback((v) => {
-    setName(v);
-    persist(components, v);
-  }, [components, persist]);
 
   const handleSelectTheme = useCallback((id) => {
     setSelected(id);
     setAccent(id);
   }, [setAccent]);
 
+  const handleNameChange = useCallback((v) => {
+    setName(v);
+    // Persiste nome no override
+    const existing = customThemes.find(t => t.id === selected);
+    if (existing) {
+      setCustomThemes(customThemes.map(t => t.id === selected ? { ...t, name: v } : t));
+    } else if (builtIn) {
+      // Cria override só com o nome
+      const comps = initialComponents(builtIn);
+      setCustomThemes([...customThemes, {
+        id: selected,
+        name: v,
+        components: comps,
+        gradient: builtIn.gradient,
+      }]);
+    }
+  }, [selected, builtIn, customThemes, setCustomThemes]);
+
   const handleAddTheme = useCallback(() => {
-    const id = `custom-${Date.now()}`;
+    const id    = `custom-${Date.now()}`;
     const comps = initialComponents(activeTheme);
-    const theme = buildTheme(id, 'Novo Tema', comps);
-    setCustomThemes([...customThemes, theme]);
+    setCustomThemes([...customThemes, {
+      id,
+      name: 'Novo Tema',
+      components: comps,
+      gradient: swatchFor(activeTheme),
+    }]);
     handleSelectTheme(id);
   }, [activeTheme, customThemes, setCustomThemes, handleSelectTheme]);
 
   const handleRemoveTheme = useCallback((id) => {
+    // Custom puro: deleta
     setCustomThemes(customThemes.filter(t => t.id !== id));
-    if (selected === id) handleSelectTheme(ACCENT_THEMES[0].id);
-  }, [customThemes, selected, setCustomThemes, handleSelectTheme]);
+    if (selected === id) handleSelectTheme(visibleBuiltIn[0]?.id || ACCENT_THEMES[0].id);
+  }, [customThemes, selected, setCustomThemes, handleSelectTheme, visibleBuiltIn]);
+
+  const handleHideBuiltIn = useCallback((id) => {
+    // Remove override se existir
+    const updated = customThemes.filter(t => t.id !== id);
+    if (updated.length !== customThemes.length) setCustomThemes(updated);
+    // Oculta da lista
+    setHiddenIds([...hiddenIds, id]);
+    if (selected === id) {
+      const next = visibleBuiltIn.find(t => t.id !== id);
+      handleSelectTheme(next?.id || pureCustom[0]?.id || ACCENT_THEMES[0].id);
+    }
+  }, [hiddenIds, setHiddenIds, customThemes, setCustomThemes, selected, visibleBuiltIn, pureCustom, handleSelectTheme]);
 
   const handleReset = useCallback(() => {
     setCustomThemes(customThemes.filter(t => t.id !== selected));
-    const comps = initialComponents(builtIn);
-    setComponents(comps);
+    setName(builtIn?.id || '');
   }, [selected, builtIn, customThemes, setCustomThemes]);
-
-  const handleExport = useCallback(() => {
-    const dark  = deriveAllVars(components, 'dark');
-    const light = deriveAllVars(components, 'light');
-    const code  = `  {\n    id: '${selected}',\n    labelKey: 'theme_${name.toLowerCase().replace(/\s+/g,'_')}',\n    gradient: '${swatchFor({components})}',\n    dark: ${JSON.stringify(dark,null,6).replace(/"/g,"'")},\n    light: ${JSON.stringify(light,null,6).replace(/"/g,"'")},\n  },`;
-    navigator.clipboard.writeText(code).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
-  }, [selected, name, components]);
 
   return (
     <div className="te-backdrop" onClick={onClose}>
-      <div className="te-panel te-panel--wide" onClick={e => e.stopPropagation()}>
+      <div className="te-panel" onClick={e => e.stopPropagation()}>
 
         {/* Header */}
         <div className="te-header">
@@ -260,28 +137,22 @@ export default function ThemeEditor({ onClose }) {
               const ov = customThemes.find(c => c.id === t.id);
               return (
                 <button key={t.id}
-                  className={`te-theme-item ${selected===t.id?'te-theme-item--active':''}`}
+                  className={`te-theme-item ${selected === t.id ? 'te-theme-item--active' : ''}`}
                   onClick={() => handleSelectTheme(t.id)}
                 >
-                  <span className="te-swatch" style={{ background: swatchFor(ov||t) }} />
+                  <span className="te-swatch" style={{ background: swatchFor(ov || t) }} />
                   <span className="te-theme-name">{ov?.name || t.id}</span>
                   {ov && <span className="te-modified-dot" />}
                   <button className="te-item-delete te-item-delete--visible"
-                    onClick={e => {
-                      e.stopPropagation();
-                      // Remove override se existir
-                      if (ov) setCustomThemes(customThemes.filter(c => c.id !== t.id));
-                      // Oculta da lista
-                      saveHiddenIds([...hiddenIds, t.id]);
-                      if (selected === t.id) handleSelectTheme(visibleBuiltIn.find(x => x.id !== t.id)?.id || pureCustom[0]?.id || ACCENT_THEMES[0].id);
-                    }}
+                    onClick={e => { e.stopPropagation(); handleHideBuiltIn(t.id); }}
                     title="Remover da lista"
                   ><Trash2 size={10} /></button>
                 </button>
               );
             })}
+
             {hiddenIds.length > 0 && (
-              <button className="te-restore-btn" onClick={() => saveHiddenIds([])}>
+              <button className="te-restore-btn" onClick={() => setHiddenIds([])}>
                 Restaurar todos ({hiddenIds.length})
               </button>
             )}
@@ -290,7 +161,7 @@ export default function ThemeEditor({ onClose }) {
               <span className="te-section-label" style={{ marginTop: 14 }}>Personalizados</span>
               {pureCustom.map(t => (
                 <button key={t.id}
-                  className={`te-theme-item ${selected===t.id?'te-theme-item--active':''}`}
+                  className={`te-theme-item ${selected === t.id ? 'te-theme-item--active' : ''}`}
                   onClick={() => handleSelectTheme(t.id)}
                 >
                   <span className="te-swatch" style={{ background: swatchFor(t) }} />
@@ -308,50 +179,27 @@ export default function ThemeEditor({ onClose }) {
             </button>
           </div>
 
-          {/* ── Editor ── */}
-          <div className="te-editor">
+          {/* ── Editor simplificado ── */}
+          <div className="te-editor te-editor--simple">
+            <div className="te-simple-swatch" style={{ background: swatchFor(customOverride || builtIn) }} />
 
-            {/* Cabeçalho do tema */}
-            <div className="te-builtin-header">
-              <div className="te-swatch te-swatch--lg" style={{ background: swatchFor({ components }) }} />
-              <div style={{ flex: 1 }}>
-                <input className="te-input" value={name}
-                  onChange={e => handleNameChange(e.target.value)}
-                  placeholder="Nome do tema" style={{ width: '100%' }}
-                />
-                {hasOverride && (
-                  <button className="te-reset-btn" onClick={handleReset}>
-                    <RotateCcw size={11} /> Restaurar padrão
-                  </button>
-                )}
-              </div>
-              <div className="te-mode-row" style={{ margin: 0 }}>
-                <button className={`te-mode-btn ${editMode==='dark'?'te-mode-btn--active':''}`}
-                  onClick={() => { setEditMode('dark'); setTheme('dark'); }}>🌙</button>
-                <button className={`te-mode-btn ${editMode==='light'?'te-mode-btn--active':''}`}
-                  onClick={() => { setEditMode('light'); setTheme('light'); }}>☀</button>
-              </div>
+            <div className="te-field">
+              <label className="te-label">Nome</label>
+              <input
+                className="te-input"
+                value={name}
+                onChange={e => handleNameChange(e.target.value)}
+                placeholder="Nome do tema"
+              />
             </div>
 
-            {/* Grid de componentes */}
-            <div className="te-comp-grid">
-              {COMPONENT_DEFS.map(def => (
-                <ComponentEditor
-                  key={def.id}
-                  def={def}
-                  value={components[def.id]}
-                  onChange={v => handleCompChange(def.id, v)}
-                />
-              ))}
-            </div>
-
-            {/* Preview + export */}
-            <ThemePreview vars={liveVars} />
-
-            <button className="te-export-btn" onClick={handleExport}>
-              {copied ? <><Check size={12} /> Copiado!</> : <><Copy size={12} /> Exportar JS</>}
-            </button>
+            {hasOverride && (
+              <button className="te-reset-btn" onClick={handleReset}>
+                <RotateCcw size={11} /> Restaurar padrão
+              </button>
+            )}
           </div>
+
         </div>
       </div>
     </div>

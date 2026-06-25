@@ -100,11 +100,20 @@
 }
 .te-close:hover { color: var(--text-primary); }
 
-/* ─── Painel largo ──────────────────────────────────────── */
+/* editor simplificado */
+.te-editor--simple {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  align-items: flex-start;
+}
 
-.te-panel--wide {
-  width: 900px;
-  height: 620px;
+.te-simple-swatch {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-14);
+  flex-shrink: 0;
 }
 
 /* ─── Body ──────────────────────────────────────────────── */
