@@ -13,7 +13,7 @@ function grad(c1, c2, { r1, g1, b1 } = {}) {
   return {
     '--accent-comp-gradient':      `linear-gradient(90deg,  ${c1}, ${c2})`,
     '--accent-btn-gradient':       `linear-gradient(90deg,  ${c1}, ${c2})`,
-    '--accent-progress-gradient':  `linear-gradient(0deg,   ${c1}, ${c2})`,
+    '--accent-progress-gradient':  `linear-gradient(90deg,  ${c1}, ${c2})`,
     '--accent-indicator-gradient': `linear-gradient(180deg, ${c1}, ${c2})`,
     '--accent-grad-icon-from':     c1,
     '--accent-grad-icon-to':       c2,
@@ -45,7 +45,7 @@ export const ACCENT_THEMES = [
       // ── Gradientes por componente ────────────────────────────────────────
       '--accent-comp-gradient':      'linear-gradient(90deg,  #2dd4bf, #7c5cff)',
       '--accent-btn-gradient':       'linear-gradient(90deg,  #2dd4bf, #7c5cff)',
-      '--accent-progress-gradient':  'linear-gradient(0deg,   rgba(45,212,191,0.85), rgba(124,92,255,0.85))',
+      '--accent-progress-gradient':  'linear-gradient(90deg,  rgba(45,212,191,0.85), rgba(124,92,255,0.85))',
       '--accent-indicator-gradient': 'linear-gradient(180deg, #2dd4bf, #7c5cff)',
       '--accent-grad-icon-from':     '#2dd4bf',
       '--accent-grad-icon-to':       '#7c5cff',
@@ -68,7 +68,7 @@ export const ACCENT_THEMES = [
       '--accent-grad-to':        '#7c5cff',
       '--accent-comp-gradient':      'linear-gradient(90deg,  #2dd4bf, #7c5cff)',
       '--accent-btn-gradient':       'linear-gradient(90deg,  #2dd4bf, #7c5cff)',
-      '--accent-progress-gradient':  'linear-gradient(0deg,   rgba(45,212,191,0.75), rgba(124,92,255,0.75))',
+      '--accent-progress-gradient':  'linear-gradient(90deg,  rgba(45,212,191,0.75), rgba(124,92,255,0.75))',
       '--accent-indicator-gradient': 'linear-gradient(180deg, #2dd4bf, #7c5cff)',
       '--accent-grad-icon-from':     '#2dd4bf',
       '--accent-grad-icon-to':       '#7c5cff',
