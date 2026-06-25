@@ -196,6 +196,27 @@
 .te-item-delete:hover { color: var(--status-dropped); }
 .te-item-delete--visible { opacity: 1; }
 
+.te-restore-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  margin-top: 4px;
+  border-radius: var(--radius-6);
+  background: none;
+  border: 1px dashed var(--border-default);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  width: 100%;
+  transition: all var(--duration-instant) var(--ease-out);
+}
+.te-restore-btn:hover {
+  border-color: var(--accent-border);
+  color: var(--accent-fg);
+}
+
 .te-add-theme-btn {
   display: flex;
   align-items: center;

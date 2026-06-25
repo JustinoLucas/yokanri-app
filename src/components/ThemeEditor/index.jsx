@@ -163,13 +163,22 @@ export default function ThemeEditor({ onClose }) {
   const [name,        setName]        = useState('');
   const [editMode,    setEditMode]    = useState(isDark ? 'dark' : 'light');
   const [copied,      setCopied]      = useState(false);
+  const [hiddenIds,   setHiddenIds]   = useState(() => {
+    try { return JSON.parse(localStorage.getItem('te-hidden-themes') || '[]'); } catch { return []; }
+  });
 
-  const builtIn      = ACCENT_THEMES.find(t => t.id === selected);
+  const saveHiddenIds = (ids) => {
+    setHiddenIds(ids);
+    try { localStorage.setItem('te-hidden-themes', JSON.stringify(ids)); } catch {}
+  };
+
+  const builtIn        = ACCENT_THEMES.find(t => t.id === selected);
   const customOverride = customThemes.find(t => t.id === selected);
-  const isBuiltIn    = !!builtIn;
-  const hasOverride  = isBuiltIn && !!customOverride;
-  const activeTheme  = customOverride || builtIn;
-  const pureCustom   = customThemes.filter(t => !ACCENT_THEMES.find(b => b.id === t.id));
+  const isBuiltIn      = !!builtIn;
+  const hasOverride    = isBuiltIn && !!customOverride;
+  const activeTheme    = customOverride || builtIn;
+  const pureCustom     = customThemes.filter(t => !ACCENT_THEMES.find(b => b.id === t.id));
+  const visibleBuiltIn = ACCENT_THEMES.filter(t => !hiddenIds.includes(t.id));
 
   // Carrega quando muda seleção
   useEffect(() => {
@@ -253,7 +262,7 @@ export default function ThemeEditor({ onClose }) {
           {/* ── Lista de temas ── */}
           <div className="te-sidebar">
             <span className="te-section-label">Sistema</span>
-            {ACCENT_THEMES.map(t => {
+            {visibleBuiltIn.map(t => {
               const ov = customThemes.find(c => c.id === t.id);
               return (
                 <button key={t.id}
@@ -263,19 +272,25 @@ export default function ThemeEditor({ onClose }) {
                   <span className="te-swatch" style={{ background: swatchFor(ov||t) }} />
                   <span className="te-theme-name">{t.id}</span>
                   {ov && <span className="te-modified-dot" />}
-                  {ov && (
-                    <button className="te-item-delete te-item-delete--visible"
-                      onClick={e => {
-                        e.stopPropagation();
-                        setCustomThemes(customThemes.filter(c => c.id !== t.id));
-                        if (selected === t.id) handleSelectTheme(ACCENT_THEMES[0].id);
-                      }}
-                      title="Remover modificações"
-                    ><Trash2 size={10} /></button>
-                  )}
+                  <button className="te-item-delete te-item-delete--visible"
+                    onClick={e => {
+                      e.stopPropagation();
+                      // Remove override se existir
+                      if (ov) setCustomThemes(customThemes.filter(c => c.id !== t.id));
+                      // Oculta da lista
+                      saveHiddenIds([...hiddenIds, t.id]);
+                      if (selected === t.id) handleSelectTheme(visibleBuiltIn.find(x => x.id !== t.id)?.id || pureCustom[0]?.id || ACCENT_THEMES[0].id);
+                    }}
+                    title="Remover da lista"
+                  ><Trash2 size={10} /></button>
                 </button>
               );
             })}
+            {hiddenIds.length > 0 && (
+              <button className="te-restore-btn" onClick={() => saveHiddenIds([])}>
+                Restaurar todos ({hiddenIds.length})
+              </button>
+            )}
 
             {pureCustom.length > 0 && <>
               <span className="te-section-label" style={{ marginTop: 14 }}>Personalizados</span>
