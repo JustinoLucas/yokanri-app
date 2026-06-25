@@ -49,6 +49,12 @@ export const ACCENT_THEMES = [
       '--accent-indicator-gradient': 'linear-gradient(180deg, #2dd4bf, #7c5cff)',
       '--accent-grad-icon-from':     '#2dd4bf',
       '--accent-grad-icon-to':       '#7c5cff',
+      // Carousel
+      '--carousel-accent':           '#2dd4bf',
+      '--carousel-bg':               'rgba(45,212,191,0.07)',
+      '--carousel-border':           'rgba(45,212,191,0.16)',
+      '--carousel-pill-bg':          'rgba(45,212,191,0.11)',
+      '--carousel-pill-border':      'rgba(45,212,191,0.26)',
     },
     light: {
       '--accent-fg':             '#0d9488',          // turquesa escura — legível no fundo claro
@@ -66,6 +72,12 @@ export const ACCENT_THEMES = [
       '--accent-indicator-gradient': 'linear-gradient(180deg, #2dd4bf, #7c5cff)',
       '--accent-grad-icon-from':     '#2dd4bf',
       '--accent-grad-icon-to':       '#7c5cff',
+      // Carousel
+      '--carousel-accent':           '#0d9488',
+      '--carousel-bg':               'rgba(13,148,136,0.06)',
+      '--carousel-border':           'rgba(13,148,136,0.14)',
+      '--carousel-pill-bg':          'rgba(13,148,136,0.09)',
+      '--carousel-pill-border':      'rgba(13,148,136,0.22)',
     },
   },
 

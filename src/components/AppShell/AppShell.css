@@ -123,21 +123,21 @@
   padding: 0 12px;
   border-radius: var(--radius-pill);
   min-width: 260px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-subtle);
   transition: border-color var(--duration-instant) var(--ease-out),
               background var(--duration-instant) var(--ease-out);
 }
 
 .topbar-search:focus-within {
   border-color: var(--accent-border);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--bg-overlay);
   box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
 .topbar-search:hover:not(:focus-within) {
-  border-color: rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--border-default);
+  background: var(--bg-hover);
 }
 
 .topbar-search--active {
