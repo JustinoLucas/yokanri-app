@@ -657,13 +657,13 @@
 /* Wrapper — width vem do .carousel-v3f-card-wrap (196px) */
 .ccard {
   width: 100%;
-  background: #13131a;
+  background: var(--bg-card);
   border-radius: 11px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--border-subtle);
   overflow: hidden;
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
-  transition: border-color 0.2s;
+  box-shadow: var(--shadow-mid);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .ccard:hover {
@@ -695,14 +695,14 @@
   background: linear-gradient(135deg, #1e3a8a, #0a0a0c);
 }
 
-/* Fade na base da capa — funde com o fundo do ccard-body (#13131a) */
+/* Fade na base da capa — funde com o fundo do ccard-body */
 .ccard-overlay {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   height: 90px;
-  background: linear-gradient(0deg, #13131a 0%, rgba(19, 19, 26, 0) 100%);
+  background: linear-gradient(0deg, var(--bg-card) 0%, transparent 100%);
   pointer-events: none;
 }
 
