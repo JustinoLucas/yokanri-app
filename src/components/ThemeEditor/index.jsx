@@ -156,7 +156,7 @@ function ComponentEditor({ def, value, onChange }) {
 // ─── Painel principal ────────────────────────────────────────────────────────
 
 export default function ThemeEditor({ onClose }) {
-  const { isDark, accent, setAccent, customThemes, setCustomThemes } = useTheme();
+  const { isDark, accent, setAccent, setTheme, customThemes, setCustomThemes } = useTheme();
 
   const [selected,    setSelected]    = useState(accent);
   const [components,  setComponents]  = useState(defaultComponents());
@@ -311,9 +311,9 @@ export default function ThemeEditor({ onClose }) {
               </div>
               <div className="te-mode-row" style={{ margin: 0 }}>
                 <button className={`te-mode-btn ${editMode==='dark'?'te-mode-btn--active':''}`}
-                  onClick={() => setEditMode('dark')}>🌙</button>
+                  onClick={() => { setEditMode('dark'); setTheme('dark'); }}>🌙</button>
                 <button className={`te-mode-btn ${editMode==='light'?'te-mode-btn--active':''}`}
-                  onClick={() => setEditMode('light')}>☀</button>
+                  onClick={() => { setEditMode('light'); setTheme('light'); }}>☀</button>
               </div>
             </div>
 
