@@ -270,7 +270,7 @@ export default function ThemeEditor({ onClose }) {
                   onClick={() => handleSelectTheme(t.id)}
                 >
                   <span className="te-swatch" style={{ background: swatchFor(ov||t) }} />
-                  <span className="te-theme-name">{t.id}</span>
+                  <span className="te-theme-name">{ov?.name || t.id}</span>
                   {ov && <span className="te-modified-dot" />}
                   <button className="te-item-delete te-item-delete--visible"
                     onClick={e => {
@@ -321,14 +321,10 @@ export default function ThemeEditor({ onClose }) {
             <div className="te-builtin-header">
               <div className="te-swatch te-swatch--lg" style={{ background: swatchFor({ components }) }} />
               <div style={{ flex: 1 }}>
-                {!isBuiltIn ? (
-                  <input className="te-input" value={name}
-                    onChange={e => handleNameChange(e.target.value)}
-                    placeholder="Nome do tema" style={{ width: '100%' }}
-                  />
-                ) : (
-                  <span className="te-builtin-name">{selected}</span>
-                )}
+                <input className="te-input" value={name}
+                  onChange={e => handleNameChange(e.target.value)}
+                  placeholder="Nome do tema" style={{ width: '100%' }}
+                />
                 {hasOverride && (
                   <button className="te-reset-btn" onClick={handleReset}>
                     <RotateCcw size={11} /> Restaurar padrão
