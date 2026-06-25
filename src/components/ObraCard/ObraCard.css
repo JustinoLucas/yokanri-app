@@ -745,7 +745,7 @@
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 600;
-  color: #f5f5f7;
+  color: var(--text-primary);
   letter-spacing: -0.2px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -757,7 +757,7 @@
   font-family: var(--font-sans);
   font-size: 10.5px;
   font-weight: 500;
-  color: rgba(245, 245, 247, 0.6);
+  color: var(--text-tertiary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -880,7 +880,7 @@
 .ccard-chapter-text {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: #6e6e78;
+  color: var(--text-muted);
   display: inline-block;
 }
 
