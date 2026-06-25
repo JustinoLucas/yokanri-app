@@ -263,6 +263,16 @@ export default function ThemeEditor({ onClose }) {
                   <span className="te-swatch" style={{ background: swatchFor(ov||t) }} />
                   <span className="te-theme-name">{t.id}</span>
                   {ov && <span className="te-modified-dot" />}
+                  {ov && (
+                    <button className="te-item-delete te-item-delete--visible"
+                      onClick={e => {
+                        e.stopPropagation();
+                        setCustomThemes(customThemes.filter(c => c.id !== t.id));
+                        if (selected === t.id) handleSelectTheme(ACCENT_THEMES[0].id);
+                      }}
+                      title="Remover modificações"
+                    ><Trash2 size={10} /></button>
+                  )}
                 </button>
               );
             })}
@@ -276,8 +286,9 @@ export default function ThemeEditor({ onClose }) {
                 >
                   <span className="te-swatch" style={{ background: swatchFor(t) }} />
                   <span className="te-theme-name">{t.name}</span>
-                  <button className="te-item-delete"
+                  <button className="te-item-delete te-item-delete--visible"
                     onClick={e => { e.stopPropagation(); handleRemoveTheme(t.id); }}
+                    title="Remover tema"
                   ><Trash2 size={10} /></button>
                 </button>
               ))}

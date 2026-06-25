@@ -194,6 +194,7 @@
 }
 .te-theme-item:hover .te-item-delete { opacity: 1; }
 .te-item-delete:hover { color: var(--status-dropped); }
+.te-item-delete--visible { opacity: 1; }
 
 .te-add-theme-btn {
   display: flex;
