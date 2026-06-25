@@ -156,21 +156,15 @@ function ComponentEditor({ def, value, onChange }) {
 // ─── Painel principal ────────────────────────────────────────────────────────
 
 export default function ThemeEditor({ onClose }) {
-  const { isDark, accent, setAccent, setTheme, customThemes, setCustomThemes } = useTheme();
+  const { isDark, accent, setAccent, setTheme, customThemes, setCustomThemes, hiddenIds, setHiddenIds } = useTheme();
 
   const [selected,    setSelected]    = useState(accent);
   const [components,  setComponents]  = useState(defaultComponents());
   const [name,        setName]        = useState('');
   const [editMode,    setEditMode]    = useState(isDark ? 'dark' : 'light');
   const [copied,      setCopied]      = useState(false);
-  const [hiddenIds,   setHiddenIds]   = useState(() => {
-    try { return JSON.parse(localStorage.getItem('te-hidden-themes') || '[]'); } catch { return []; }
-  });
 
-  const saveHiddenIds = (ids) => {
-    setHiddenIds(ids);
-    try { localStorage.setItem('te-hidden-themes', JSON.stringify(ids)); } catch {}
-  };
+  const saveHiddenIds = setHiddenIds;
 
   const builtIn        = ACCENT_THEMES.find(t => t.id === selected);
   const customOverride = customThemes.find(t => t.id === selected);

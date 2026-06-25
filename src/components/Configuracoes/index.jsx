@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Pencil, Trash2, Check, X, Plus, Lock, ShieldAlert, Sun, Moon, ArrowLeft, RefreshCw, DownloadCloud, CheckCircle2, AlertCircle, RotateCcw, Heart, Key, ExternalLink, ChevronRight } from 'lucide-react';
-import { ACCENT_THEMES } from '../../context/accentThemes';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../i18n/LanguageContext';
 import { getItemLabel } from '../../i18n/itemLabel';
@@ -369,7 +368,7 @@ function UpdateSection() {
 // ─── Aba Aparência ───────────────────────────────────────────────────────────
 
 function TabAparencia() {
-  const { theme, toggleTheme, accent, setAccent } = useTheme();
+  const { theme, toggleTheme, accent, setAccent, visibleThemes } = useTheme();
   const { t } = useLanguage();
 
   return (
@@ -397,14 +396,14 @@ function TabAparencia() {
       <div className="config-section">
         <span className="config-section-label">{t('config_accent_label')}</span>
         <div className="config-accent-grid">
-          {ACCENT_THEMES.map(th => (
+          {visibleThemes.map(th => (
             <button
               key={th.id}
               className={`config-accent-swatch${accent === th.id ? ' config-accent-swatch--active' : ''}`}
               style={{ background: th.gradient }}
-              title={t(th.labelKey)}
+              title={th.label || th.id}
               onClick={() => setAccent(th.id)}
-              aria-label={t(th.labelKey)}
+              aria-label={th.label || th.id}
             >
               {accent === th.id && (
                 <span className="config-accent-check">

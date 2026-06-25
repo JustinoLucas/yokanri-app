@@ -1,12 +1,13 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { DEFAULT_ACCENT_ID, getAccentTheme } from './accentThemes';
-import { deriveAllVars } from '../components/ThemeEditor/colorUtils';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { ACCENT_THEMES, DEFAULT_ACCENT_ID, getAccentTheme } from './accentThemes';
+import { deriveAllVars, gradientString } from '../components/ThemeEditor/colorUtils';
 
 const ThemeContext = createContext(null);
 
-const STORAGE_KEY         = 'yokanri-theme';
-const ACCENT_STORAGE_KEY  = 'yokanri-accent';
-const CUSTOM_THEMES_KEY   = 'yokanri-custom-themes';
+const STORAGE_KEY        = 'yokanri-theme';
+const ACCENT_STORAGE_KEY = 'yokanri-accent';
+const CUSTOM_THEMES_KEY  = 'yokanri-custom-themes';
+const HIDDEN_IDS_KEY     = 'te-hidden-themes';
 
 function applyVarMap(vars) {
   const root = document.documentElement;
@@ -16,45 +17,38 @@ function applyVarMap(vars) {
 function applyAccentVars(accentId, isDark, customThemes = []) {
   const custom = customThemes.find(t => t.id === accentId);
   if (custom) {
-    // Tema com estrutura nova (components map)
     if (custom.components) {
       applyVarMap(deriveAllVars(custom.components, isDark ? 'dark' : 'light'));
       return;
     }
-    // Tema com dark/light pré-computado
     const vars = isDark ? custom.dark : custom.light;
     if (vars) { applyVarMap(vars); return; }
   }
-  // Fallback para temas do sistema
   const theme = getAccentTheme(accentId);
   const vars  = isDark ? theme.dark : theme.light;
   applyVarMap(vars);
 }
 
-function loadCustomThemes() {
-  try { return JSON.parse(localStorage.getItem(CUSTOM_THEMES_KEY)) || []; }
-  catch { return []; }
+function load(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
 }
 
 export function ThemeProvider({ children }) {
   const [theme, setThemeState] = useState(() => {
     try { return localStorage.getItem(STORAGE_KEY) || 'dark'; } catch { return 'dark'; }
   });
-
   const [accent, setAccentState] = useState(() => {
     try { return localStorage.getItem(ACCENT_STORAGE_KEY) || DEFAULT_ACCENT_ID; } catch { return DEFAULT_ACCENT_ID; }
   });
+  const [customThemes, setCustomThemesState] = useState(() => load(CUSTOM_THEMES_KEY, []));
+  const [hiddenIds,    setHiddenIdsState]     = useState(() => load(HIDDEN_IDS_KEY,    []));
 
-  const [customThemes, setCustomThemesState] = useState(loadCustomThemes);
-
-  // Aplica data-theme no <html>
   useEffect(() => {
     const root = document.documentElement;
     if (theme === 'light') root.setAttribute('data-theme', 'light');
     else root.removeAttribute('data-theme');
   }, [theme]);
 
-  // Aplica CSS variables sempre que accent, tema ou temas custom mudam
   useEffect(() => {
     applyAccentVars(accent, theme === 'dark', customThemes);
   }, [accent, theme, customThemes]);
@@ -79,6 +73,33 @@ export function ThemeProvider({ children }) {
     try { localStorage.setItem(CUSTOM_THEMES_KEY, JSON.stringify(themes)); } catch {}
   }, []);
 
+  const setHiddenIds = useCallback((ids) => {
+    setHiddenIdsState(ids);
+    try { localStorage.setItem(HIDDEN_IDS_KEY, JSON.stringify(ids)); } catch {}
+  }, []);
+
+  // Lista unificada de temas visíveis para o picker de Configurações
+  const visibleThemes = useMemo(() => {
+    const builtIn = ACCENT_THEMES
+      .filter(t => !hiddenIds.includes(t.id))
+      .map(t => {
+        const ov = customThemes.find(c => c.id === t.id);
+        return {
+          ...t,
+          gradient: ov?.gradient || (ov?.components
+            ? gradientString(ov.components.logoIcon?.colors || [ov.components.base?.colors?.[0] || '#888'], ov.components.logoIcon?.angle ?? 145)
+            : t.gradient),
+          label: ov?.name || t.id,
+        };
+      });
+
+    const pureCustom = customThemes
+      .filter(t => !ACCENT_THEMES.find(b => b.id === t.id))
+      .map(t => ({ ...t, label: t.name || t.id }));
+
+    return [...builtIn, ...pureCustom];
+  }, [customThemes, hiddenIds]);
+
   const isDark = theme === 'dark';
 
   return (
@@ -86,6 +107,8 @@ export function ThemeProvider({ children }) {
       theme, isDark, setTheme, toggleTheme,
       accent, setAccent,
       customThemes, setCustomThemes,
+      hiddenIds, setHiddenIds,
+      visibleThemes,
     }}>
       {children}
     </ThemeContext.Provider>
