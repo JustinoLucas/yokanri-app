@@ -1,0 +1,14 @@
+name = "yokanri-key-server"
+main = "src/index.js"
+compatibility_date = "2026-06-01"
+
+# Banco D1 — crie com: wrangler d1 create yokanri-keys
+# e cole o database_id gerado abaixo.
+[[d1_databases]]
+binding = "DB"
+database_name = "yokanri-keys"
+database_id = "COLE_O_ID_AQUI"
+
+# Segredos — configure com:
+#   wrangler secret put ADMIN_SECRET
+# (NUNCA commitar o valor)
