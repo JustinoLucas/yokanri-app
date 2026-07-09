@@ -25,8 +25,8 @@ import { readFile, writeFile, exists, mkdir, remove } from '@tauri-apps/plugin-f
 import { join } from '@tauri-apps/api/path';
 import { getAppDir } from './workspace/workspacePaths';
 
-// Atualize após o deploy do key-server (ver key-server/README.md)
-const YOKANRI_API_URL = 'https://yokanri-key-server.SEU-SUBDOMINIO.workers.dev';
+// Endpoint do key-server (Cloudflare Worker — ver key-server/README.md)
+const YOKANRI_API_URL = 'https://yokanri-key-server.lukasfifacod.workers.dev';
 
 const FILE_NAME        = 'supporter.json';
 const GRACE_DAYS       = 14;
