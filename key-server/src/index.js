@@ -66,6 +66,44 @@ function isAdmin(request, env) {
   return env.ADMIN_SECRET && auth === `Bearer ${env.ADMIN_SECRET}`;
 }
 
+// ─── HMAC-MD5 (para verificar a assinatura do Patreon) ───────────────────────
+// crypto.subtle não faz HMAC-MD5, mas os Workers suportam digest('MD5'),
+// então construímos o HMAC manualmente sobre esse primitivo.
+
+function concatBytes(a, b) {
+  const out = new Uint8Array(a.length + b.length);
+  out.set(a, 0);
+  out.set(b, a.length);
+  return out;
+}
+
+function bytesToHex(bytes) {
+  let hex = '';
+  for (let i = 0; i < bytes.length; i++) hex += bytes[i].toString(16).padStart(2, '0');
+  return hex;
+}
+
+async function md5Bytes(bytes) {
+  const digest = await crypto.subtle.digest('MD5', bytes);
+  return new Uint8Array(digest);
+}
+
+async function hmacMd5Hex(secret, message) {
+  const enc = new TextEncoder();
+  let key = enc.encode(secret);
+  const B = 64; // bloco do MD5
+  if (key.length > B) key = await md5Bytes(key);
+  const keyPad = new Uint8Array(B);
+  keyPad.set(key);
+  const ipad = new Uint8Array(B);
+  const opad = new Uint8Array(B);
+  for (let i = 0; i < B; i++) { ipad[i] = keyPad[i] ^ 0x36; opad[i] = keyPad[i] ^ 0x5c; }
+  const msg = enc.encode(message);
+  const inner = await md5Bytes(concatBytes(ipad, msg));
+  const outer = await md5Bytes(concatBytes(opad, inner));
+  return bytesToHex(outer);
+}
+
 // ─── Handlers ───────────────────────────────────────────────────────────────
 
 async function handleActivate(request, env) {
@@ -316,6 +354,92 @@ async function handleKofiWebhook(request, env) {
   return json({ ok: true, key });
 }
 
+// ─── Webhook Patreon ─────────────────────────────────────────────────────────
+
+// Extrai patrono do payload JSON:API do Patreon
+function extractPatron(payload) {
+  const member = payload.data || {};
+  const attr = member.attributes || {};
+  let email = attr.email || null;
+  let name  = attr.full_name || null;
+  // Fallback: procura o user no array included
+  if ((!email || !name) && Array.isArray(payload.included)) {
+    const user = payload.included.find(x => x.type === 'user');
+    if (user && user.attributes) {
+      email = email || user.attributes.email || null;
+      name  = name  || user.attributes.full_name || null;
+    }
+  }
+  return {
+    memberId:     String(member.id || ''),
+    email, name,
+    chargeStatus: attr.last_charge_status || null, // Paid | Declined | Pending | Refunded | Fraud | ...
+  };
+}
+
+async function handlePatreonWebhook(request, env) {
+  const raw   = await request.text();
+  const sig   = request.headers.get('X-Patreon-Signature') || '';
+  const event = request.headers.get('X-Patreon-Event') || '';
+
+  // Verifica a assinatura HMAC-MD5 do corpo
+  if (!env.PATREON_WEBHOOK_SECRET) return unauthorized();
+  const expected = await hmacMd5Hex(env.PATREON_WEBHOOK_SECRET, raw);
+  if (sig !== expected) return unauthorized();
+
+  let payload;
+  try { payload = JSON.parse(raw); } catch { return badRequest('invalid_json'); }
+
+  const p = extractPatron(payload);
+  const externalId = 'patreon:' + p.memberId;
+  if (!p.memberId) return badRequest('missing_member_id');
+
+  // Reembolso / chargeback → revoga a key
+  if (p.chargeStatus === 'Refunded' || p.chargeStatus === 'Fraud') {
+    const row = await env.DB
+      .prepare('SELECT key_code FROM keys WHERE external_id = ?')
+      .bind(externalId).first();
+    if (row) {
+      await env.DB.prepare('UPDATE keys SET revoked = 1 WHERE key_code = ?').bind(row.key_code).run();
+      await env.DB.prepare("INSERT INTO events (key_code, action) VALUES (?, 'revoke')").bind(row.key_code).run();
+    }
+    return json({ ok: true, revoked: true });
+  }
+
+  // Cancelamento da assinatura NÃO revoga — a key é vitalícia
+  if (event === 'members:pledge:delete') {
+    return json({ ok: true, skipped: 'cancel_lifetime' });
+  }
+
+  // Só emite quando o primeiro pagamento foi confirmado (cartão aprovou)
+  if (p.chargeStatus !== 'Paid') {
+    return json({ ok: true, skipped: 'not_paid_yet', status: p.chargeStatus });
+  }
+
+  // Idempotência por membro: já tem key? Reenvia sem duplicar.
+  const existing = await env.DB
+    .prepare('SELECT key_code FROM keys WHERE external_id = ?')
+    .bind(externalId).first();
+
+  if (existing) {
+    await sendKeyEmail(env, p.email, p.name, existing.key_code, 'en');
+    return json({ ok: true, key: existing.key_code, resent: true });
+  }
+
+  // Gera key nova (Patreon → email em inglês, fallback universal)
+  const key = generateKey();
+  await env.DB
+    .prepare('INSERT INTO keys (key_code, email, source, tier, external_id) VALUES (?, ?, ?, ?, ?)')
+    .bind(key, p.email, 'patreon', 'supporter', externalId).run();
+  await env.DB
+    .prepare("INSERT INTO events (key_code, action) VALUES (?, 'generate')")
+    .bind(key).run();
+
+  await sendKeyEmail(env, p.email, p.name, key, 'en');
+
+  return json({ ok: true, key });
+}
+
 // ─── Painel Admin (HTML) ─────────────────────────────────────────────────────
 
 const ADMIN_HTML = `<!doctype html>
@@ -557,6 +681,9 @@ export default {
 
     // Webhook Ko-fi (autenticado pelo verification_token no corpo)
     if (request.method === 'POST' && path === '/webhook/kofi') return handleKofiWebhook(request, env);
+
+    // Webhook Patreon (autenticado pela assinatura HMAC-MD5 no header)
+    if (request.method === 'POST' && path === '/webhook/patreon') return handlePatreonWebhook(request, env);
 
     // Painel admin (HTML) — a página é pública; os dados exigem o ADMIN_SECRET
     if (request.method === 'GET' && path === '/admin') return html(ADMIN_HTML);
