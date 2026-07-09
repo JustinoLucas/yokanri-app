@@ -169,6 +169,7 @@ async function handleAdminGenerate(request, env) {
       .prepare("INSERT INTO events (key_code, action) VALUES (?, 'generate')")
       .bind(key).run();
     generated.push(key);
+    if (body.send_email && email) await sendKeyEmail(env, email, null, key);
   }
   return json({ ok: true, keys: generated });
 }
@@ -390,6 +391,9 @@ const ADMIN_HTML = `<!doctype html>
           <option value="patreon">patreon</option>
         </select>
       </label>
+      <label style="flex-direction:row;align-items:center;gap:6px;color:#a4a4ad;font-size:12px;">
+        <input id="genSend" type="checkbox" style="width:auto;height:auto;margin:0;"> Enviar por email
+      </label>
       <button id="genBtn">Gerar</button>
     </div>
     <div id="genResult"></div>
@@ -477,7 +481,8 @@ const ADMIN_HTML = `<!doctype html>
     var body = {
       count: parseInt(document.getElementById('genCount').value) || 1,
       email: document.getElementById('genEmail').value.trim() || null,
-      source: document.getElementById('genSource').value
+      source: document.getElementById('genSource').value,
+      send_email: document.getElementById('genSend').checked
     };
     var res = await fetch('/admin/generate', { method: 'POST', headers: hdrs(), body: JSON.stringify(body) });
     var data = await res.json();
