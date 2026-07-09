@@ -201,6 +201,96 @@ async function handleAdminList(env) {
   return json({ ok: true, keys: results });
 }
 
+// ─── Email (Resend) ──────────────────────────────────────────────────────────
+
+async function sendKeyEmail(env, toEmail, name, key) {
+  if (!env.RESEND_API_KEY || !toEmail) return; // sem provedor/email → só registra a key
+
+  const safeName = (name || '').replace(/[<>]/g, '') || 'apoiador(a)';
+  const body = {
+    from: 'Yokanri <noreply@yokanri.app>',
+    to: [toEmail],
+    reply_to: 'contact@yokanri.app',
+    subject: 'Sua chave Yokanri Supporter 🔑',
+    html: `<!doctype html>
+<div style="background:#0c0c10;padding:40px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <div style="max-width:480px;margin:0 auto;background:#101015;border:1px solid #22222c;border-radius:16px;padding:34px 32px;">
+    <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(145deg,#2dd4bf,#7c5cff);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;color:#fff;letter-spacing:-1px;">Yo</div>
+    <h1 style="color:#f5f5f7;font-size:21px;margin:20px 0 6px;letter-spacing:-0.4px;">Obrigado pelo apoio, ${safeName}! 💜</h1>
+    <p style="color:#a2a2b0;font-size:14px;line-height:1.6;margin:0 0 24px;">Seu apoio mantém o Yokanri vivo. Aqui está a sua chave de Supporter — ela é sua para sempre.</p>
+    <div style="background:#0a0a0d;border:1px solid #2c2c38;border-radius:10px;padding:16px;text-align:center;">
+      <div style="color:#4be3d0;font-family:'JetBrains Mono','Consolas',monospace;font-size:20px;font-weight:600;letter-spacing:2px;">${key}</div>
+    </div>
+    <p style="color:#85859a;font-size:13px;line-height:1.6;margin:22px 0 0;">Para ativar: abra o Yokanri → <strong style="color:#cfcfe0;">Configurações → Apoiar</strong> → cole a chave e clique em Ativar.</p>
+    <p style="color:#5a5a68;font-size:12px;line-height:1.6;margin:24px 0 0;border-top:1px solid #1a1a22;padding-top:18px;">A chave funciona em uma máquina por vez, mas você pode trocar de computador quando quiser — basta ativá-la na máquina nova. Dúvidas? Responda este email.</p>
+  </div>
+</div>`,
+  };
+
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (_) { /* falha de email não deve quebrar o webhook; a key já está no banco */ }
+}
+
+// ─── Webhook Ko-fi ───────────────────────────────────────────────────────────
+
+async function handleKofiWebhook(request, env) {
+  // Ko-fi envia application/x-www-form-urlencoded com um campo "data" = JSON
+  const form = await request.formData().catch(() => null);
+  if (!form) return badRequest('invalid_form');
+
+  let data;
+  try { data = JSON.parse(form.get('data')); }
+  catch { return badRequest('invalid_data'); }
+
+  // Verifica o token do Ko-fi
+  if (!env.KOFI_VERIFICATION_TOKEN || data.verification_token !== env.KOFI_VERIFICATION_TOKEN) {
+    return unauthorized();
+  }
+
+  // Só pagamentos de assinatura recorrentes (não o primeiro) são ignorados —
+  // a key é vitalícia, emitida uma vez.
+  if (data.is_subscription_payment && !data.is_first_subscription_payment) {
+    return json({ ok: true, skipped: 'recurring' });
+  }
+
+  const txId  = String(data.kofi_transaction_id || data.message_id || '').trim();
+  const email = data.email || null;
+  const name  = data.from_name || null;
+
+  if (!txId) return badRequest('missing_transaction_id');
+
+  // Idempotência: já existe key para essa transação? Reenvia o email e sai.
+  const existing = await env.DB
+    .prepare('SELECT key_code FROM keys WHERE external_id = ?')
+    .bind(txId).first();
+
+  if (existing) {
+    await sendKeyEmail(env, email, name, existing.key_code);
+    return json({ ok: true, key: existing.key_code, resent: true });
+  }
+
+  // Gera key nova
+  const key = generateKey();
+  await env.DB
+    .prepare('INSERT INTO keys (key_code, email, source, tier, external_id) VALUES (?, ?, ?, ?, ?)')
+    .bind(key, email, 'kofi', 'supporter', txId).run();
+  await env.DB
+    .prepare("INSERT INTO events (key_code, action) VALUES (?, 'generate')")
+    .bind(key).run();
+
+  await sendKeyEmail(env, email, name, key);
+
+  return json({ ok: true, key });
+}
+
 // ─── Painel Admin (HTML) ─────────────────────────────────────────────────────
 
 const ADMIN_HTML = `<!doctype html>
@@ -435,6 +525,9 @@ export default {
     // Públicos
     if (request.method === 'POST' && path === '/activate') return handleActivate(request, env);
     if (request.method === 'POST' && path === '/validate') return handleValidate(request, env);
+
+    // Webhook Ko-fi (autenticado pelo verification_token no corpo)
+    if (request.method === 'POST' && path === '/webhook/kofi') return handleKofiWebhook(request, env);
 
     // Painel admin (HTML) — a página é pública; os dados exigem o ADMIN_SECRET
     if (request.method === 'GET' && path === '/admin') return html(ADMIN_HTML);
