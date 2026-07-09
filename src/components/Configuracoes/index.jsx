@@ -5,6 +5,7 @@ import { useLanguage } from '../../i18n/LanguageContext';
 import { getItemLabel } from '../../i18n/itemLabel';
 import { getVersion } from '@tauri-apps/api/app';
 import { checkForUpdate, downloadAndInstall, restartApp } from '../../services/updaterService';
+import { activateKey, deactivateLocal, getSupporterStatus, maskKey } from '../../services/supporterService';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import './Configuracoes.css';
 
@@ -505,6 +506,41 @@ function TabGeral({ nsfwMode, onSetNsfwMode, onGoToSupporter }) {
 function TabSupporter() {
   const { t } = useLanguage();
 
+  // 'idle' | 'activating' | 'active' | 'error'
+  const [keyInput,  setKeyInput]  = useState('');
+  const [keyStatus, setKeyStatus] = useState('idle');
+  const [keyError,  setKeyError]  = useState('');
+  const [supStatus, setSupStatus] = useState(null); // resultado de getSupporterStatus
+
+  useEffect(() => {
+    let alive = true;
+    getSupporterStatus().then(s => { if (alive) setSupStatus(s); }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
+  const handleActivate = async () => {
+    if (!keyInput.trim() || keyStatus === 'activating') return;
+    setKeyStatus('activating');
+    setKeyError('');
+    const result = await activateKey(keyInput);
+    if (result.ok) {
+      setKeyStatus('active');
+      setKeyInput('');
+      setSupStatus({ active: true, tier: result.tier, key: keyInput.trim().toUpperCase() });
+    } else {
+      setKeyStatus('error');
+      setKeyError(t(`sup_key_err_${result.error}`) !== `sup_key_err_${result.error}`
+        ? t(`sup_key_err_${result.error}`)
+        : t('sup_key_err_unknown'));
+    }
+  };
+
+  const handleDeactivate = async () => {
+    await deactivateLocal();
+    setSupStatus({ active: false });
+    setKeyStatus('idle');
+  };
+
   const handlePlatformClick = (url) => {
     openUrl(url).catch(() => {});
   };
@@ -571,17 +607,60 @@ function TabSupporter() {
         </p>
       </div>
 
-      {/* Key — Em breve */}
-      <div className="config-sup-key-box">
-        <Key size={16} className="config-sup-key-icon" />
-        <div className="config-sup-key-info">
-          <span className="config-sup-key-title">
-            {t('sup_key_title')}
-            <span className="config-sup-key-soon-badge">{t('sup_key_soon')}</span>
-          </span>
-          <span className="config-sup-key-desc">{t('sup_key_desc')}</span>
+      {/* Key — ativação */}
+      {supStatus?.active ? (
+        <div className="config-sup-key-box config-sup-key-box--active">
+          <CheckCircle2 size={16} className="config-sup-key-icon" />
+          <div className="config-sup-key-info">
+            <span className="config-sup-key-title">
+              {t('sup_key_active_title')}
+              <span className="config-sup-key-active-badge">{supStatus.tier || 'supporter'}</span>
+            </span>
+            <span className="config-sup-key-desc">{maskKey(supStatus.key)}</span>
+          </div>
+          <button className="config-sup-key-deactivate" onClick={handleDeactivate}>
+            {t('sup_key_deactivate')}
+          </button>
         </div>
-      </div>
+      ) : (
+        <div className="config-sup-key-box config-sup-key-box--form">
+          <Key size={16} className="config-sup-key-icon" />
+          <div className="config-sup-key-info">
+            <span className="config-sup-key-title">{t('sup_key_title')}</span>
+            <span className="config-sup-key-desc">{t('sup_key_input_desc')}</span>
+            <div className="config-sup-key-row">
+              <input
+                className="config-sup-key-input"
+                placeholder="YKNR-XXXX-XXXX-XXXX"
+                value={keyInput}
+                maxLength={19}
+                onChange={e => { setKeyInput(e.target.value.toUpperCase()); setKeyStatus('idle'); setKeyError(''); }}
+                onKeyDown={e => { if (e.key === 'Enter') handleActivate(); }}
+                spellCheck={false}
+              />
+              <button
+                className="config-sup-key-btn"
+                onClick={handleActivate}
+                disabled={!keyInput.trim() || keyStatus === 'activating'}
+              >
+                {keyStatus === 'activating'
+                  ? <RefreshCw size={13} className="config-spin" />
+                  : t('sup_key_activate')}
+              </button>
+            </div>
+            {keyStatus === 'error' && (
+              <span className="config-sup-key-error">
+                <AlertCircle size={12} /> {keyError}
+              </span>
+            )}
+            {supStatus?.graceExpired && keyStatus === 'idle' && (
+              <span className="config-sup-key-error">
+                <AlertCircle size={12} /> {t('sup_key_grace_expired')}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
     </div>
   );

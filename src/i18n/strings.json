@@ -606,7 +606,19 @@
     "theme_rosa": "Rosa",
     "theme_uva": "Uva",
     "theme_ardosia": "Ardósia",
-    "config_tab_aparencia": "Aparência"
+    "config_tab_aparencia": "Aparência",
+    "sup_key_input_desc": "Recebeu sua key por email? Cole abaixo para ativar os benefícios nesta máquina.",
+    "sup_key_activate": "Ativar",
+    "sup_key_active_title": "Key ativada",
+    "sup_key_deactivate": "Desativar aqui",
+    "sup_key_grace_expired": "Não foi possível revalidar sua key há mais de 14 dias. Conecte-se à internet e ative novamente.",
+    "sup_key_err_invalid_key_format": "Formato inválido. A key tem o formato YKNR-XXXX-XXXX-XXXX.",
+    "sup_key_err_key_not_found": "Key não encontrada. Verifique se digitou corretamente.",
+    "sup_key_err_key_revoked": "Esta key foi revogada.",
+    "sup_key_err_too_many_activations": "Muitas trocas de máquina recentes. Tente novamente em alguns dias.",
+    "sup_key_err_network": "Sem conexão. Verifique sua internet e tente novamente.",
+    "sup_key_err_machine_id_failed": "Não foi possível identificar esta máquina.",
+    "sup_key_err_unknown": "Erro inesperado ao ativar. Tente novamente."
   },
   "en": {
     "loading": "Loading...",
@@ -1215,7 +1227,19 @@
     "theme_rosa": "Pink",
     "theme_uva": "Grape",
     "theme_ardosia": "Slate",
-    "config_tab_aparencia": "Appearance"
+    "config_tab_aparencia": "Appearance",
+    "sup_key_input_desc": "Received your key by email? Paste it below to activate the benefits on this machine.",
+    "sup_key_activate": "Activate",
+    "sup_key_active_title": "Key activated",
+    "sup_key_deactivate": "Deactivate here",
+    "sup_key_grace_expired": "Your key could not be revalidated for over 14 days. Connect to the internet and activate again.",
+    "sup_key_err_invalid_key_format": "Invalid format. Keys look like YKNR-XXXX-XXXX-XXXX.",
+    "sup_key_err_key_not_found": "Key not found. Please check for typos.",
+    "sup_key_err_key_revoked": "This key has been revoked.",
+    "sup_key_err_too_many_activations": "Too many recent machine switches. Try again in a few days.",
+    "sup_key_err_network": "No connection. Check your internet and try again.",
+    "sup_key_err_machine_id_failed": "Could not identify this machine.",
+    "sup_key_err_unknown": "Unexpected error while activating. Please try again."
   },
   "es": {
     "lang_name_pt-BR": "Portugués (BR)",
@@ -1386,7 +1410,19 @@
     "theme_rosa": "Rosa",
     "theme_uva": "Uva",
     "theme_ardosia": "Pizarra",
-    "config_tab_aparencia": "Apariencia"
+    "config_tab_aparencia": "Apariencia",
+    "sup_key_input_desc": "¿Recibiste tu key por email? Pégala abajo para activar los beneficios en esta máquina.",
+    "sup_key_activate": "Activar",
+    "sup_key_active_title": "Key activada",
+    "sup_key_deactivate": "Desactivar aquí",
+    "sup_key_grace_expired": "No se pudo revalidar tu key durante más de 14 días. Conéctate a internet y actívala de nuevo.",
+    "sup_key_err_invalid_key_format": "Formato inválido. Las keys tienen el formato YKNR-XXXX-XXXX-XXXX.",
+    "sup_key_err_key_not_found": "Key no encontrada. Verifica que la escribiste bien.",
+    "sup_key_err_key_revoked": "Esta key fue revocada.",
+    "sup_key_err_too_many_activations": "Demasiados cambios de máquina recientes. Intenta de nuevo en unos días.",
+    "sup_key_err_network": "Sin conexión. Verifica tu internet e inténtalo de nuevo.",
+    "sup_key_err_machine_id_failed": "No se pudo identificar esta máquina.",
+    "sup_key_err_unknown": "Error inesperado al activar. Inténtalo de nuevo."
   },
   "jp": {
     "lang_name_pt-BR": "ポルトガル語 (BR)",
@@ -1557,7 +1593,19 @@
     "theme_rosa": "ピンク",
     "theme_uva": "グレープ",
     "theme_ardosia": "スレート",
-    "config_tab_aparencia": "外観"
+    "config_tab_aparencia": "外観",
+    "sup_key_input_desc": "メールでキーを受け取りましたか？下に貼り付けてこのマシンで特典を有効化してください。",
+    "sup_key_activate": "有効化",
+    "sup_key_active_title": "キー有効化済み",
+    "sup_key_deactivate": "ここで無効化",
+    "sup_key_grace_expired": "14日以上キーを再検証できませんでした。インターネットに接続して再度有効化してください。",
+    "sup_key_err_invalid_key_format": "形式が無効です。キーは YKNR-XXXX-XXXX-XXXX の形式です。",
+    "sup_key_err_key_not_found": "キーが見つかりません。入力ミスがないか確認してください。",
+    "sup_key_err_key_revoked": "このキーは無効化されています。",
+    "sup_key_err_too_many_activations": "マシンの切り替えが多すぎます。数日後にもう一度お試しください。",
+    "sup_key_err_network": "接続がありません。インターネットを確認して再試行してください。",
+    "sup_key_err_machine_id_failed": "このマシンを識別できませんでした。",
+    "sup_key_err_unknown": "有効化中に予期しないエラーが発生しました。再試行してください。"
   },
   "kr": {
     "lang_name_pt-BR": "포르투갈어 (BR)",
@@ -1728,7 +1776,19 @@
     "theme_rosa": "핑크",
     "theme_uva": "포도",
     "theme_ardosia": "슬레이트",
-    "config_tab_aparencia": "외관"
+    "config_tab_aparencia": "외관",
+    "sup_key_input_desc": "이메일로 키를 받으셨나요? 아래에 붙여넣어 이 기기에서 혜택을 활성화하세요.",
+    "sup_key_activate": "활성화",
+    "sup_key_active_title": "키 활성화됨",
+    "sup_key_deactivate": "여기서 비활성화",
+    "sup_key_grace_expired": "14일 이상 키를 재검증할 수 없었습니다. 인터넷에 연결한 후 다시 활성화하세요.",
+    "sup_key_err_invalid_key_format": "잘못된 형식입니다. 키는 YKNR-XXXX-XXXX-XXXX 형식입니다.",
+    "sup_key_err_key_not_found": "키를 찾을 수 없습니다. 오타가 없는지 확인하세요.",
+    "sup_key_err_key_revoked": "이 키는 취소되었습니다.",
+    "sup_key_err_too_many_activations": "최근 기기 변경이 너무 많습니다. 며칠 후 다시 시도하세요.",
+    "sup_key_err_network": "연결이 없습니다. 인터넷을 확인하고 다시 시도하세요.",
+    "sup_key_err_machine_id_failed": "이 기기를 식별할 수 없습니다.",
+    "sup_key_err_unknown": "활성화 중 예기치 않은 오류가 발생했습니다. 다시 시도하세요."
   },
   "ch": {
     "lang_name_pt-BR": "葡萄牙语（巴西）",
@@ -1899,6 +1959,18 @@
     "theme_rosa": "粉红",
     "theme_uva": "葡萄紫",
     "theme_ardosia": "石板灰",
-    "config_tab_aparencia": "外观"
+    "config_tab_aparencia": "外观",
+    "sup_key_input_desc": "通过电子邮件收到密钥了吗？粘贴到下方即可在此设备上激活权益。",
+    "sup_key_activate": "激活",
+    "sup_key_active_title": "密钥已激活",
+    "sup_key_deactivate": "在此停用",
+    "sup_key_grace_expired": "超过14天无法重新验证您的密钥。请连接互联网后重新激活。",
+    "sup_key_err_invalid_key_format": "格式无效。密钥格式为 YKNR-XXXX-XXXX-XXXX。",
+    "sup_key_err_key_not_found": "未找到密钥。请检查是否输入正确。",
+    "sup_key_err_key_revoked": "此密钥已被吊销。",
+    "sup_key_err_too_many_activations": "近期设备更换过多。请几天后再试。",
+    "sup_key_err_network": "无连接。请检查网络后重试。",
+    "sup_key_err_machine_id_failed": "无法识别此设备。",
+    "sup_key_err_unknown": "激活时发生意外错误。请重试。"
   }
 }

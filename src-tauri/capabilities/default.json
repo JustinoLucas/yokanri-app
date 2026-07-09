@@ -60,7 +60,8 @@
         { "url": "https://auth.mangadex.org/*" },
         { "url": "https://uploads.mangadex.org/*" },
         { "url": "https://api.mangaupdates.com/*" },
-        { "url": "https://cdn.mangaupdates.com/*" }
+        { "url": "https://cdn.mangaupdates.com/*" },
+        { "url": "https://*.workers.dev/*" }
       ]
     }
   ]
