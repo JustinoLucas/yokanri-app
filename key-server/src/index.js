@@ -169,7 +169,7 @@ async function handleAdminGenerate(request, env) {
       .prepare("INSERT INTO events (key_code, action) VALUES (?, 'generate')")
       .bind(key).run();
     generated.push(key);
-    if (body.send_email && email) await sendKeyEmail(env, email, null, key);
+    if (body.send_email && email) await sendKeyEmail(env, email, null, key, body.lang || 'pt');
   }
   return json({ ok: true, keys: generated });
 }
@@ -204,26 +204,48 @@ async function handleAdminList(env) {
 
 // ─── Email (Resend) ──────────────────────────────────────────────────────────
 
-async function sendKeyEmail(env, toEmail, name, key) {
+// Textos do email por idioma. BRL → pt; qualquer outra moeda → en (fallback universal).
+function keyEmailContent(lang, name, key) {
+  if (lang === 'pt') {
+    return {
+      subject:  'Sua chave Yokanri Supporter 🔑',
+      greeting: 'Obrigado pelo apoio, ' + (name || 'apoiador(a)') + '! 💜',
+      intro:    'Seu apoio mantém o Yokanri vivo. Aqui está a sua chave de Supporter — ela é sua para sempre.',
+      howto:    'Para ativar: abra o Yokanri → <strong style="color:#cfcfe0;">Configurações → Apoiar</strong> → cole a chave e clique em Ativar.',
+      footer:   'A chave funciona em uma máquina por vez, mas você pode trocar de computador quando quiser — basta ativá-la na máquina nova. Dúvidas? Responda este email.',
+    };
+  }
+  return {
+    subject:  'Your Yokanri Supporter key 🔑',
+    greeting: 'Thank you for your support, ' + (name || 'supporter') + '! 💜',
+    intro:    'Your support keeps Yokanri alive. Here is your Supporter key — it is yours forever.',
+    howto:    'To activate: open Yokanri → <strong style="color:#cfcfe0;">Settings → Support</strong> → paste the key and click Activate.',
+    footer:   'The key works on one machine at a time, but you can switch computers anytime — just activate it on the new machine. Questions? Reply to this email.',
+  };
+}
+
+async function sendKeyEmail(env, toEmail, name, key, lang) {
   if (!env.RESEND_API_KEY || !toEmail) return; // sem provedor/email → só registra a key
 
-  const safeName = (name || '').replace(/[<>]/g, '') || 'apoiador(a)';
+  const cleanName = (name || '').replace(/[<>]/g, '').trim();
+  const t = keyEmailContent(lang === 'pt' ? 'pt' : 'en', cleanName, key);
+
   const body = {
     from: 'Yokanri <noreply@yokanri.app>',
     to: [toEmail],
     reply_to: 'contact@yokanri.app',
-    subject: 'Sua chave Yokanri Supporter 🔑',
+    subject: t.subject,
     html: `<!doctype html>
 <div style="background:#0c0c10;padding:40px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
   <div style="max-width:480px;margin:0 auto;background:#101015;border:1px solid #22222c;border-radius:16px;padding:34px 32px;">
     <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(145deg,#2dd4bf,#7c5cff);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;color:#fff;letter-spacing:-1px;">Yo</div>
-    <h1 style="color:#f5f5f7;font-size:21px;margin:20px 0 6px;letter-spacing:-0.4px;">Obrigado pelo apoio, ${safeName}! 💜</h1>
-    <p style="color:#a2a2b0;font-size:14px;line-height:1.6;margin:0 0 24px;">Seu apoio mantém o Yokanri vivo. Aqui está a sua chave de Supporter — ela é sua para sempre.</p>
+    <h1 style="color:#f5f5f7;font-size:21px;margin:20px 0 6px;letter-spacing:-0.4px;">${t.greeting}</h1>
+    <p style="color:#a2a2b0;font-size:14px;line-height:1.6;margin:0 0 24px;">${t.intro}</p>
     <div style="background:#0a0a0d;border:1px solid #2c2c38;border-radius:10px;padding:16px;text-align:center;">
       <div style="color:#4be3d0;font-family:'JetBrains Mono','Consolas',monospace;font-size:20px;font-weight:600;letter-spacing:2px;">${key}</div>
     </div>
-    <p style="color:#85859a;font-size:13px;line-height:1.6;margin:22px 0 0;">Para ativar: abra o Yokanri → <strong style="color:#cfcfe0;">Configurações → Apoiar</strong> → cole a chave e clique em Ativar.</p>
-    <p style="color:#5a5a68;font-size:12px;line-height:1.6;margin:24px 0 0;border-top:1px solid #1a1a22;padding-top:18px;">A chave funciona em uma máquina por vez, mas você pode trocar de computador quando quiser — basta ativá-la na máquina nova. Dúvidas? Responda este email.</p>
+    <p style="color:#85859a;font-size:13px;line-height:1.6;margin:22px 0 0;">${t.howto}</p>
+    <p style="color:#5a5a68;font-size:12px;line-height:1.6;margin:24px 0 0;border-top:1px solid #1a1a22;padding-top:18px;">${t.footer}</p>
   </div>
 </div>`,
   };
@@ -265,6 +287,8 @@ async function handleKofiWebhook(request, env) {
   const txId  = String(data.kofi_transaction_id || data.message_id || '').trim();
   const email = data.email || null;
   const name  = data.from_name || null;
+  // Idioma pela moeda: BRL → português; qualquer outra → inglês (fallback universal)
+  const lang  = String(data.currency || '').toUpperCase() === 'BRL' ? 'pt' : 'en';
 
   if (!txId) return badRequest('missing_transaction_id');
 
@@ -274,7 +298,7 @@ async function handleKofiWebhook(request, env) {
     .bind(txId).first();
 
   if (existing) {
-    await sendKeyEmail(env, email, name, existing.key_code);
+    await sendKeyEmail(env, email, name, existing.key_code, lang);
     return json({ ok: true, key: existing.key_code, resent: true });
   }
 
@@ -287,7 +311,7 @@ async function handleKofiWebhook(request, env) {
     .prepare("INSERT INTO events (key_code, action) VALUES (?, 'generate')")
     .bind(key).run();
 
-  await sendKeyEmail(env, email, name, key);
+  await sendKeyEmail(env, email, name, key, lang);
 
   return json({ ok: true, key });
 }
